@@ -9,56 +9,69 @@ AWS authentication is performed using GitHub Actions OIDC and temporary AWS cred
 ## Security Pipeline
 
 ```mermaid
-flowchart LR
-    A[Developer] --> B[Pre-Commit]
+flowchart TB
 
-    subgraph LOCAL["Local Security"]
+    subgraph SOURCE["1. Source Code Security"]
+        direction LR
+        A[Developer] --> B[Pre-Commit]
         B --> C[OPA / Rego]
-        C --> C1[Dockerfile Policy]
-        C --> C2[Kubernetes Policy]
+        C --> D[Dockerfile Policy]
+        C --> E[Kubernetes Policy]
+        D --> F[Git Push]
+        E --> F
     end
 
-    C1 --> D[Git Push]
-    C2 --> D
+    subgraph CI["2. CI Security Gates"]
+        direction LR
+        G[TruffleHog<br/>Secret Scan]
+        H[Bandit<br/>SAST]
+        I[Conftest<br/>Policy Check]
+        J{Security<br/>Checks Pass?}
 
-    subgraph CI["GitHub Actions Security Gates"]
-        D --> E[TruffleHog<br/>Secret Scan]
-        D --> F[Bandit<br/>SAST]
-        D --> G[Conftest<br/>Policy Check]
-
-        E --> H{Pass?}
-        F --> H
-        G --> H
+        G --> J
+        H --> J
+        I --> J
     end
 
-    H -- No --> X[BLOCK]
-    H -- Yes --> I[Build API + Worker Images]
+    F --> G
+    F --> H
+    F --> I
 
-    subgraph SUPPLY["Software Supply Chain"]
-        I --> J[Syft<br/>CycloneDX SBOM]
-        J --> K[Python + Base Image<br/>Packages]
-        K --> L[Grype<br/>Vulnerability Scan]
-        L --> M{HIGH / CRITICAL<br/>with Fix?}
+    J -- No --> X[PIPELINE BLOCKED]
+    J -- Yes --> K[Build API + Worker Images]
 
-        M -- No --> N[Publish to GHCR]
-        N --> O[Resolve SHA-256 Digests]
-        O --> P[Cosign Keyless Signing]
-        P --> Q[Verify Signature]
-        Q --> R{Valid?}
+    subgraph SUPPLY["3. Software Supply Chain Security"]
+        direction LR
+        K --> L[Syft<br/>CycloneDX SBOM]
+        L --> M[Python + Base Image<br/>Packages]
+        M --> N[Grype<br/>Vulnerability Scan]
+        N --> O{HIGH / CRITICAL<br/>with Known Fix?}
     end
 
-    M -- Yes --> X
-    R -- No --> X
-    R -- Yes --> S[Deployment<br/>Authorized]
+    O -- Yes --> X
+    O -- No --> P[Publish to GHCR]
 
-    subgraph AWS["AWS OIDC Authentication"]
-        T[GitHub OIDC Token] --> U[AWS IAM<br/>OIDC Provider]
-        U --> V[Dedicated IAM Role]
-        V --> W[Temporary AWS<br/>Credentials]
+    subgraph SIGNING["4. Container Integrity & Deployment Gate"]
+        direction LR
+        P --> Q[SHA-256<br/>Image Digests]
+        Q --> R[Cosign<br/>Keyless Signing]
+        R --> S[Verify<br/>Signature]
+        S --> T{Valid?}
+        T -- Yes --> U[Deployment<br/>Authorized]
     end
 
-    D -.-> T
-    W -.-> S
+    T -- No --> X
+
+    subgraph CLOUD["5. AWS OIDC Authentication"]
+        direction LR
+        V[GitHub Actions<br/>OIDC Token]
+        V --> W[AWS IAM<br/>OIDC Provider]
+        W --> Y[Dedicated<br/>IAM Role]
+        Y --> Z[Temporary AWS<br/>Credentials]
+    end
+
+    F -.-> V
+    Z -.-> U
 ```
 
 ## Implemented Security Controls

@@ -1,0 +1,38 @@
+name: Container Build Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-containers:
+    name: Build Container Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build API service image
+        run: |
+          docker build \
+            -t devsecops-api:${{ github.sha }} \
+            services/api-service
+
+      - name: Build worker service image
+        run: |
+          docker build \
+            -t devsecops-worker:${{ github.sha }} \
+            services/worker-service
+
+      - name: Verify container images
+        run: |
+          docker image inspect devsecops-api:${{ github.sha }}
+          docker image inspect devsecops-worker:${{ github.sha }}

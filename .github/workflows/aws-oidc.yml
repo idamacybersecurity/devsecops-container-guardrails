@@ -1,0 +1,34 @@
+name: AWS OIDC Authentication
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  aws-oidc:
+    name: Verify AWS OIDC Authentication
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure temporary AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::942091277622:role/GitHubActions-DevSecOps-OIDC
+          aws-region: us-east-1
+          role-session-name: GitHubActions-DevSecOps-OIDC
+          mask-aws-account-id: true
+
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity
+          echo "AWS OIDC authentication PASSED."
+          echo "Temporary AWS credentials were obtained without long-lived AWS access keys."

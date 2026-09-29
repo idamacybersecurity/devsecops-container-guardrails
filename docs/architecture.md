@@ -9,61 +9,56 @@ AWS authentication is performed using GitHub Actions OIDC and temporary AWS cred
 ## Security Pipeline
 
 ```mermaid
-flowchart TD
-    A[Developer Changes Code] --> B[Pre-Commit Security Checks]
+flowchart LR
+    A[Developer] --> B[Pre-Commit]
 
-    B --> B1[OPA / Rego Policies]
-    B1 --> B2[Dockerfile Policies]
-    B1 --> B3[Kubernetes Policies]
+    subgraph LOCAL["Local Security"]
+        B --> C[OPA / Rego]
+        C --> C1[Dockerfile Policy]
+        C --> C2[Kubernetes Policy]
+    end
 
-    B2 --> C[Git Commit / Push]
-    B3 --> C
+    C1 --> D[Git Push]
+    C2 --> D
 
-    C --> D[GitHub Actions]
+    subgraph CI["GitHub Actions Security Gates"]
+        D --> E[TruffleHog<br/>Secret Scan]
+        D --> F[Bandit<br/>SAST]
+        D --> G[Conftest<br/>Policy Check]
 
-    D --> E[TruffleHog<br/>Full Git History Secret Scan]
-    D --> F[OPA / Conftest<br/>Policy-as-Code Validation]
-    D --> G[Bandit SAST<br/>Python Security Scan]
+        E --> H{Pass?}
+        F --> H
+        G --> H
+    end
 
-    E --> H{Security Checks Pass?}
-    F --> H
-    G --> H
+    H -- No --> X[BLOCK]
+    H -- Yes --> I[Build API + Worker Images]
 
-    H -- No --> X[Pipeline Blocked]
-    H -- Yes --> I[Build API and Worker<br/>Container Images]
+    subgraph SUPPLY["Software Supply Chain"]
+        I --> J[Syft<br/>CycloneDX SBOM]
+        J --> K[Python + Base Image<br/>Packages]
+        K --> L[Grype<br/>Vulnerability Scan]
+        L --> M{HIGH / CRITICAL<br/>with Fix?}
 
-    I --> J[Syft<br/>Generate CycloneDX SBOMs]
+        M -- No --> N[Publish to GHCR]
+        N --> O[Resolve SHA-256 Digests]
+        O --> P[Cosign Keyless Signing]
+        P --> Q[Verify Signature]
+        Q --> R{Valid?}
+    end
 
-    J --> K[Python Dependencies]
-    J --> L[Container Base-Image Packages]
+    M -- Yes --> X
+    R -- No --> X
+    R -- Yes --> S[Deployment<br/>Authorized]
 
-    K --> M[Grype SBOM Vulnerability Scan]
-    L --> M
+    subgraph AWS["AWS OIDC Authentication"]
+        T[GitHub OIDC Token] --> U[AWS IAM<br/>OIDC Provider]
+        U --> V[Dedicated IAM Role]
+        V --> W[Temporary AWS<br/>Credentials]
+    end
 
-    M --> N{HIGH / CRITICAL CVE<br/>with Known Fix?}
-
-    N -- Yes --> X
-    N -- No --> O[Publish Security-Approved<br/>Images to GHCR]
-
-    O --> P[Resolve Immutable<br/>SHA-256 Image Digests]
-
-    P --> Q[Cosign / Sigstore<br/>Keyless Image Signing]
-
-    Q --> R[Cosign Signature Verification]
-
-    R --> S{Valid Signature?}
-
-    S -- No --> X
-    S -- Yes --> T[Deployment Authorization Gate]
-
-    T --> U[Deployment Authorized]
-
-    D --> V[GitHub Actions OIDC Token]
-    V --> W[AWS IAM OIDC Provider]
-    W --> Y[Assume Dedicated IAM Role]
-    Y --> Z[Temporary AWS Credentials]
-
-    Z -. Authentication available for deployment .-> T
+    D -.-> T
+    W -.-> S
 ```
 
 ## Implemented Security Controls

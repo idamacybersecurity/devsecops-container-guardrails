@@ -32,7 +32,16 @@ jobs:
       - name: Validate Kubernetes security policies
         run: |
           conftest test \
-            --policy policies \
+            --policy policies/kubernetes \
             --output table \
             k8s/api-deployment.yaml \
             k8s/worker-deployment.yaml
+
+      - name: Validate Dockerfile security policies
+        run: |
+          conftest test \
+            --parser dockerfile \
+            --policy policies/dockerfile \
+            --output table \
+            services/api-service/Dockerfile \
+            services/worker-service/Dockerfile

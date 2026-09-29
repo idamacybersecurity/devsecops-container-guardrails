@@ -65,3 +65,41 @@ jobs:
           test -s sbom/api-sbom.cyclonedx.json
           test -s sbom/worker-sbom.cyclonedx.json
           echo "API and worker CycloneDX SBOMs generated successfully."
+
+      - name: Scan API SBOM with Grype
+        id: grype-api
+        continue-on-error: true
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+        with:
+          sbom: sbom/api-sbom.cyclonedx.json
+          output-format: table
+          severity-cutoff: high
+          only-fixed: true
+          fail-build: true
+
+      - name: Scan worker SBOM with Grype
+        id: grype-worker
+        continue-on-error: true
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+        with:
+          sbom: sbom/worker-sbom.cyclonedx.json
+          output-format: table
+          severity-cutoff: high
+          only-fixed: true
+          fail-build: true
+
+      - name: Enforce HIGH and CRITICAL vulnerability gate
+        if: always()
+        run: |
+          echo "API Grype result: ${{ steps.grype-api.outcome }}"
+          echo "Worker Grype result: ${{ steps.grype-worker.outcome }}"
+
+          if [[ "${{ steps.grype-api.outcome }}" == "failure" || \
+                "${{ steps.grype-worker.outcome }}" == "failure" ]]; then
+            echo "Security gate FAILED."
+            echo "A HIGH or CRITICAL vulnerability with a known fix was detected."
+            exit 1
+          fi
+
+          echo "Security gate PASSED."
+          echo "No HIGH or CRITICAL vulnerabilities with known fixes were detected."

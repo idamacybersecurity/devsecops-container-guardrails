@@ -1,0 +1,23 @@
+repos:
+  - repo: https://github.com/open-policy-agent/conftest
+    rev: v0.70.1
+    hooks:
+      - id: conftest-test
+        name: Check Kubernetes security policies
+        files: ^k8s/.*\.ya?ml$
+        args:
+          - --policy
+          - policies/kubernetes
+          - --output
+          - table
+
+      - id: conftest-test
+        name: Check Dockerfile security policies
+        files: ^services/.*/Dockerfile$
+        args:
+          - --parser
+          - dockerfile
+          - --policy
+          - policies/dockerfile
+          - --output
+          - table

@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# IDE / OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated security artifacts
+sbom/*.json
+sbom/*.xml

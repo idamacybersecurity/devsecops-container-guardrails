@@ -194,3 +194,10 @@ jobs:
             --certificate-oidc-issuer="${OIDC_ISSUER}"
 
           echo "Cosign signature verification PASSED for both container images."
+
+      - name: Authorize deployment after signature verification
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "SIGNED IMAGE DEPLOYMENT GATE PASSED."
+          echo "Both container images have valid Cosign signatures."
+          echo "Deployment is authorized only after successful signature verification."

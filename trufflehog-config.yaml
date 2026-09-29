@@ -1,0 +1,6 @@
+detectors:
+  - name: BincomStagedTestSecret
+    keywords:
+      - BINCOM_TEST_SECRET
+    regex:
+      token: '\b(BINCOM_TEST_SECRET_[A-Za-z0-9]{24})\b'

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devsecops-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devsecops-worker
+  template:
+    metadata:
+      labels:
+        app: devsecops-worker
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: worker
+          image: ghcr.io/idamacybersecurity/devsecops-worker:v1.0.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL

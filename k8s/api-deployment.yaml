@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devsecops-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devsecops-api
+  template:
+    metadata:
+      labels:
+        app: devsecops-api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: api
+          image: ghcr.io/idamacybersecurity/devsecops-api:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL

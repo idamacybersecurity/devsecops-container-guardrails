@@ -1,0 +1,38 @@
+name: Policy as Code
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  conftest:
+    name: OPA Rego Policy Validation
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Conftest
+        run: |
+          CONFTEST_VERSION="0.70.1"
+          curl -sSL -o conftest.tar.gz \
+            "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz"
+          tar -xzf conftest.tar.gz
+          sudo mv conftest /usr/local/bin/conftest
+          conftest --version
+
+      - name: Validate Kubernetes security policies
+        run: |
+          conftest test \
+            --policy policies \
+            --output table \
+            k8s/api-deployment.yaml \
+            k8s/worker-deployment.yaml

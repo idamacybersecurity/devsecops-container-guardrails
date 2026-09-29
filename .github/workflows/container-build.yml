@@ -36,3 +36,32 @@ jobs:
         run: |
           docker image inspect devsecops-api:${{ github.sha }}
           docker image inspect devsecops-worker:${{ github.sha }}
+
+      - name: Create SBOM output directory
+        run: mkdir -p sbom
+
+      - name: Generate API CycloneDX SBOM with Syft
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          image: devsecops-api:${{ github.sha }}
+          format: cyclonedx-json
+          output-file: sbom/api-sbom.cyclonedx.json
+          artifact-name: api-cyclonedx-sbom
+          upload-artifact: true
+          upload-release-assets: false
+
+      - name: Generate worker CycloneDX SBOM with Syft
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          image: devsecops-worker:${{ github.sha }}
+          format: cyclonedx-json
+          output-file: sbom/worker-sbom.cyclonedx.json
+          artifact-name: worker-cyclonedx-sbom
+          upload-artifact: true
+          upload-release-assets: false
+
+      - name: Verify generated SBOM files
+        run: |
+          test -s sbom/api-sbom.cyclonedx.json
+          test -s sbom/worker-sbom.cyclonedx.json
+          echo "API and worker CycloneDX SBOMs generated successfully."

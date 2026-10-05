@@ -202,7 +202,8 @@ jobs:
 
           echo "Verifying API CycloneDX SBOM attestation..."
 
-          timeout 5m cosign verify-attestation \
+          cosign verify-attestation \
+            --timeout 5m \
             --type cyclonedx \
             --certificate-identity="${CERT_IDENTITY}" \
             --certificate-oidc-issuer="${OIDC_ISSUER}" \
@@ -210,15 +211,29 @@ jobs:
 
           echo "API CycloneDX SBOM attestation verification PASSED."
 
+      - name: Diagnose worker CycloneDX SBOM attestation
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Checking whether the worker CycloneDX SBOM attestation is retrievable from GHCR..."
+
+          cosign verify-attestation \
+            --timeout 5m \
+            --type cyclonedx \
+            --insecure-ignore-tlog \
+            "${WORKER_IMAGE_DIGEST}"
+
+          echo "Worker CycloneDX SBOM attestation is retrievable."
+
       - name: Verify worker CycloneDX SBOM attestation
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           CERT_IDENTITY="https://github.com/idamacybersecurity/devsecops-container-guardrails/.github/workflows/container-build.yml@refs/heads/main"
           OIDC_ISSUER="https://token.actions.githubusercontent.com"
 
-          echo "Verifying worker CycloneDX SBOM attestation..."
+          echo "Verifying worker CycloneDX SBOM attestation with Sigstore..."
 
-          timeout 5m cosign verify-attestation \
+          cosign verify-attestation \
+            --timeout 5m \
             --type cyclonedx \
             --certificate-identity="${CERT_IDENTITY}" \
             --certificate-oidc-issuer="${OIDC_ISSUER}" \

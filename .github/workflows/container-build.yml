@@ -179,6 +179,21 @@ jobs:
 
           echo "Both security-approved container images were signed successfully."
 
+      - name: Attest CycloneDX SBOMs to image digests
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          cosign attest --yes \
+            --type cyclonedx \
+            --predicate sbom/api-sbom.cyclonedx.json \
+            "${API_IMAGE_DIGEST}"
+
+          cosign attest --yes \
+            --type cyclonedx \
+            --predicate sbom/worker-sbom.cyclonedx.json \
+            "${WORKER_IMAGE_DIGEST}"
+
+          echo "CycloneDX SBOM attestations attached to both image digests."
+
       - name: Verify Cosign signatures
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |

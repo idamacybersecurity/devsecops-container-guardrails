@@ -40,13 +40,13 @@ jobs:
 
       - name: Build API service image
         run: |
-          docker build \
+          docker build --pull \
             -t devsecops-api:${{ github.sha }} \
             services/api-service
 
       - name: Build worker service image
         run: |
-          docker build \
+          docker build --pull \
             -t devsecops-worker:${{ github.sha }} \
             services/worker-service
 

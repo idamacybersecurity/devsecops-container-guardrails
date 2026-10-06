@@ -170,6 +170,13 @@ jobs:
       - name: Install Cosign
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          cosign-release: "v3.1.3"
+
+      - name: Verify installed Cosign version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          cosign version
 
       - name: Sign approved container images with Cosign
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -179,7 +186,35 @@ jobs:
 
           echo "Both security-approved container images were signed successfully."
 
-      - name: Attest CycloneDX SBOMs to image digests
+      - name: Verify Cosign signatures
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          CERT_IDENTITY="https://github.com/idamacybersecurity/devsecops-container-guardrails/.github/workflows/container-build.yml@refs/heads/main"
+          OIDC_ISSUER="https://token.actions.githubusercontent.com"
+
+          echo "Verifying API image signature..."
+
+          cosign verify \
+            --timeout 5m \
+            --certificate-identity="${CERT_IDENTITY}" \
+            --certificate-oidc-issuer="${OIDC_ISSUER}" \
+            "${API_IMAGE_DIGEST}"
+
+          echo "API image signature verification PASSED."
+
+          echo "Verifying worker image signature..."
+
+          cosign verify \
+            --timeout 5m \
+            --certificate-identity="${CERT_IDENTITY}" \
+            --certificate-oidc-issuer="${OIDC_ISSUER}" \
+            "${WORKER_IMAGE_DIGEST}"
+
+          echo "Worker image signature verification PASSED."
+
+          echo "Cosign signature verification PASSED for both container images."
+
+      - name: Attest API CycloneDX SBOM to image digest
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           cosign attest --yes \
@@ -187,12 +222,17 @@ jobs:
             --predicate sbom/api-sbom.cyclonedx.json \
             "${API_IMAGE_DIGEST}"
 
+          echo "API CycloneDX SBOM attestation attached successfully."
+
+      - name: Attest worker CycloneDX SBOM to image digest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
           cosign attest --yes \
             --type cyclonedx \
             --predicate sbom/worker-sbom.cyclonedx.json \
             "${WORKER_IMAGE_DIGEST}"
 
-          echo "CycloneDX SBOM attestations attached to both image digests."
+          echo "Worker CycloneDX SBOM attestation attached successfully."
 
       - name: Verify API CycloneDX SBOM attestation
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -204,6 +244,7 @@ jobs:
 
           cosign verify-attestation \
             --timeout 5m \
+            --max-workers 1 \
             --type cyclonedx \
             --certificate-identity="${CERT_IDENTITY}" \
             --certificate-oidc-issuer="${OIDC_ISSUER}" \
@@ -221,6 +262,7 @@ jobs:
 
           cosign verify-attestation \
             --timeout 5m \
+            --max-workers 1 \
             --type cyclonedx \
             --certificate-identity="${CERT_IDENTITY}" \
             --certificate-oidc-issuer="${OIDC_ISSUER}" \
@@ -228,25 +270,10 @@ jobs:
 
           echo "Worker CycloneDX SBOM attestation verification PASSED."
 
-      - name: Verify Cosign signatures
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          CERT_IDENTITY="https://github.com/idamacybersecurity/devsecops-container-guardrails/.github/workflows/container-build.yml@refs/heads/main"
-          OIDC_ISSUER="https://token.actions.githubusercontent.com"
-
-          cosign verify "${API_IMAGE_DIGEST}" \
-            --certificate-identity="${CERT_IDENTITY}" \
-            --certificate-oidc-issuer="${OIDC_ISSUER}"
-
-          cosign verify "${WORKER_IMAGE_DIGEST}" \
-            --certificate-identity="${CERT_IDENTITY}" \
-            --certificate-oidc-issuer="${OIDC_ISSUER}"
-
-          echo "Cosign signature verification PASSED for both container images."
-
-      - name: Authorize deployment after signature verification
+      - name: Authorize deployment after signature and attestation verification
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           echo "SIGNED IMAGE DEPLOYMENT GATE PASSED."
           echo "Both container images have valid Cosign signatures."
-          echo "Deployment is authorized only after successful signature verification."
+          echo "Both CycloneDX SBOM attestations have been verified."
+          echo "Deployment is authorized only after successful signature and SBOM verification."

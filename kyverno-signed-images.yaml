@@ -16,7 +16,7 @@ spec:
         resources: ["pods"]
         operations: ["CREATE", "UPDATE"]
 
-    matchImageReferences:
+  matchImageReferences:
     - glob: "ghcr.io/idamacybersecurity/devsecops-api*"
     - glob: "ghcr.io/idamacybersecurity/devsecops-worker*"
     - glob: "ghcr.io/idamacybersecurity/devsecops-unsigned-test*"
@@ -29,5 +29,11 @@ spec:
             - issuer: "https://token.actions.githubusercontent.com"
               subject: "https://github.com/idamacybersecurity/devsecops-container-guardrails/.github/workflows/container-build.yml@refs/heads/main"
 
+  attestations:
+    - name: sbom
+      intoto:
+        type: https://cyclonedx.org/bom
+
   validations:
     - expression: "images.containers.map(image, verifyImageSignatures(image, [attestors.cosign])).all(e, e > 0)"
+    - expression: "images.containers.map(image, verifyAttestationSignatures(image, attestations.sbom, [attestors.cosign])).all(e, e > 0)"

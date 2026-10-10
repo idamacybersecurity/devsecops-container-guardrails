@@ -21,3 +21,15 @@ repos:
           - policies/dockerfile
           - --output
           - table
+
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: TruffleHog secret scan
+        entry: ./trufflehog-bin/trufflehog.exe git file://.
+        language: system
+        pass_filenames: false
+        args:
+          - --fail
+          - --trust-local-git-config
+          - --config=trufflehog-config.yaml

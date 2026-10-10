@@ -18,3 +18,6 @@ Thumbs.db
 # Generated security artifacts
 sbom/*.json
 sbom/*.xml
+# Local TruffleHog installation
+trufflehog-bin/
+trufflehog.tar.gz

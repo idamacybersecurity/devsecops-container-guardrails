@@ -12,6 +12,7 @@ permissions:
   contents: read
   packages: write
   id-token: write
+  attestations: write
 
 jobs:
   build-containers:
@@ -166,6 +167,36 @@ jobs:
 
           echo "API immutable image: ${API_DIGEST_REF}"
           echo "Worker immutable image: ${WORKER_DIGEST_REF}"
+
+      - name: Prepare immutable image digests for provenance
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          API_PROVENANCE_DIGEST="${API_IMAGE_DIGEST#*@}"
+          WORKER_PROVENANCE_DIGEST="${WORKER_IMAGE_DIGEST#*@}"
+
+          echo "API_PROVENANCE_DIGEST=${API_PROVENANCE_DIGEST}" >> "$GITHUB_ENV"
+          echo "WORKER_PROVENANCE_DIGEST=${WORKER_PROVENANCE_DIGEST}" >> "$GITHUB_ENV"
+
+          echo "API provenance digest: ${API_PROVENANCE_DIGEST}"
+          echo "Worker provenance digest: ${WORKER_PROVENANCE_DIGEST}"
+
+      - name: Generate API image SLSA build provenance
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-name: ghcr.io/idamacybersecurity/devsecops-api
+          subject-digest: ${{ env.API_PROVENANCE_DIGEST }}
+          push-to-registry: true
+          create-storage-record: false
+
+      - name: Generate worker image SLSA build provenance
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-name: ghcr.io/idamacybersecurity/devsecops-worker
+          subject-digest: ${{ env.WORKER_PROVENANCE_DIGEST }}
+          push-to-registry: true
+          create-storage-record: false
 
       - name: Install Cosign
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

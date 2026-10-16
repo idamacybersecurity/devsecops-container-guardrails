@@ -242,6 +242,38 @@ jobs:
         run: |
           cosign version
 
+      - name: Sign and verify ECR image digests
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          ECR_REGISTRY: 825276340543.dkr.ecr.eu-north-1.amazonaws.com
+        run: |
+          set -euo pipefail
+
+          IDENTITY="https://github.com/idamacybersecurity/devsecops-container-guardrails/.github/workflows/container-build.yml@refs/heads/main"
+          ISSUER="https://token.actions.githubusercontent.com"
+
+          for IMAGE in devsecops-api devsecops-worker; do
+            DIGEST=$(aws ecr describe-images \
+              --repository-name "$IMAGE" \
+              --image-ids imageTag="${GITHUB_SHA}" \
+              --region eu-north-1 \
+              --query 'imageDetails[0].imageDigest' \
+              --output text)
+
+            IMAGE_REF="${ECR_REGISTRY}/${IMAGE}@${DIGEST}"
+
+            echo "Signing ${IMAGE_REF}"
+            cosign sign --yes "$IMAGE_REF"
+
+            echo "Verifying ${IMAGE_REF}"
+            cosign verify \
+              --certificate-identity "$IDENTITY" \
+              --certificate-oidc-issuer "$ISSUER" \
+              "$IMAGE_REF"
+
+            echo "Successfully signed and verified ${IMAGE_REF}"
+          done
+
       - name: Sign approved container images with Cosign
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |

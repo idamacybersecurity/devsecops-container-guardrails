@@ -1,7 +1,6 @@
-```yaml
-name: AWS Authentication
+﻿name: AWS Authentication
 
-'on':
+on:
   push:
     branches:
       - main
@@ -27,6 +26,4 @@ jobs:
           mask-aws-account-id: true
 
       - name: Verify AWS identity
-        run: |
-          aws sts get-caller-identity
-          echo "AWS authentication PASSED."
+        run: aws sts get-caller-identity

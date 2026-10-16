@@ -161,6 +161,7 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
+
       - name: Publish security-approved images to ECR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
@@ -174,10 +175,11 @@ jobs:
               --region eu-north-1 >/dev/null 2>&1; then
               echo "$IMAGE:$IMAGE_TAG already exists; preserving immutable image."
             else
+              docker tag "${IMAGE}:${IMAGE_TAG}" \
+                "${ECR_REGISTRY}/${IMAGE}:${IMAGE_TAG}"
               docker push "${ECR_REGISTRY}/${IMAGE}:${IMAGE_TAG}"
             fi
           done
-
 
       - name: Resolve immutable image digests
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

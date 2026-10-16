@@ -167,15 +167,16 @@ jobs:
           ECR_REGISTRY: 825276340543.dkr.ecr.eu-north-1.amazonaws.com
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker tag devsecops-api:${IMAGE_TAG} \
-            ${ECR_REGISTRY}/devsecops-api:${IMAGE_TAG}
-          docker tag devsecops-worker:${IMAGE_TAG} \
-            ${ECR_REGISTRY}/devsecops-worker:${IMAGE_TAG}
-
-          docker push ${ECR_REGISTRY}/devsecops-api:${IMAGE_TAG}
-          docker push ${ECR_REGISTRY}/devsecops-worker:${IMAGE_TAG}
-
-          echo "Both images published to Amazon ECR."
+          for IMAGE in devsecops-api devsecops-worker; do
+            if aws ecr describe-images \
+              --repository-name "$IMAGE" \
+              --image-ids imageTag="$IMAGE_TAG" \
+              --region eu-north-1 >/dev/null 2>&1; then
+              echo "$IMAGE:$IMAGE_TAG already exists; preserving immutable image."
+            else
+              docker push "${ECR_REGISTRY}/${IMAGE}:${IMAGE_TAG}"
+            fi
+          done
 
 
       - name: Resolve immutable image digests

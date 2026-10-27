@@ -1,0 +1,24 @@
+global:
+  k8s:
+    clusterDomain: cluster.local
+  spire:
+    clusterName: k3s-wsl2
+    trustDomain: devsecops.local
+    caSubject:
+      country: NG
+      organization: Enterprise DevSecOps Pipeline
+      commonName: SPIRE Server CA
+    recommendations:
+      enabled: false
+
+spire-server:
+  enabled: true
+
+spire-agent:
+  enabled: true
+
+spiffe-csi-driver:
+  enabled: true
+
+upstream:
+  enabled: false

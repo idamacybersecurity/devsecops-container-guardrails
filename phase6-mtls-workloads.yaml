@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mtls-client
+  namespace: devsecops-test
+  labels:
+    app: mtls-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mtls-client
+  template:
+    metadata:
+      labels:
+        app: mtls-client
+    spec:
+      serviceAccountName: mtls-client
+      restartPolicy: Always
+      containers:
+        - name: client
+          image: phase6-mtls-python:app
+          imagePullPolicy: IfNotPresent
+          command: ["python", "client.py"]
+          env:
+            - name: MTLS_SERVER_HOST
+              value: "mtls-server"
+            - name: MTLS_SERVER_PORT
+              value: "8443"
+          volumeMounts:
+            - name: spiffe-workload-api
+              mountPath: /spiffe-workload-api
+              readOnly: true
+      volumes:
+        - name: spiffe-workload-api
+          csi:
+            driver: csi.spiffe.io
+            readOnly: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mtls-server
+  namespace: devsecops-test
+  labels:
+    app: mtls-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mtls-server
+  template:
+    metadata:
+      labels:
+        app: mtls-server
+    spec:
+      serviceAccountName: mtls-server
+      restartPolicy: Always
+      containers:
+        - name: server
+          image: phase6-mtls-python:app
+          imagePullPolicy: IfNotPresent
+          command: ["python", "server.py"]
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: spiffe-workload-api
+              mountPath: /spiffe-workload-api
+              readOnly: true
+      volumes:
+        - name: spiffe-workload-api
+          csi:
+            driver: csi.spiffe.io
+            readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mtls-server
+  namespace: devsecops-test
+spec:
+  type: ClusterIP
+  selector:
+    app: mtls-server
+  ports:
+    - name: https
+      port: 8443
+      targetPort: 8443
+      protocol: TCP

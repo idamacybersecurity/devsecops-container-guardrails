@@ -21,3 +21,20 @@ sbom/*.xml
 # Local TruffleHog installation
 trufflehog-bin/
 trufflehog.tar.gz
+keys/cosign.key
+# Phase 5 local credentials and private keys
+ghcr-docker-config.json
+p5-credentials-patch.yaml
+keys/
+
+# Local benchmark and deployment backups
+P5-Kyverno-Deployment-Backup.yaml
+P5-kyverno-current-values.yaml
+P5-kyverno-merged-values.yaml
+P5-kyverno-values-backup.yaml
+backup-keyless-policy.yaml
+
+# Python generated files
+__pycache__/
+*.py[cod]
+

@@ -1,0 +1,37 @@
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: devsecops-mtls-client
+spec:
+  className: spire-system-spire
+  namespaceSelector:
+    matchLabels:
+      phase: "6"
+      app.kubernetes.io/part-of: enterprise-devsecops-pipeline
+  podSelector:
+    matchLabels:
+      app: mtls-client
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  ttl: "1h"
+  workloadSelectorTemplates:
+    - "k8s:ns:devsecops-test"
+    - "k8s:sa:mtls-client"
+---
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: devsecops-mtls-server
+spec:
+  className: spire-system-spire
+  namespaceSelector:
+    matchLabels:
+      phase: "6"
+      app.kubernetes.io/part-of: enterprise-devsecops-pipeline
+  podSelector:
+    matchLabels:
+      app: mtls-server
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  ttl: "1h"
+  workloadSelectorTemplates:
+    - "k8s:ns:devsecops-test"
+    - "k8s:sa:mtls-server"

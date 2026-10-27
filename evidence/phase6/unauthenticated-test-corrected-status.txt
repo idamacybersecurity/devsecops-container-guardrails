@@ -1,0 +1,1 @@
+test pod phase=Failed exitCode=1

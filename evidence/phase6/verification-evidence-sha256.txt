@@ -1,0 +1,3 @@
+6c36c7e6f6763794f26386b429e8e8939cc4231e24710bd7be9eb0fecdacb928  evidence/phase6/unauthenticated-tls-rejection.log
+1fa92968a450f346b62ed5bfaace0c78bdf421e16e806765702ecabe043a99be  evidence/phase6/mtls-server-negative-test.log
+951f2a2e910fe2fe6e9783e85b3f1c261c9a1e81818330163bfff314c517b825  evidence/phase6/mtls-client-current.log

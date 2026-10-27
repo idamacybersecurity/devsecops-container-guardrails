@@ -1,0 +1,9 @@
+2026-10-27T15:01:13.769514720Z Client SPIFFE identity: spiffe://devsecops.local/ns/devsecops-test/sa/mtls-client
+2026-10-27T15:01:13.769552854Z Verified server SPIFFE identity: spiffe://devsecops.local/ns/devsecops-test/sa/mtls-server
+2026-10-27T15:01:13.769557574Z HTTP/1.0 200 OK
+2026-10-27T15:01:13.769560839Z Server: BaseHTTP/0.6 Python/3.12.16
+2026-10-27T15:01:13.769562534Z Date: Tue, 27 Oct 2026 15:01:13 GMT
+2026-10-27T15:01:13.769564443Z Content-Type: text/plain
+2026-10-27T15:01:13.769565993Z Content-Length: 164
+2026-10-27T15:01:13.769567373Z
+2026-10-27T15:01:13.769569532Z mTLS SUCCESS\nserver_identity=spiffe://devsecops.local/ns/devsecops-test/sa/mtls-server\nclient_identity=spiffe://devsecops.local/ns/devsecops-test/sa/mtls-client\n

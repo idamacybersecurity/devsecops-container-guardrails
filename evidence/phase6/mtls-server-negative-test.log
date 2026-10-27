@@ -1,0 +1,6 @@
+SVID_INSTALLED initial serial=1215b781fc3902eda622075f379ef062 fingerprint=496f874fd227c709edd4e86f922d7ee954340573b0e4a83be56a3f4e94ae7e15 not_after=2026-10-27T15:53:30+00:00 at=2026-10-27T14:53:30.793749+00:00
+TLS client certificate verification mode: 2
+SPIFFE server identity: spiffe://devsecops.local/ns/devsecops-test/sa/mtls-server
+mTLS server listening on port 8443
+SVID_INSTALLED rotated serial=1215b781fc3902eda622075f379ef062 fingerprint=496f874fd227c709edd4e86f922d7ee954340573b0e4a83be56a3f4e94ae7e15 not_after=2026-10-27T15:53:30+00:00 at=2026-10-27T14:53:30.806985+00:00
+HTTP: "GET / HTTP/1.1" 200 -

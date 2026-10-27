@@ -1,0 +1,5 @@
+NAME                                                    READY   STATUS    RESTARTS   AGE   IP              NODE               NOMINATED NODE   READINESS GATES
+spire-agent-ttb9g                                       1/1     Running   0          24m   172.31.23.148   ip-172-31-23-148   <none>           <none>
+spire-server-0                                          2/2     Running   0          24m   10.42.0.11      ip-172-31-23-148   <none>           <none>
+spire-spiffe-csi-driver-5w5fx                           2/2     Running   0          24m   10.42.0.9       ip-172-31-23-148   <none>           <none>
+spire-spiffe-oidc-discovery-provider-7ddbb6fd89-w8dh4   2/2     Running   0          24m   10.42.0.12      ip-172-31-23-148   <none>           <none>

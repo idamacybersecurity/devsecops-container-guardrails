@@ -1,0 +1,4 @@
+NAME                          READY   STATUS             RESTARTS        AGE     IP           NODE               NOMINATED NODE   READINESS GATES
+mtls-client-f5cf9844f-bxt77   0/1     CrashLoopBackOff   7 (2m55s ago)   13m     10.42.0.17   ip-172-31-23-148   <none>           <none>
+mtls-negative-test            0/1     Error              0               7m35s   10.42.0.19   ip-172-31-23-148   <none>           <none>
+mtls-server-8bc9d7c58-chsk5   1/1     Running            1 (13m ago)     13m     10.42.0.16   ip-172-31-23-148   <none>           <none>

@@ -1,0 +1,1 @@
+CONNECTION_REJECTED: SSLError [SSL: TLSV13_ALERT_CERTIFICATE_REQUIRED] tlsv13 alert certificate required (_ssl.c:2581)

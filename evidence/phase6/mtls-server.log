@@ -1,0 +1,8 @@
+SPIFFE server identity: spiffe://devsecops.local/ns/devsecops-test/sa/mtls-server
+mTLS server listening on port 8443
+HTTP: "GET / HTTP/1.1" 200 -
+HTTP: "GET / HTTP/1.1" 200 -
+HTTP: "GET / HTTP/1.1" 200 -
+HTTP: "GET / HTTP/1.1" 200 -
+HTTP: "GET / HTTP/1.1" 200 -
+HTTP: "GET / HTTP/1.1" 200 -

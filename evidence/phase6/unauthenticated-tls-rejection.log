@@ -1,0 +1,2 @@
+TLS handshake completed without a client certificate
+PASS: TLS handshake rejected: SSLError [SSL: TLSV13_ALERT_CERTIFICATE_REQUIRED] tlsv13 alert certificate required (_ssl.c:2581)

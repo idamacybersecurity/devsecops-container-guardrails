@@ -1,0 +1,6 @@
+NAME                                         AGE
+devsecops-mtls-client                        22m
+devsecops-mtls-server                        22m
+spire-system-spire-default                   24m
+spire-system-spire-oidc-discovery-provider   24m
+spire-system-spire-test-keys                 24m

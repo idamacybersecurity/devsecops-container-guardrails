@@ -2,7 +2,7 @@ global:
   k8s:
     clusterDomain: cluster.local
   spire:
-    clusterName: k3s-wsl2
+    clusterName: ec2-k3s-phase6
     trustDomain: devsecops.local
     caSubject:
       country: NG

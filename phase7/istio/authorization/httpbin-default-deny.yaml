@@ -1,0 +1,10 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: httpbin-default-deny
+  namespace: phase7-mtls
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  action: ALLOW

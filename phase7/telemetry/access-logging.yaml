@@ -1,0 +1,9 @@
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: phase7-access-logging
+  namespace: phase7-mtls
+spec:
+  accessLogging:
+    - providers:
+        - name: envoy

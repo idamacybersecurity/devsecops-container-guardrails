@@ -1,0 +1,22 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8scontainernoprivilegeescalation
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sContainerNoPrivilegeEscalation
+      validation:
+        openAPIV3Schema:
+          type: object
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8scontainernoprivilegeescalation
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.allowPrivilegeEscalation == false
+          msg := sprintf("Container %q must set securityContext.allowPrivilegeEscalation to false", [container.name])
+        }

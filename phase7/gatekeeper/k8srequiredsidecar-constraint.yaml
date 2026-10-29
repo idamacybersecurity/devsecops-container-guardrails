@@ -1,0 +1,15 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredSidecar
+metadata:
+  name: require-istio-proxy
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - phase7-gatekeeper-test
+  parameters:
+    requiredContainers:
+      - istio-proxy

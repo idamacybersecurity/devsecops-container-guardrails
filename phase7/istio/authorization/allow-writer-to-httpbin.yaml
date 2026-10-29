@@ -1,0 +1,19 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-writer-to-httpbin
+  namespace: phase7-mtls
+spec:
+  selector:
+    matchLabels:
+      app: httpbin
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/phase7-mtls/sa/writer"
+      to:
+        - operation:
+            methods: ["POST", "PUT", "DELETE"]
+            ports: ["8080"]

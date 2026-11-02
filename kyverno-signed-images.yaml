@@ -6,6 +6,9 @@ spec:
   validationActions:
     - Deny
   failurePolicy: Fail
+  credentials:
+    providers:
+      - amazon
   webhookConfiguration:
     timeoutSeconds: 30
 
@@ -19,6 +22,8 @@ spec:
   matchImageReferences:
     - glob: "ghcr.io/idamacybersecurity/devsecops-api*"
     - glob: "ghcr.io/idamacybersecurity/devsecops-worker*"
+    - glob: "825276340543.dkr.ecr.eu-north-1.amazonaws.com/devsecops-api*"
+    - glob: "825276340543.dkr.ecr.eu-north-1.amazonaws.com/devsecops-worker*"
     - glob: "ghcr.io/idamacybersecurity/devsecops-unsigned-test*"
 
   attestors:

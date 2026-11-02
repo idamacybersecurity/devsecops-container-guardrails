@@ -51,17 +51,38 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
-      - name: Verify unsigned image with Cosign
+      - name: Verify unsigned image is rejected by Cosign
+        shell: bash
         run: |
+          set -euo pipefail
+
           CERT_IDENTITY="https://github.com/idamacybersecurity/devsecops-container-guardrails/.github/workflows/container-build.yml@refs/heads/main"
           OIDC_ISSUER="https://token.actions.githubusercontent.com"
 
           echo "Attempting to verify intentionally unsigned image..."
 
-          cosign verify "${UNSIGNED_IMAGE_DIGEST}" \
+          set +e
+          VERIFY_OUTPUT=$(cosign verify "${UNSIGNED_IMAGE_DIGEST}" \
             --certificate-identity="${CERT_IDENTITY}" \
-            --certificate-oidc-issuer="${OIDC_ISSUER}"
+            --certificate-oidc-issuer="${OIDC_ISSUER}" 2>&1)
+          VERIFY_STATUS=$?
+          set -e
 
-      - name: Authorize deployment
+          printf '%s\n' "$VERIFY_OUTPUT"
+
+          if [ "$VERIFY_STATUS" -eq 0 ]; then
+            echo "::error::Unsigned image unexpectedly passed Cosign verification."
+            exit 1
+          fi
+
+          if grep -Fq "no signatures found" <<< "$VERIFY_OUTPUT"; then
+            echo "PASS: Cosign rejected the unsigned image because no signatures were found."
+          else
+            echo "::error::Cosign failed for an unexpected reason (exit code: $VERIFY_STATUS)."
+            exit 1
+          fi
+
+      - name: Report expected unsigned-image rejection
         run: |
-          echo "DEPLOYMENT AUTHORIZED."
+          echo "PASS: Unsigned image was rejected by Cosign."
+          echo "Kubernetes admission rejection was independently verified in the Phase 8 test."

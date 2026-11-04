@@ -1,0 +1,28 @@
+tetragon:
+  enabled: true
+
+  enableK8sAPI: true
+  enableProcessCred: true
+  enableProcessNs: true
+
+  cri:
+    enabled: true
+    socketHostPath: /run/k3s/containerd/containerd.sock
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+tetragonOperator:
+  enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

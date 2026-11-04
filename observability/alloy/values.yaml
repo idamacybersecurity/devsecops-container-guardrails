@@ -1,0 +1,53 @@
+alloy:
+  configMap:
+    create: true
+    content: |
+      loki.source.file "tetragon" {
+        targets = [
+          {
+            __path__ = "/var/log/tetragon/tetragon.log",
+            job      = "tetragon",
+            cluster  = "k3s-ec2",
+          },
+        ]
+        forward_to    = [loki.write.local.receiver]
+        tail_from_end = false
+      }
+
+      loki.write "local" {
+        endpoint {
+          url = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/push"
+        }
+      }
+
+  enableReporting: false
+  storagePath: /tmp/alloy
+
+  mounts:
+    varlog: false
+    dockercontainers: false
+    extra:
+      - name: tetragon-logs
+        mountPath: /var/log/tetragon
+        readOnly: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 192Mi
+
+controller:
+  type: daemonset
+  volumes:
+    extra:
+      - name: tetragon-logs
+        hostPath:
+          path: /var/log/tetragon
+          type: Directory
+
+# Configuration is static; use the ConfigMap checksum for rollout updates.
+configReloader:
+  enabled: false

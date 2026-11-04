@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: runtime-security-test
+  namespace: runtime-security-test
+  labels:
+    app: runtime-security-test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: test
+      image: alpine:3.22
+      command: ["/bin/sh", "-c", "sleep 36000"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: false
+        capabilities:
+          drop:
+            - ALL

@@ -1,0 +1,39 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: namespace-escape
+spec:
+  tracepoints:
+    - subsystem: sched
+      event: sched_process_exec
+      raw: true
+      args:
+        - index: 2
+          type: linux_binprm
+          label: executed_file
+      selectors:
+        - matchArgs:
+            - args: [0]
+              operator: Postfix
+              values:
+                - "/nsenter"
+        - matchArgs:
+            - args: [0]
+              operator: Postfix
+              values:
+                - "/unshare"
+        - matchArgs:
+            - args: [0]
+              operator: Prefix
+              values:
+                - "/tmp/"
+        - matchArgs:
+            - args: [0]
+              operator: Prefix
+              values:
+                - "/dev/shm/"
+      message: "Suspicious executable launched from a namespace utility or temporary directory"
+      tags:
+        - runtime-security
+        - namespace-escape
+        - privilege-escalation

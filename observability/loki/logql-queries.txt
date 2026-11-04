@@ -1,0 +1,11 @@
+# 1. All Tetragon process execution events
+{job="tetragon"} |= "\"process_exec\":"
+
+# 2. Namespace escape and privilege escalation detections
+{job="tetragon"} |= "\"process_tracepoint\":" |= "\"policy_name\":\"namespace-escape\"" | json
+
+# 3. Sensitive-file write-capable open attempts
+{job="tetragon"} |= "\"process_kprobe\":" |= "\"policy_name\":\"sensitive-file-write\"" | json
+
+# 4. All Tetragon security-policy detections
+{job="tetragon"} |~ "\"policy_name\":\"(namespace-escape|sensitive-file-write)\""

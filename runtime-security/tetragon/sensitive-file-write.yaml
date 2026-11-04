@@ -1,0 +1,49 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: sensitive-file-write
+spec:
+  kprobes:
+    - call: "do_sys_openat2"
+      syscall: false
+      message: "Write-capable open attempt against a sensitive file path"
+      tags:
+        - "runtime-security"
+        - "sensitive-file"
+        - "file-write"
+      args:
+        - index: 1
+          type: string
+          label: file_path
+        - index: 2
+          type: uint64
+          btfType: open_how
+          resolve: flags
+          label: open_flags
+      selectors:
+        - matchArgs:
+            - args: [0]
+              operator: Equal
+              values:
+                - "/etc/passwd"
+            - args: [1]
+              operator: Mask
+              values: ["1", "2"]
+
+        - matchArgs:
+            - args: [0]
+              operator: Equal
+              values:
+                - "/etc/shadow"
+            - args: [1]
+              operator: Mask
+              values: ["1", "2"]
+
+        - matchArgs:
+            - args: [0]
+              operator: Prefix
+              values:
+                - "/var/run/secrets/"
+            - args: [1]
+              operator: Mask
+              values: ["1", "2"]

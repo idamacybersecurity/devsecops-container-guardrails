@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mtls-client-once
+  namespace: devsecops-test
+  labels:
+    app: mtls-client
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app: mtls-client
+    spec:
+      restartPolicy: Never
+      serviceAccountName: mtls-client
+      containers:
+        - name: client
+          image: phase6-mtls-python:app
+          imagePullPolicy: IfNotPresent
+          command: ["python", "client.py"]
+          env:
+            - name: MTLS_SERVER_HOST
+              value: "mtls-server"
+            - name: MTLS_SERVER_PORT
+              value: "8443"
+          volumeMounts:
+            - name: spiffe-workload-api
+              mountPath: /spiffe-workload-api
+              readOnly: true
+      volumes:
+        - name: spiffe-workload-api
+          csi:
+            driver: csi.spiffe.io
+            readOnly: true

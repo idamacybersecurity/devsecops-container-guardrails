@@ -38,3 +38,8 @@ backup-keyless-policy.yaml
 __pycache__/
 *.py[cod]
 
+
+# Local Istio distribution and Phase 6 working backups
+/istio-1.31.1/
+/phase6-mtls-python/server.py.before-handler-patch
+/phase6-mtls-python/spiffe_credentials.py.bak

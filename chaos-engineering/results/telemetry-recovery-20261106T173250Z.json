@@ -1,0 +1,36 @@
+{
+  "experiment": "loki_backend_recovery",
+  "started_at_utc": "2026-11-06T17:31:50.451948+00:00",
+  "planned_outage_seconds": 15,
+  "recovery_timeout_seconds": 180,
+  "watchdog_timeout_seconds": 240,
+  "baseline_state": {
+    "pvc_phase": "Bound",
+    "alloy_ready": "1:1",
+    "tetragon_ready": "1:1"
+  },
+  "pvc_bound_before_and_after": true,
+  "alloy_ready_before_and_after": true,
+  "tetragon_ready_before_and_after": true,
+  "loki_recovered": true,
+  "recovered": true,
+  "experiment_success": true,
+  "restore_command_succeeded": true,
+  "post_recovery_checks": "PASS",
+  "watchdog_cancelled_after_recovery": true,
+  "injection_error": null,
+  "restoration_error": null,
+  "recovery_error": null,
+  "watchdog_unit": "chaos-loki-restore-44540",
+  "outage_confirmed_at_utc": "2026-11-06T17:31:52.467857+00:00",
+  "post_recovery_state": {
+    "pvc_phase": "Bound",
+    "alloy_ready": "1:1",
+    "tetragon_ready": "1:1"
+  },
+  "restore_started_at_utc": "2026-11-06T17:32:07.468053+00:00",
+  "actual_outage_duration_seconds": 15.0,
+  "recovery_time_seconds_after_restore": 42.044,
+  "completed_at_utc": "2026-11-06T17:32:50.792216+00:00",
+  "error": null
+}

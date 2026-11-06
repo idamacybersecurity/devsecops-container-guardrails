@@ -1,0 +1,223 @@
+{
+  "audit": "automated_security_chaos_resilience",
+  "generated_at_utc": "2026-11-06T20:02:20.653306+00:00",
+  "execution_mode": "read_only",
+  "checks": {
+    "kubernetes_nodes": {
+      "status": "PASS",
+      "evidence": [
+        "ip-172-31-23-148"
+      ]
+    },
+    "tetragon_daemonset": {
+      "status": "PASS",
+      "evidence": {
+        "desired": 1,
+        "ready": 1,
+        "available": 1
+      }
+    },
+    "alloy_daemonset": {
+      "status": "PASS",
+      "evidence": {
+        "desired": 1,
+        "ready": 1,
+        "available": 1
+      }
+    },
+    "loki_statefulset": {
+      "status": "PASS",
+      "evidence": {
+        "desired": 1,
+        "ready": 1
+      }
+    },
+    "loki_pvc": {
+      "status": "PASS",
+      "evidence": {
+        "phase": "Bound"
+      }
+    },
+    "tetragon_recovery_experiment": {
+      "status": "PASS",
+      "evidence": {
+        "file": "tetragon-recovery-20261106T150031Z.json",
+        "experiment": "tetragon-agent-recovery",
+        "namespace": "tetragon",
+        "daemonset": "tetragon",
+        "recovery_time_seconds": 24.354,
+        "timeout_seconds": 60,
+        "recovered": true,
+        "terminated_pod": "tetragon-k2xqt",
+        "replacement_pod": "tetragon-27qm4",
+        "validation": "PASSED"
+      }
+    },
+    "telemetry_result_inventory": {
+      "status": "PASS",
+      "evidence": {
+        "result_files": [
+          "telemetry-recovery-20261106T173250Z.json"
+        ],
+        "result_count": 1,
+        "validated_successes": 1,
+        "failed_experiments": 0,
+        "incomplete_results": 0,
+        "invalid_results": 0,
+        "file_findings": [
+          {
+            "file": "telemetry-recovery-20261106T173250Z.json",
+            "status": "VALIDATED_SUCCESS",
+            "recovery_time_seconds": 42.044
+          }
+        ],
+        "status": "VALIDATED_SUCCESS",
+        "reason": "Telemetry result files were inspected and classified using their recorded experiment and recovery evidence."
+      }
+    },
+    "kyverno_webhook_configuration": {
+      "status": "CONFIGURATION_VERIFIED",
+      "evidence": {
+        "webhooks": [
+          {
+            "configuration": "kyverno-cel-exception-validating-webhook-cfg",
+            "webhook": "kyverno-svc.kyverno.svc",
+            "failurePolicy": "Fail"
+          },
+          {
+            "configuration": "kyverno-exception-validating-webhook-cfg",
+            "webhook": "kyverno-svc.kyverno.svc",
+            "failurePolicy": "Fail"
+          },
+          {
+            "configuration": "kyverno-global-context-validating-webhook-cfg",
+            "webhook": "kyverno-svc.kyverno.svc",
+            "failurePolicy": "Fail"
+          },
+          {
+            "configuration": "kyverno-policy-validating-webhook-cfg",
+            "webhook": "validate-policy.kyverno.svc",
+            "failurePolicy": "Fail"
+          },
+          {
+            "configuration": "kyverno-resource-validating-webhook-cfg",
+            "webhook": "ivpol.validate.kyverno.svc-fail-finegrained-require-signed-devsecops-images",
+            "failurePolicy": "Fail"
+          },
+          {
+            "configuration": "kyverno-resource-validating-webhook-cfg",
+            "webhook": "protect-generation-labels.kyverno.svc",
+            "failurePolicy": "Fail"
+          }
+        ],
+        "all_fail_closed": true,
+        "note": "Configuration evidence only; no admission outage test performed."
+      }
+    },
+    "kyverno_live_experiment": {
+      "status": "EXPERIMENT_FAILED",
+      "evidence": {
+        "files_found": 2,
+        "validated_successes": 0,
+        "failed_experiments": 2,
+        "incomplete_results": 0,
+        "invalid_results": 0,
+        "file_findings": [
+          {
+            "file": "kyverno-admission-recovery-20261106T185231Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 5,
+            "admission_requests": [
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              },
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              },
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              },
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              },
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              }
+            ],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": false,
+            "errors": [
+              "Recovery verification: Could not stop independent deadline timer: Failed to stop chaos-kyverno-deadline-restore-54744.timer: Unit chaos-kyverno-deadline-restore-54744.timer not loaded.\n"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261106T194530Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 1,
+            "admission_requests": [
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              }
+            ],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": false,
+            "watchdog_cancelled": false,
+            "errors": [
+              "Service selector restoration: Kyverno Service selector does not exactly match the saved original selector"
+            ]
+          }
+        ],
+        "status": "EXPERIMENT_FAILED",
+        "reason": "Kyverno outage records were classified using request outcomes, rollback, controller and endpoint recovery, post-recovery admission, watchdog cancellation, and the recorded experiment result."
+      }
+    },
+    "prometheus_inventory": {
+      "status": "UNAVAILABLE",
+      "evidence": {
+        "found": false,
+        "resources": [],
+        "status": "UNAVAILABLE",
+        "reason": "No Prometheus service, deployment, or StatefulSet was found."
+      }
+    }
+  },
+  "scorecard": {
+    "availability": {
+      "status": "PASS",
+      "reason": "All required Kubernetes, Tetragon, Alloy, Loki and PVC health checks passed. Tetragon agent recovery was validated at 24.354 seconds, and the saved Loki outage recovery experiment passed validation."
+    },
+    "detection_fidelity": {
+      "status": "PASS",
+      "reason": "Controlled shell-execution detection and Slack delivery were recorded successfully in phase8-test. This validates the tested event and delivery path only; it does not prove detection or delivery during an infrastructure outage."
+    },
+    "fail_closed_integrity": {
+      "status": "FAILED",
+      "reason": "Webhook configuration uses failurePolicy Fail, but the saved live outage runs did not demonstrate consistent fail-closed behavior and successful recovery. At least one outage request was accepted."
+    }
+  }
+}

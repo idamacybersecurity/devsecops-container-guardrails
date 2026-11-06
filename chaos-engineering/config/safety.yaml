@@ -1,0 +1,46 @@
+project:
+  name: automated-security-chaos-engineering
+  environment: single-node-k3s
+  execution_mode: dry-run-by-default
+scope:
+  allowed_workload_namespaces:
+  - phase8-test
+  - runtime-security-test
+  protected_namespaces:
+  - kube-system
+  - kyverno
+  - gatekeeper-system
+  - spire-system
+  - tetragon
+  - loki
+  - observability
+  - istio-system
+  - default
+  - devsecops-test
+  experiment_targets:
+    kyverno: kyverno
+    telemetry: loki
+    tetragon: tetragon
+limits:
+  kyverno_webhook_fault_seconds: 10
+  telemetry_fault_seconds: 15
+  tetragon_agent_recovery_timeout_seconds: 60
+  require_explicit_execution_flag: true
+  require_pre_experiment_baseline: true
+  require_post_experiment_recovery_check: true
+  require_rollback_validation: true
+prohibited_actions:
+- delete_namespace
+- reboot_node
+- stop_k3s
+- trigger_kernel_panic
+- fill_root_filesystem
+- delete_persistent_volumes
+- modify_cluster_wide_webhook_selectors_without_backup_and_approval
+- disrupt_control_plane_components
+rollback:
+  verify_kubernetes_node_ready: true
+  verify_target_workloads_recovered: true
+  verify_admission_webhooks_restored: true
+  verify_telemetry_pipeline_recovered: true
+  verify_tetragon_daemonset_ready: true

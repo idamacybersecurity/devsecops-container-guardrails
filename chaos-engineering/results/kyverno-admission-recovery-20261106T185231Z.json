@@ -1,0 +1,95 @@
+{
+  "experiment": "kyverno_admission_controller_recovery",
+  "started_at_utc": "2026-11-06T18:51:56.421912+00:00",
+  "namespace": "kyverno",
+  "test_namespace": "phase8-test",
+  "fault_duration_limit_seconds": 10,
+  "recovery_timeout_seconds": 120,
+  "baseline_state": {
+    "deployment_replicas_ready": "1:1",
+    "service_endpoints_present": true,
+    "node_ready": true
+  },
+  "baseline_admission_request": {
+    "name": "kyverno-baseline-185154",
+    "returncode": 0,
+    "stdout": "deployment.apps/kyverno-baseline-185154",
+    "stderr": "",
+    "elapsed_seconds": 1.993,
+    "outcome": "ACCEPTED"
+  },
+  "image_tested": "825276340543.dkr.ecr.eu-north-1.amazonaws.com/devsecops-api@sha256:25cc4cc9f452673bd566c660637e5745097e2aa98705cefba834bb4ea3595d21",
+  "fault_injected": true,
+  "admission_requests_during_outage": [
+    {
+      "name": "kyverno-outage-185154-1",
+      "returncode": 0,
+      "stdout": "deployment.apps/kyverno-outage-185154-1",
+      "stderr": "",
+      "elapsed_seconds": 33.746,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.61,
+      "outcome": "ACCEPTED"
+    },
+    {
+      "name": "kyverno-outage-185154-2",
+      "returncode": 0,
+      "stdout": "deployment.apps/kyverno-outage-185154-2",
+      "stderr": "",
+      "elapsed_seconds": 33.73,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.495,
+      "outcome": "ACCEPTED"
+    },
+    {
+      "name": "kyverno-outage-185154-3",
+      "returncode": 0,
+      "stdout": "deployment.apps/kyverno-outage-185154-3",
+      "stderr": "",
+      "elapsed_seconds": 33.727,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.591,
+      "outcome": "ACCEPTED"
+    },
+    {
+      "name": "kyverno-outage-185154-4",
+      "returncode": 0,
+      "stdout": "deployment.apps/kyverno-outage-185154-4",
+      "stderr": "",
+      "elapsed_seconds": 33.722,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.487,
+      "outcome": "ACCEPTED"
+    },
+    {
+      "name": "kyverno-outage-185154-5",
+      "returncode": 0,
+      "stdout": "deployment.apps/kyverno-outage-185154-5",
+      "stderr": "",
+      "elapsed_seconds": 33.719,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.483,
+      "outcome": "ACCEPTED"
+    }
+  ],
+  "restore_command_succeeded": true,
+  "controller_recovered": true,
+  "post_recovery_admission_request": null,
+  "watchdog_cancelled": false,
+  "experiment_success": false,
+  "errors": [
+    "Recovery verification: Could not stop independent deadline timer: Failed to stop chaos-kyverno-deadline-restore-54744.timer: Unit chaos-kyverno-deadline-restore-54744.timer not loaded.\n"
+  ],
+  "watchdog_unit": "chaos-kyverno-restore-54744",
+  "fault_window_clock_started_at_utc": "2026-11-06T18:51:56.514874+00:00",
+  "deadline_restore_timer_unit": "chaos-kyverno-deadline-restore-54744",
+  "scale_down_requested_at_utc": "2026-11-06T18:51:56.574491+00:00",
+  "outage_confirmed_at_utc": "2026-11-06T18:51:57.547831+00:00",
+  "restore_started_at_utc": "2026-11-06T18:52:05.567734+00:00",
+  "controller_recovered_at_utc": "2026-11-06T18:52:31.265803+00:00",
+  "recovery_time_seconds_after_restore": 25.698,
+  "post_recovery_checks": "FAILED",
+  "actual_outage_duration_seconds": 33.718,
+  "fault_window_clock_to_restore_request_seconds": 9.053,
+  "completed_at_utc": "2026-11-06T18:52:31.296757+00:00"
+}

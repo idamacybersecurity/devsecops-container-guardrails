@@ -282,6 +282,8 @@ def run(args):
     recent = set()
     order = deque()
     handled = 0
+    delivered = 0
+    delivery_failures = 0
 
     try:
         for line in stream.stdout:
@@ -310,7 +312,15 @@ def run(args):
             if args.dry_run:
                 print(json.dumps(alert, indent=2), flush=True)
             else:
-                send_slack(alert, webhook)
+                if send_slack(alert, webhook):
+                    delivered += 1
+                else:
+                    delivery_failures += 1
+                    LOG.error(
+                        "Alert delivery failed after 3 attempts; "
+                        "alert was not delivered: %s",
+                        alert["type"],
+                    )
 
             handled += 1
             if args.max_events and handled >= args.max_events:
@@ -327,6 +337,11 @@ def run(args):
             stream.kill()
             stream.wait()
 
+    LOG.info(
+        "Bridge event summary: handled=%s slack_delivered=%s "
+        "slack_delivery_failures=%s",
+        handled, delivered, delivery_failures,
+    )
     return 0
 
 

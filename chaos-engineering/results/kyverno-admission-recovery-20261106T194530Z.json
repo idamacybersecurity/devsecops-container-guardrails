@@ -1,0 +1,108 @@
+{
+  "experiment": "kyverno_admission_service_unavailability",
+  "started_at_utc": "2026-11-06T19:45:22.402915+00:00",
+  "namespace": "kyverno",
+  "test_namespace": "phase8-test",
+  "fault_method": "existing_service_selector_mismatch",
+  "fault_duration_limit_seconds": 10,
+  "recovery_timeout_seconds": 120,
+  "baseline_state": {
+    "deployment_replicas_ready": "1:1",
+    "service_endpoints_present": true,
+    "node_ready": true
+  },
+  "baseline_admission_request": {
+    "name": "kyverno-baseline-194520",
+    "returncode": 0,
+    "stdout": "deployment.apps/kyverno-baseline-194520",
+    "stderr": "",
+    "elapsed_seconds": 2.008,
+    "outcome": "ACCEPTED"
+  },
+  "image_tested": "825276340543.dkr.ecr.eu-north-1.amazonaws.com/devsecops-api@sha256:25cc4cc9f452673bd566c660637e5745097e2aa98705cefba834bb4ea3595d21",
+  "original_service_selector": {
+    "app.kubernetes.io/component": "admission-controller",
+    "app.kubernetes.io/instance": "kyverno",
+    "app.kubernetes.io/part-of": "kyverno"
+  },
+  "fault_service_selector": {
+    "app.kubernetes.io/component": "admission-controller",
+    "app.kubernetes.io/instance": "kyverno",
+    "app.kubernetes.io/part-of": "kyverno",
+    "chaos.devsecops.local/selector-fault": "disabled-194520"
+  },
+  "fault_injected": true,
+  "controller_remained_ready": true,
+  "admission_requests_during_outage": [
+    {
+      "name": "kyverno-outage-194520-1",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error from server (InternalError): error when creating \"STDIN\": Internal error occurred: failed calling webhook \"ivpol.mutate.kyverno.svc-fail-finegrained-require-signed-devsecops-images\": failed to call webhook: Post \"https://kyverno-svc.kyverno.svc:443/ivpol/mutate/require-signed-devsecops-images?timeout=30s\": no endpoints available for service \"kyverno-svc\"",
+      "elapsed_seconds": 7.722,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.027,
+      "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE"
+    },
+    {
+      "name": "kyverno-outage-194520-2",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error from server (InternalError): error when creating \"STDIN\": Internal error occurred: failed calling webhook \"ivpol.validate.kyverno.svc-fail-finegrained-require-signed-devsecops-images\": failed to call webhook: Post \"https://kyverno-svc.kyverno.svc:443/ivpol/validate/require-signed-devsecops-images?timeout=30s\": no endpoints available for service \"kyverno-svc\"",
+      "elapsed_seconds": 7.721,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.126,
+      "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE"
+    },
+    {
+      "name": "kyverno-outage-194520-3",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error from server (InternalError): error when creating \"STDIN\": Internal error occurred: failed calling webhook \"ivpol.validate.kyverno.svc-fail-finegrained-require-signed-devsecops-images\": failed to call webhook: Post \"https://kyverno-svc.kyverno.svc:443/ivpol/validate/require-signed-devsecops-images?timeout=30s\": no endpoints available for service \"kyverno-svc\"",
+      "elapsed_seconds": 7.716,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.021,
+      "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE"
+    },
+    {
+      "name": "kyverno-outage-194520-4",
+      "returncode": 0,
+      "stdout": "deployment.apps/kyverno-outage-194520-4",
+      "stderr": "",
+      "elapsed_seconds": 7.711,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 2.518,
+      "outcome": "ACCEPTED"
+    },
+    {
+      "name": "kyverno-outage-194520-5",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error from server (InternalError): error when creating \"STDIN\": Internal error occurred: failed calling webhook \"ivpol.validate.kyverno.svc-fail-finegrained-require-signed-devsecops-images\": failed to call webhook: Post \"https://kyverno-svc.kyverno.svc:443/ivpol/validate/require-signed-devsecops-images?timeout=30s\": no endpoints available for service \"kyverno-svc\"",
+      "elapsed_seconds": 7.706,
+      "completed_before_restore": true,
+      "completed_at_elapsed_seconds": 1.011,
+      "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE"
+    }
+  ],
+  "restore_command_succeeded": false,
+  "service_endpoints_recovered": false,
+  "post_recovery_admission_request": null,
+  "watchdog_cancelled": false,
+  "experiment_success": false,
+  "errors": [
+    "Service selector restoration: Kyverno Service selector does not exactly match the saved original selector"
+  ],
+  "watchdog_unit": "chaos-kyverno-restore-61634",
+  "deadline_restore_timer_unit": "chaos-kyverno-deadline-restore-61634",
+  "fault_window_clock_started_at_utc": "2026-11-06T19:45:22.540138+00:00",
+  "selector_change_requested_at_utc": "2026-11-06T19:45:22.540323+00:00",
+  "outage_confirmed_at_utc": "2026-11-06T19:45:23.230921+00:00",
+  "restore_started_at_utc": "2026-11-06T19:45:30.566939+00:00",
+  "restore_command_completed_at_utc": "2026-11-06T19:45:30.772679+00:00",
+  "selector_fault_duration_seconds": 7.542,
+  "endpoint_recovery_seconds_after_restore": null,
+  "total_service_unavailable_duration_seconds": null,
+  "fault_window_clock_to_restore_request_seconds": 8.027,
+  "completed_at_utc": "2026-11-06T19:45:30.954567+00:00"
+}

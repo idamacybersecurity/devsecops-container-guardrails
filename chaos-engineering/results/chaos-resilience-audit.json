@@ -1,6 +1,6 @@
 {
   "audit": "automated_security_chaos_resilience",
-  "generated_at_utc": "2026-11-07T10:47:53.195395+00:00",
+  "generated_at_utc": "2026-11-07T16:17:40.892540+00:00",
   "execution_mode": "read_only",
   "checks": {
     "kubernetes_nodes": {
@@ -117,8 +117,8 @@
     "kyverno_live_experiment": {
       "status": "MIXED_RESULTS",
       "evidence": {
-        "files_found": 12,
-        "validated_successes": 1,
+        "files_found": 15,
+        "validated_successes": 4,
         "failed_experiments": 11,
         "incomplete_results": 0,
         "invalid_results": 0,
@@ -348,6 +348,90 @@
           },
           {
             "file": "kyverno-admission-recovery-20261107T011616Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 0,
+            "admission_requests": [
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              }
+            ],
+            "status": "VALIDATED_SUCCESS"
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T161258Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 0,
+            "admission_requests": [
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              }
+            ],
+            "status": "VALIDATED_SUCCESS"
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T161513Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 0,
+            "admission_requests": [
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              }
+            ],
+            "status": "VALIDATED_SUCCESS"
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T161620Z.json",
             "admission_request_count": 5,
             "accepted_during_outage": 0,
             "admission_requests": [

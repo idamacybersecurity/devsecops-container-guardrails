@@ -18,6 +18,7 @@ NAMESPACE = "kyverno"
 DEPLOYMENT = "kyverno-admission-controller"
 SERVICE = "kyverno-svc"
 TEST_NAMESPACE = "phase8-test"
+PREFLIGHT_IMAGE = "ghcr.io/idamacybersecurity/devsecops-unsigned-test:latest"
 
 FAULT_SECONDS = 10
 RECOVERY_TIMEOUT = 120
@@ -62,6 +63,62 @@ def get_value(*args):
     return kubectl(*args).stdout.strip()
 
 
+def get_service_endpoint_state():
+    """Read both legacy Endpoints and EndpointSlices; fail on query or parse errors."""
+    legacy = kubectl(
+        "get", "endpoints", SERVICE, "-n", NAMESPACE,
+        "-o", "json", check=False, timeout=3,
+    )
+    slices = kubectl(
+        "get", "endpointslices", "-n", NAMESPACE,
+        "-l", f"kubernetes.io/service-name={SERVICE}",
+        "-o", "json", check=False, timeout=3,
+    )
+
+    if legacy.returncode != 0:
+        raise RuntimeError(
+            "Could not inspect legacy Endpoints: " + legacy.stderr.strip()
+        )
+    if slices.returncode != 0:
+        raise RuntimeError(
+            "Could not inspect EndpointSlices: " + slices.stderr.strip()
+        )
+
+    try:
+        legacy_data = json.loads(legacy.stdout)
+        slice_data = json.loads(slices.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"Invalid endpoint JSON: {exc}") from exc
+
+    subsets = legacy_data.get("subsets", [])
+    items = slice_data.get("items", [])
+
+    if not isinstance(subsets, list) or not isinstance(items, list):
+        raise RuntimeError("Unexpected Kubernetes endpoint response structure")
+
+    legacy_addresses = [
+        address["ip"]
+        for subset in subsets
+        for address in subset.get("addresses", [])
+        if isinstance(address, dict) and address.get("ip")
+    ]
+
+    slice_addresses = [
+        address
+        for item in items
+        for endpoint in (item.get("endpoints") or [])
+        if endpoint.get("conditions", {}).get("ready") is True
+        for address in endpoint.get("addresses", [])
+    ]
+
+    return {
+        "legacy_ready_addresses": legacy_addresses,
+        "legacy_ready_count": len(legacy_addresses),
+        "slice_ready_addresses": slice_addresses,
+        "slice_ready_count": len(slice_addresses),
+    }
+
+
 def check_controller_ready():
     state = get_value(
         "get", "deployment", DEPLOYMENT, "-n", NAMESPACE,
@@ -69,11 +126,15 @@ def check_controller_ready():
     )
     require(state == "1:1", f"Kyverno controller must be 1/1 ready; got {state}")
 
-    endpoints = get_value(
-        "get", "endpoints", SERVICE, "-n", NAMESPACE,
-        "-o", "jsonpath={.subsets[*].addresses[*].ip}"
+    endpoint_state = get_service_endpoint_state()
+    require(
+        endpoint_state["legacy_ready_count"] > 0,
+        "Kyverno legacy Endpoints has no ready addresses",
     )
-    require(bool(endpoints), "Kyverno admission service has no ready endpoints")
+    require(
+        endpoint_state["slice_ready_count"] > 0,
+        "Kyverno EndpointSlices has no ready addresses",
+    )
 
     node = get_value(
         "get", "nodes",
@@ -84,6 +145,7 @@ def check_controller_ready():
     return {
         "deployment_replicas_ready": state,
         "service_endpoints_present": True,
+        "service_endpoint_state": endpoint_state,
         "node_ready": True,
     }
 
@@ -139,6 +201,67 @@ def admission_request(name, image, timeout=45):
     }
 
 
+def wait_for_apiserver_webhook_unavailable(image, suffix, fault_window_started, timeout=3.0):
+    """
+    Confirm that the API server itself observes the Kyverno endpoint outage.
+    Use server-side dry-run canaries; require two consecutive fail-closed
+    webhook-unavailable responses before starting the measured requests.
+    """
+    deadline = min(
+        time.monotonic() + timeout,
+        fault_window_started + FAULT_SECONDS - 3.0,
+    )
+    consecutive_failures = 0
+    observations = []
+
+    while time.monotonic() < deadline:
+        name = f"kyverno-preflight-{suffix}-{len(observations) + 1}"
+        response = admission_request(name, image, timeout=3)
+        stderr = response["stderr"].lower()
+
+        expected_failure = (
+            response["returncode"] != 0
+            and "no endpoints available for service" in stderr
+            and "kyverno-svc" in stderr
+        )
+
+        observations.append({
+            "name": name,
+            "returncode": response["returncode"],
+            "outcome": (
+                "FAIL_CLOSED_WEBHOOK_UNAVAILABLE"
+                if expected_failure
+                else response["outcome"]
+            ),
+            "stderr": response["stderr"],
+        })
+
+        if expected_failure:
+            consecutive_failures += 1
+            if consecutive_failures >= 2:
+                return {
+                    "passed": True,
+                    "consecutive_fail_closed_responses": consecutive_failures,
+                    "observations": observations,
+                }
+        else:
+            consecutive_failures = 0
+
+            if response["returncode"] != 0:
+                raise RuntimeError(
+                    "API-server preflight returned an unexpected error: "
+                    + response["stderr"]
+                )
+
+        time.sleep(0.2)
+
+    raise TimeoutError(
+        "Could not confirm two consecutive API-server fail-closed "
+        "responses within the safe preflight window. Observations: "
+        + json.dumps(observations)
+    )
+
+
 def get_service_selector():
     raw = kubectl(
         "get", "service", SERVICE, "-n", NAMESPACE, "-o", "json"
@@ -167,8 +290,67 @@ def patch_service_selector(selector):
     )
 
 
-def wait_for_controller_absence(timeout=10):
+def restart_single_admission_controller_pod():
+    """Gracefully restart exactly one ready pod selected by the Deployment."""
+    deployment = kubectl(
+        "get", "deployment", DEPLOYMENT, "-n", NAMESPACE, "-o", "json"
+    )
+    deployment_data = json.loads(deployment.stdout)
+    selector = deployment_data.get("spec", {}).get("selector", {})
+    match_labels = selector.get("matchLabels", {})
+    match_expressions = selector.get("matchExpressions", [])
+
+    require(
+        bool(match_labels) and not match_expressions,
+        "Refusing pod restart: Deployment selector is empty or uses "
+        "unsupported matchExpressions",
+    )
+
+    selector_arg = ",".join(
+        f"{key}={value}" for key, value in sorted(match_labels.items())
+    )
+    pods_result = kubectl(
+        "get", "pods", "-n", NAMESPACE, "-l", selector_arg, "-o", "json"
+    )
+    pods = json.loads(pods_result.stdout).get("items", [])
+
+    ready_pods = []
+    for pod in pods:
+        metadata = pod.get("metadata", {})
+        status = pod.get("status", {})
+        ready = any(
+            condition.get("type") == "Ready"
+            and condition.get("status") == "True"
+            for condition in status.get("conditions", [])
+        )
+        if (
+            metadata.get("deletionTimestamp") is None
+            and status.get("phase") == "Running"
+            and ready
+        ):
+            ready_pods.append(metadata.get("name"))
+
+    require(
+        len(ready_pods) == 1 and ready_pods[0],
+        "Refusing pod restart: expected exactly one ready admission "
+        f"controller pod, found {ready_pods}",
+    )
+
+    pod_name = ready_pods[0]
+    print(f"Restarting the single ready admission-controller pod: {pod_name}")
+
+    kubectl(
+        "delete", "pod", pod_name, "-n", NAMESPACE,
+        "--grace-period=1", "--wait=true", "--timeout=3s",
+        timeout=5,
+    )
+    print(f"Admission-controller pod deletion completed: {pod_name}")
+    return pod_name
+
+
+def wait_for_controller_absence(timeout=10, stable_seconds=1.0):
     deadline = time.monotonic() + timeout
+    stable_since = None
     last_state = "unknown"
 
     while time.monotonic() < deadline:
@@ -177,29 +359,42 @@ def wait_for_controller_absence(timeout=10):
             "-o", "jsonpath={.spec.replicas}:{.status.readyReplicas}",
             check=False, timeout=2,
         )
-        endpoints = kubectl(
-            "get", "endpoints", SERVICE, "-n", NAMESPACE,
-            "-o", "jsonpath={.subsets[*].addresses[*].ip}",
-            check=False, timeout=2,
-        )
+
+        if replicas.returncode != 0:
+            raise RuntimeError(
+                "Could not inspect Kyverno controller readiness: "
+                + replicas.stderr.strip()
+            )
+
+        endpoint_state = get_service_endpoint_state()
         last_state = (
             f"deployment={replicas.stdout.strip()}, "
-            f"endpoints={endpoints.stdout.strip()}"
+            f"endpoint_state={json.dumps(endpoint_state)}"
         )
 
-        if (
-            replicas.returncode == 0
-            and replicas.stdout.strip() == "1:1"
-            and endpoints.returncode == 0
-            and not endpoints.stdout.strip()
-        ):
-            return
+        healthy_controller = replicas.stdout.strip() == "1:1"
+        no_endpoints = (
+            endpoint_state["legacy_ready_count"] == 0
+            and endpoint_state["slice_ready_count"] == 0
+        )
+
+        if healthy_controller and no_endpoints:
+            if stable_since is None:
+                stable_since = time.monotonic()
+            elif time.monotonic() - stable_since >= stable_seconds:
+                print(
+                    f"Legacy Endpoints and EndpointSlices remained empty "
+                    f"for {stable_seconds:.1f}s."
+                )
+                return
+        else:
+            stable_since = None
 
         time.sleep(0.2)
 
     raise TimeoutError(
-        "Kyverno Service endpoints did not disappear while its controller "
-        f"remained ready; {last_state}"
+        "Kyverno endpoints did not remain absent in both endpoint APIs "
+        f"while its controller remained ready; {last_state}"
     )
 
 
@@ -260,29 +455,35 @@ def wait_for_recovery():
             "-o", "jsonpath={.spec.replicas}:{.status.readyReplicas}",
             check=False, timeout=3,
         )
-        endpoints = kubectl(
-            "get", "endpoints", SERVICE, "-n", NAMESPACE,
-            "-o", "jsonpath={.subsets[*].addresses[*].ip}",
-            check=False, timeout=3,
-        )
+
+        if deployment.returncode != 0:
+            raise RuntimeError(
+                "Could not inspect Kyverno controller during recovery: "
+                + deployment.stderr.strip()
+            )
+
+        endpoint_state = get_service_endpoint_state()
         last_state = (
             f"deployment={deployment.stdout.strip()}, "
-            f"endpoints={endpoints.stdout.strip()}"
+            f"endpoint_state={json.dumps(endpoint_state)}"
         )
 
         if (
-            deployment.returncode == 0
-            and deployment.stdout.strip() == "1:1"
-            and endpoints.returncode == 0
-            and bool(endpoints.stdout.strip())
+            deployment.stdout.strip() == "1:1"
+            and endpoint_state["legacy_ready_count"] > 0
+            and endpoint_state["slice_ready_count"] > 0
         ):
+            print(
+                "Recovery verified: legacy Endpoints and EndpointSlices "
+                "both have ready addresses."
+            )
             return
 
         time.sleep(0.5)
 
     raise TimeoutError(
-        f"Kyverno Service endpoints did not recover within "
-        f"{RECOVERY_TIMEOUT}s; {last_state}"
+        f"Kyverno Service endpoints did not recover in both endpoint APIs "
+        f"within {RECOVERY_TIMEOUT}s; {last_state}"
     )
 
 
@@ -481,7 +682,12 @@ def main():
         "fault_service_selector": fault_selector,
         "fault_injected": False,
         "controller_remained_ready": False,
+        "controller_pod_restart_requested": False,
+        "controller_pod_name": None,
+        "controller_recovered_ready": False,
         "admission_requests_during_outage": [],
+        "apiserver_endpoint_preflight": None,
+        "apiserver_endpoint_preflight_error": None,
         "restore_command_succeeded": None,
         "service_endpoints_recovered": False,
         "post_recovery_admission_request": None,
@@ -526,10 +732,34 @@ def main():
         outage_started = time.monotonic()
         result["outage_confirmed_at_utc"] = timestamp()
         result["fault_injected"] = True
-        result["controller_remained_ready"] = True
+        result["controller_remained_ready"] = False
+
+        restarted_pod = restart_single_admission_controller_pod()
+        result["controller_pod_restart_requested"] = True
+        result["controller_pod_name"] = restarted_pod
+
         print(
-            "Kyverno Service has no ready endpoints; "
-            "admission controller remains 1/1."
+            "Kyverno Service endpoints are empty and the previous "
+            "admission-controller pod has been terminated."
+        )
+
+        print(
+            "Checking API-server webhook endpoint propagation with "
+            "server-side dry-run preflight requests..."
+        )
+        try:
+            result["apiserver_endpoint_preflight"] = (
+                wait_for_apiserver_webhook_unavailable(
+                    image, suffix, fault_window_started
+                )
+            )
+        except Exception as exc:
+            result["apiserver_endpoint_preflight_error"] = str(exc)
+            raise
+
+        print(
+            "API-server preflight PASS: two consecutive fail-closed "
+            "webhook-unavailable responses."
         )
 
         request_count = 5
@@ -575,6 +805,8 @@ def main():
     except Exception as exc:
         result["errors"].append(f"Fault/injection stage: {exc}")
         print(f"EXPERIMENT ERROR: {exc}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
 
     finally:
         if selector_change_attempted:
@@ -619,6 +851,7 @@ def main():
 
             wait_for_recovery()
             recovery_completed_at = time.monotonic()
+            result["controller_recovered_ready"] = True
             result["service_endpoints_recovered"] = True
             result["service_recovered_at_utc"] = timestamp()
             result["recovery_time_seconds_after_restore"] = round(
@@ -672,13 +905,11 @@ def main():
                 error_text = (stderr or "").lower()
                 if process.returncode == 0:
                     outcome = "ACCEPTED"
-                elif any(term in error_text for term in (
-                    "failed calling webhook",
-                    "no endpoints available",
-                    "connection refused",
-                    "service unavailable",
-                    "context deadline exceeded",
-                )):
+                elif (
+                    "failed calling webhook" in error_text
+                    and "no endpoints available for service" in error_text
+                    and "kyverno-svc" in error_text
+                ):
                     outcome = "FAIL_CLOSED_WEBHOOK_UNAVAILABLE"
                 else:
                     outcome = "REJECTED_OR_ERROR"
@@ -758,7 +989,8 @@ def main():
     requests = result["admission_requests_during_outage"]
     result["experiment_success"] = (
         result["fault_injected"]
-        and result["controller_remained_ready"]
+        and result["controller_pod_restart_requested"]
+        and result["controller_recovered_ready"]
         and result["restore_command_succeeded"] is True
         and result.get("service_selector_restored_exactly") is True
         and result["service_endpoints_recovered"]
@@ -766,6 +998,7 @@ def main():
         and result.get("deadline_restore_verified") is True
         and result.get("deadline_restore_outcome") == "CANCELLED_BEFORE_DEADLINE"
         and result["watchdog_cancelled"]
+        and (result.get("apiserver_endpoint_preflight") or {}).get("passed") is True
         and len(requests) == 5
         and all(
             item["outcome"] == "FAIL_CLOSED_WEBHOOK_UNAVAILABLE"

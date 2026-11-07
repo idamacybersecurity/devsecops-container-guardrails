@@ -1,0 +1,81 @@
+{
+  "experiment": "kyverno_admission_service_unavailability",
+  "started_at_utc": "2026-11-07T00:45:49.885741+00:00",
+  "namespace": "kyverno",
+  "test_namespace": "phase8-test",
+  "fault_method": "existing_service_selector_mismatch",
+  "fault_duration_limit_seconds": 10,
+  "recovery_timeout_seconds": 120,
+  "baseline_state": {
+    "deployment_replicas_ready": "1:1",
+    "service_endpoints_present": true,
+    "service_endpoint_state": {
+      "legacy_ready_addresses": [
+        "10.42.0.145"
+      ],
+      "legacy_ready_count": 1,
+      "slice_ready_addresses": [
+        "10.42.0.145"
+      ],
+      "slice_ready_count": 1
+    },
+    "node_ready": true
+  },
+  "baseline_admission_request": {
+    "name": "kyverno-baseline-004547",
+    "returncode": 0,
+    "stdout": "deployment.apps/kyverno-baseline-004547",
+    "stderr": "",
+    "elapsed_seconds": 1.802,
+    "outcome": "ACCEPTED"
+  },
+  "image_tested": "825276340543.dkr.ecr.eu-north-1.amazonaws.com/devsecops-api@sha256:25cc4cc9f452673bd566c660637e5745097e2aa98705cefba834bb4ea3595d21",
+  "original_service_selector": {
+    "app.kubernetes.io/component": "admission-controller",
+    "app.kubernetes.io/instance": "kyverno",
+    "app.kubernetes.io/part-of": "kyverno"
+  },
+  "fault_service_selector": {
+    "app.kubernetes.io/component": "admission-controller",
+    "app.kubernetes.io/instance": "kyverno",
+    "app.kubernetes.io/part-of": "kyverno",
+    "chaos.devsecops.local/selector-fault": "disabled-004547"
+  },
+  "fault_injected": false,
+  "controller_remained_ready": false,
+  "admission_requests_during_outage": [],
+  "apiserver_endpoint_preflight": null,
+  "apiserver_endpoint_preflight_error": null,
+  "restore_command_succeeded": true,
+  "service_endpoints_recovered": true,
+  "post_recovery_admission_request": {
+    "name": "kyverno-post-recovery-004547",
+    "returncode": 0,
+    "stdout": "deployment.apps/kyverno-post-recovery-004547",
+    "stderr": "",
+    "elapsed_seconds": 2.1,
+    "outcome": "ACCEPTED"
+  },
+  "watchdog_cancelled": true,
+  "experiment_success": false,
+  "errors": [
+    "Fault/injection stage: 'NoneType' object is not iterable"
+  ],
+  "watchdog_unit": "chaos-kyverno-restore-28404",
+  "deadline_restore_timer_unit": "chaos-kyverno-deadline-restore-28404",
+  "fault_window_clock_started_at_utc": "2026-11-07T00:45:49.994344+00:00",
+  "selector_change_requested_at_utc": "2026-11-07T00:45:49.994374+00:00",
+  "restore_started_at_utc": "2026-11-07T00:45:50.823009+00:00",
+  "restore_command_completed_at_utc": "2026-11-07T00:45:51.021594+00:00",
+  "service_selector_restored_exactly": true,
+  "deadline_restore_outcome": "CANCELLED_BEFORE_DEADLINE",
+  "deadline_restore_verified": true,
+  "service_recovered_at_utc": "2026-11-07T00:45:52.004853+00:00",
+  "recovery_time_seconds_after_restore": 0.983,
+  "post_recovery_checks": "PASS",
+  "selector_fault_duration_seconds": null,
+  "endpoint_recovery_seconds_after_restore": 0.983,
+  "total_service_unavailable_duration_seconds": null,
+  "fault_window_clock_to_restore_request_seconds": 0.829,
+  "completed_at_utc": "2026-11-07T00:45:54.236595+00:00"
+}

@@ -1,0 +1,82 @@
+{
+  "experiment": "kyverno_admission_service_unavailability",
+  "started_at_utc": "2026-11-07T00:49:40.990669+00:00",
+  "namespace": "kyverno",
+  "test_namespace": "phase8-test",
+  "fault_method": "existing_service_selector_mismatch",
+  "fault_duration_limit_seconds": 10,
+  "recovery_timeout_seconds": 120,
+  "baseline_state": {
+    "deployment_replicas_ready": "1:1",
+    "service_endpoints_present": true,
+    "service_endpoint_state": {
+      "legacy_ready_addresses": [
+        "10.42.0.145"
+      ],
+      "legacy_ready_count": 1,
+      "slice_ready_addresses": [
+        "10.42.0.145"
+      ],
+      "slice_ready_count": 1
+    },
+    "node_ready": true
+  },
+  "baseline_admission_request": {
+    "name": "kyverno-baseline-004938",
+    "returncode": 0,
+    "stdout": "deployment.apps/kyverno-baseline-004938",
+    "stderr": "",
+    "elapsed_seconds": 2.129,
+    "outcome": "ACCEPTED"
+  },
+  "image_tested": "825276340543.dkr.ecr.eu-north-1.amazonaws.com/devsecops-api@sha256:25cc4cc9f452673bd566c660637e5745097e2aa98705cefba834bb4ea3595d21",
+  "original_service_selector": {
+    "app.kubernetes.io/component": "admission-controller",
+    "app.kubernetes.io/instance": "kyverno",
+    "app.kubernetes.io/part-of": "kyverno"
+  },
+  "fault_service_selector": {
+    "app.kubernetes.io/component": "admission-controller",
+    "app.kubernetes.io/instance": "kyverno",
+    "app.kubernetes.io/part-of": "kyverno",
+    "chaos.devsecops.local/selector-fault": "disabled-004938"
+  },
+  "fault_injected": true,
+  "controller_remained_ready": true,
+  "admission_requests_during_outage": [],
+  "apiserver_endpoint_preflight": null,
+  "apiserver_endpoint_preflight_error": "Could not confirm two consecutive API-server fail-closed responses within the safe preflight window. Observations: [{\"name\": \"kyverno-preflight-004938-1\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}, {\"name\": \"kyverno-preflight-004938-2\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}]",
+  "restore_command_succeeded": true,
+  "service_endpoints_recovered": true,
+  "post_recovery_admission_request": {
+    "name": "kyverno-post-recovery-004938",
+    "returncode": 0,
+    "stdout": "deployment.apps/kyverno-post-recovery-004938",
+    "stderr": "",
+    "elapsed_seconds": 2.154,
+    "outcome": "ACCEPTED"
+  },
+  "watchdog_cancelled": true,
+  "experiment_success": false,
+  "errors": [
+    "Fault/injection stage: Could not confirm two consecutive API-server fail-closed responses within the safe preflight window. Observations: [{\"name\": \"kyverno-preflight-004938-1\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}, {\"name\": \"kyverno-preflight-004938-2\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}]"
+  ],
+  "watchdog_unit": "chaos-kyverno-restore-29981",
+  "deadline_restore_timer_unit": "chaos-kyverno-deadline-restore-29981",
+  "fault_window_clock_started_at_utc": "2026-11-07T00:49:41.108810+00:00",
+  "selector_change_requested_at_utc": "2026-11-07T00:49:41.108840+00:00",
+  "outage_confirmed_at_utc": "2026-11-07T00:49:43.775241+00:00",
+  "restore_started_at_utc": "2026-11-07T00:49:47.827529+00:00",
+  "restore_command_completed_at_utc": "2026-11-07T00:49:48.041053+00:00",
+  "service_selector_restored_exactly": true,
+  "deadline_restore_outcome": "CANCELLED_BEFORE_DEADLINE",
+  "deadline_restore_verified": true,
+  "service_recovered_at_utc": "2026-11-07T00:49:49.308981+00:00",
+  "recovery_time_seconds_after_restore": 1.268,
+  "post_recovery_checks": "PASS",
+  "selector_fault_duration_seconds": 4.266,
+  "endpoint_recovery_seconds_after_restore": 1.268,
+  "total_service_unavailable_duration_seconds": 5.534,
+  "fault_window_clock_to_restore_request_seconds": 6.719,
+  "completed_at_utc": "2026-11-07T00:49:51.602287+00:00"
+}

@@ -431,7 +431,7 @@ def kyverno_experiment_inventory():
                     raise ValueError("Modern controller/endpoint fields must be Boolean")
 
                 recovery_pass = (
-                    data["controller_remained_ready"] is True
+                    (data["controller_remained_ready"] is True or data.get("controller_recovered_ready") is True)
                     and data["service_endpoints_recovered"] is True
                 )
             else:

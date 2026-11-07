@@ -1,6 +1,6 @@
 {
   "audit": "automated_security_chaos_resilience",
-  "generated_at_utc": "2026-11-06T20:02:20.653306+00:00",
+  "generated_at_utc": "2026-11-07T10:47:53.195395+00:00",
   "execution_mode": "read_only",
   "checks": {
     "kubernetes_nodes": {
@@ -115,11 +115,11 @@
       }
     },
     "kyverno_live_experiment": {
-      "status": "EXPERIMENT_FAILED",
+      "status": "MIXED_RESULTS",
       "evidence": {
-        "files_found": 2,
-        "validated_successes": 0,
-        "failed_experiments": 2,
+        "files_found": 12,
+        "validated_successes": 1,
+        "failed_experiments": 11,
         "incomplete_results": 0,
         "invalid_results": 0,
         "file_findings": [
@@ -190,19 +190,213 @@
             "errors": [
               "Service selector restoration: Kyverno Service selector does not exactly match the saved original selector"
             ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261106T231802Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 1,
+            "admission_requests": [
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              }
+            ],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": []
+          },
+          {
+            "file": "kyverno-admission-recovery-20261106T232606Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 1,
+            "admission_requests": [
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "ACCEPTED",
+                "returncode": 0
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              }
+            ],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": []
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T004440Z.json",
+            "admission_request_count": 0,
+            "accepted_during_outage": 0,
+            "admission_requests": [],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": [
+              "Fault/injection stage: 'NoneType' object is not iterable"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T004554Z.json",
+            "admission_request_count": 0,
+            "accepted_during_outage": 0,
+            "admission_requests": [],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": [
+              "Fault/injection stage: 'NoneType' object is not iterable"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T004651Z.json",
+            "admission_request_count": 0,
+            "accepted_during_outage": 0,
+            "admission_requests": [],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": [
+              "Fault/injection stage: 'NoneType' object is not iterable"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T004757Z.json",
+            "admission_request_count": 0,
+            "accepted_during_outage": 0,
+            "admission_requests": [],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": [
+              "Fault/injection stage: 'NoneType' object is not iterable"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T004951Z.json",
+            "admission_request_count": 0,
+            "accepted_during_outage": 0,
+            "admission_requests": [],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": [
+              "Fault/injection stage: Could not confirm two consecutive API-server fail-closed responses within the safe preflight window. Observations: [{\"name\": \"kyverno-preflight-004938-1\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}, {\"name\": \"kyverno-preflight-004938-2\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}]"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T010032Z.json",
+            "admission_request_count": 0,
+            "accepted_during_outage": 0,
+            "admission_requests": [],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": [
+              "Fault/injection stage: API-server preflight returned an unexpected error: Error from server: error when creating \"STDIN\": admission webhook \"ivpol.mutate.kyverno.svc-fail-finegrained-require-signed-devsecops-images\" denied the request: Policy require-signed-devsecops-images error: failed to update digest: failed to resolve digest for image ghcr.io/idamacybersecurity/devsecops-unsigned-test:latest: GET https://ghcr.io/v2/idamacybersecurity/devsecops-unsigned-test/manifests/latest: MANIFEST_UNKNOWN: manifest unknown"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T010332Z.json",
+            "admission_request_count": 0,
+            "accepted_during_outage": 0,
+            "admission_requests": [],
+            "status": "EXPERIMENT_FAILED",
+            "experiment_success_recorded": false,
+            "restore_command_succeeded": true,
+            "watchdog_cancelled": true,
+            "errors": [
+              "Fault/injection stage: Could not confirm two consecutive API-server fail-closed responses within the safe preflight window. Observations: [{\"name\": \"kyverno-preflight-010320-1\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}, {\"name\": \"kyverno-preflight-010320-2\", \"returncode\": 0, \"outcome\": \"ACCEPTED\", \"stderr\": \"\"}]"
+            ]
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T011616Z.json",
+            "admission_request_count": 5,
+            "accepted_during_outage": 0,
+            "admission_requests": [
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              },
+              {
+                "outcome": "FAIL_CLOSED_WEBHOOK_UNAVAILABLE",
+                "returncode": 1
+              }
+            ],
+            "status": "VALIDATED_SUCCESS"
           }
         ],
-        "status": "EXPERIMENT_FAILED",
+        "status": "MIXED_RESULTS",
         "reason": "Kyverno outage records were classified using request outcomes, rollback, controller and endpoint recovery, post-recovery admission, watchdog cancellation, and the recorded experiment result."
       }
     },
     "prometheus_inventory": {
-      "status": "UNAVAILABLE",
+      "status": "PASS",
       "evidence": {
-        "found": false,
-        "resources": [],
-        "status": "UNAVAILABLE",
-        "reason": "No Prometheus service, deployment, or StatefulSet was found."
+        "found": true,
+        "resources": [
+          {
+            "kind": "Service",
+            "namespace": "istio-system",
+            "name": "prometheus"
+          },
+          {
+            "kind": "Deployment",
+            "namespace": "istio-system",
+            "name": "prometheus"
+          }
+        ],
+        "status": "AVAILABLE",
+        "reason": "Prometheus resources were discovered."
       }
     }
   },
@@ -216,8 +410,8 @@
       "reason": "Controlled shell-execution detection and Slack delivery were recorded successfully in phase8-test. This validates the tested event and delivery path only; it does not prove detection or delivery during an infrastructure outage."
     },
     "fail_closed_integrity": {
-      "status": "FAILED",
-      "reason": "Webhook configuration uses failurePolicy Fail, but the saved live outage runs did not demonstrate consistent fail-closed behavior and successful recovery. At least one outage request was accepted."
+      "status": "PARTIAL",
+      "reason": "Webhook configuration is Fail, but live outage evidence is incomplete or invalid; runtime integrity is unconfirmed."
     }
   }
 }

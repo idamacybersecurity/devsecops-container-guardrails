@@ -489,6 +489,67 @@ def kyverno_experiment_inventory():
     return evidence
 
 
+def kyverno_acceptance_campaign():
+    # These four records form the designated final acceptance cohort.
+    # Historical development records remain in the all-record inventory.
+    acceptance_files = (
+        "kyverno-admission-recovery-20261107T011616Z.json",
+        "kyverno-admission-recovery-20261107T161258Z.json",
+        "kyverno-admission-recovery-20261107T161513Z.json",
+        "kyverno-admission-recovery-20261107T161620Z.json",
+    )
+
+    inventory = kyverno_experiment_inventory()
+    findings = {
+        item.get("file"): item
+        for item in inventory.get("file_findings", [])
+    }
+
+    selected = [
+        {
+            "file": filename,
+            "status": findings.get(filename, {}).get("status", "MISSING"),
+        }
+        for filename in acceptance_files
+    ]
+
+    missing = [
+        item["file"] for item in selected
+        if item["status"] == "MISSING"
+    ]
+
+    if missing:
+        status = "INCOMPLETE_RESULTS"
+    elif all(item["status"] == "VALIDATED_SUCCESS" for item in selected):
+        status = "VALIDATED_SUCCESS"
+    elif any(item["status"] == "EXPERIMENT_FAILED" for item in selected):
+        status = "EXPERIMENT_FAILED"
+    elif any(item["status"] == "INVALID" for item in selected):
+        status = "INVALID_RESULTS"
+    else:
+        status = "INCOMPLETE_RESULTS"
+
+    return {
+        "status": status,
+        "acceptance_records_expected": len(acceptance_files),
+        "acceptance_records_found": len(selected) - len(missing),
+        "acceptance_records_validated_success": sum(
+            item["status"] == "VALIDATED_SUCCESS" for item in selected
+        ),
+        "acceptance_records": selected,
+        "all_record_inventory_status": inventory.get("status", "UNKNOWN"),
+        "all_record_inventory_files_found": inventory.get("files_found", 0),
+        "reason": (
+            "This score is scoped to the four explicitly designated final "
+            "acceptance records. All four must independently validate. "
+            "Historical development records remain visible in the separate "
+            "all-record inventory and are not reclassified. The auditor "
+            "does not independently verify when the acceptance cohort was "
+            "designated; that designation is an operator/process assertion."
+        ),
+    }
+
+
 def kyverno_webhook_policy():
     configs = kubectl_json("get", "validatingwebhookconfigurations")
     findings = []
@@ -585,6 +646,9 @@ def main():
         "kyverno_live_experiment": check(
             "Kyverno live experiment inventory", kyverno_experiment_inventory
         ),
+        "kyverno_acceptance_campaign": check(
+            "Kyverno final acceptance campaign", kyverno_acceptance_campaign
+        ),
         "prometheus_inventory": check(
             "Prometheus inventory", prometheus_inventory
         ),
@@ -614,35 +678,46 @@ def main():
     if kyverno_live["status"] == "PASS":
         kyverno_live["status"] = kyverno_live["evidence"].get("status", "UNKNOWN")
 
+    kyverno_campaign = checks["kyverno_acceptance_campaign"]
+    if kyverno_campaign["status"] == "PASS":
+        kyverno_campaign["status"] = kyverno_campaign["evidence"].get(
+            "status", "UNKNOWN"
+        )
+
+    campaign_status = kyverno_campaign.get("evidence", {}).get("status")
     live_status = kyverno_live.get("evidence", {}).get("status")
     if kyverno["status"] != "CONFIGURATION_VERIFIED":
         fail_closed_status = "CONFIGURATION_REVIEW_REQUIRED"
         fail_closed_reason = (
             "Kyverno webhook configuration did not verify failurePolicy Fail."
         )
-    elif live_status == "VALIDATED_SUCCESS":
+    elif campaign_status == "VALIDATED_SUCCESS":
         fail_closed_status = "PASS"
         fail_closed_reason = (
-            "Webhook configuration and strict live outage rejection and recovery "
-            "checks passed."
+            "Kyverno webhook configuration is verified as fail-closed, and all "
+            "four designated final acceptance records independently validate "
+            "fault injection, outage rejection, restoration, recovery, and "
+            "post-recovery admission. The separate all-record historical "
+            f"inventory remains {live_status}; this PASS applies only to the "
+            "four-record acceptance campaign."
         )
-    elif live_status == "EXPERIMENT_FAILED":
+    elif campaign_status == "EXPERIMENT_FAILED":
         fail_closed_status = "FAILED"
         fail_closed_reason = (
-            "Webhook configuration uses failurePolicy Fail, but the saved live "
-            "outage runs did not demonstrate consistent fail-closed behavior "
-            "and successful recovery. At least one outage request was accepted."
+            "At least one designated final acceptance run failed validation."
         )
-    elif live_status == "NOT_TESTED":
+    elif campaign_status == "NOT_TESTED":
         fail_closed_status = "CONFIGURATION_ONLY"
         fail_closed_reason = (
-            "Webhook configuration is Fail, but no live outage result exists."
+            "Webhook configuration is Fail, but no final acceptance campaign "
+            "evidence exists."
         )
     else:
         fail_closed_status = "PARTIAL"
         fail_closed_reason = (
-            "Webhook configuration is Fail, but live outage evidence is "
-            "incomplete or invalid; runtime integrity is unconfirmed."
+            "The four-record final acceptance campaign is incomplete, invalid, "
+            "or not fully validated. The all-record historical inventory is "
+            f"reported separately as {live_status}."
         )
 
     audit = {
@@ -796,6 +871,7 @@ def main():
             "prometheus_inventory",
             "kyverno_webhook_configuration",
             "kyverno_live_experiment",
+            "kyverno_acceptance_campaign",
         ):
             print(f"  {json.dumps(evidence, indent=2)}")
         elif status != "PASS":

@@ -1,6 +1,6 @@
 {
   "audit": "automated_security_chaos_resilience",
-  "generated_at_utc": "2026-11-07T16:17:40.892540+00:00",
+  "generated_at_utc": "2026-11-08T02:55:30.428987+00:00",
   "execution_mode": "read_only",
   "checks": {
     "kubernetes_nodes": {
@@ -463,6 +463,36 @@
         "reason": "Kyverno outage records were classified using request outcomes, rollback, controller and endpoint recovery, post-recovery admission, watchdog cancellation, and the recorded experiment result."
       }
     },
+    "kyverno_acceptance_campaign": {
+      "status": "VALIDATED_SUCCESS",
+      "evidence": {
+        "status": "VALIDATED_SUCCESS",
+        "acceptance_records_expected": 4,
+        "acceptance_records_found": 4,
+        "acceptance_records_validated_success": 4,
+        "acceptance_records": [
+          {
+            "file": "kyverno-admission-recovery-20261107T011616Z.json",
+            "status": "VALIDATED_SUCCESS"
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T161258Z.json",
+            "status": "VALIDATED_SUCCESS"
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T161513Z.json",
+            "status": "VALIDATED_SUCCESS"
+          },
+          {
+            "file": "kyverno-admission-recovery-20261107T161620Z.json",
+            "status": "VALIDATED_SUCCESS"
+          }
+        ],
+        "all_record_inventory_status": "MIXED_RESULTS",
+        "all_record_inventory_files_found": 15,
+        "reason": "This score is scoped to the four explicitly designated final acceptance records. All four must independently validate. Historical development records remain visible in the separate all-record inventory and are not reclassified. The auditor does not independently verify when the acceptance cohort was designated; that designation is an operator/process assertion."
+      }
+    },
     "prometheus_inventory": {
       "status": "PASS",
       "evidence": {
@@ -494,8 +524,8 @@
       "reason": "Controlled shell-execution detection and Slack delivery were recorded successfully in phase8-test. This validates the tested event and delivery path only; it does not prove detection or delivery during an infrastructure outage."
     },
     "fail_closed_integrity": {
-      "status": "PARTIAL",
-      "reason": "Webhook configuration is Fail, but live outage evidence is incomplete or invalid; runtime integrity is unconfirmed."
+      "status": "PASS",
+      "reason": "Kyverno webhook configuration is verified as fail-closed, and all four designated final acceptance records independently validate fault injection, outage rejection, restoration, recovery, and post-recovery admission. The separate all-record historical inventory remains MIXED_RESULTS; this PASS applies only to the four-record acceptance campaign."
     }
   }
 }

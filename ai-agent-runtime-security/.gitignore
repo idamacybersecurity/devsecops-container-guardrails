@@ -1,0 +1,6 @@
+# Local backup; the canonical baseline agent.py is tracked
+/agent/agent.py.pre-audit-backup
+
+# Temporary runtime markers and duplicate audit logs.
+# Canonical test evidence is preserved under /evidence/
+/agent/workspace/output/

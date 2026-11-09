@@ -1,0 +1,4 @@
+SYNTHETIC_TEST_SECRET
+username=lab-user
+password_hash=SIMULATED_HASH_NOT_REAL
+classification=CONTROLLED_RED_TEAM_FIXTURE

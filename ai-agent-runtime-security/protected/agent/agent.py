@@ -19,7 +19,7 @@ AUDIT_LOG = os.getenv(
 MAX_MODEL_ROUNDS = 4
 MAX_TOOL_EXECUTIONS = 8
 
-AGENT_MODE = os.getenv("AGENT_MODE", "unprotected")
+AGENT_MODE = "protected"  # Fixed: protected build cannot downgrade via environment
 WORKSPACE_ROOT = os.getenv("AGENT_WORKSPACE_ROOT", "/workspace")
 FIXTURE_ROOT = os.path.join(WORKSPACE_ROOT, "fixtures")
 

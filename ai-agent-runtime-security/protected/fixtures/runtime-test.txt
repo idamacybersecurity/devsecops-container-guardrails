@@ -1,0 +1,1 @@
+Protected fixture read test: access granted.

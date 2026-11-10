@@ -120,7 +120,7 @@ d14c6ed26604436bb84c5a9703f890f662067916a908203f2c0698cb28bdfcc3
 
 Protected agent source SHA-256:
 
-2b9b4dd5714ee4bb7143dc1f88ae0abe87714771e9fb70fb4bcd4b25f5c147c9
+53bfc10afc5b457b8ed80434ba9cc8be08d2f5da42d3c76bdfde18eda090cd54
 
 The baseline and protected implementations are maintained separately.
 ## Limitations

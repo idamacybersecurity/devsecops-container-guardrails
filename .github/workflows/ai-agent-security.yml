@@ -1,0 +1,66 @@
+name: AI Agent Security Validation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ai-agent-runtime-security/**'
+      - '.github/workflows/ai-agent-security.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'ai-agent-runtime-security/**'
+      - '.github/workflows/ai-agent-security.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  protected-agent-validation:
+    name: Protected AI Agent Validation
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.14'
+
+      - name: Run protected agent guardrail tests
+        run: |
+          python -B -m unittest discover \
+            -s ai-agent-runtime-security/protected/tests \
+            -p 'test_*.py' -v
+
+      - name: Run SOAR bridge tests
+        run: |
+          python -B -m unittest discover \
+            -s ai-agent-runtime-security/soar \
+            -p 'test_*.py' -v
+
+      - name: Build protected AI agent image
+        run: |
+          docker build --pull \
+            -f ai-agent-runtime-security/protected/Dockerfile \
+            -t ai-agent-runtime-security:ci \
+            .
+
+      - name: Verify protected image configuration
+        run: |
+          docker image inspect ai-agent-runtime-security:ci
+
+          IMAGE_USER=$(docker image inspect \
+            --format '{{.Config.User}}' \
+            ai-agent-runtime-security:ci)
+
+          if [ "$IMAGE_USER" != "10001:10001" ]; then
+            echo "::error::Protected image is not configured for UID/GID 10001:10001."
+            exit 1
+          fi
+
+          echo "PASS: Protected image uses UID/GID 10001:10001."

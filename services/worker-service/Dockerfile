@@ -3,7 +3,9 @@ FROM python:3.14-slim
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 \
+    && apt-get install -y --no-install-recommends --only-upgrade \
+       libpcre2-8-0 \
+       zlib1g \
     && rm -rf /var/lib/apt/lists/*
 
 COPY worker.py .

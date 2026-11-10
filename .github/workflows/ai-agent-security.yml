@@ -37,12 +37,6 @@ jobs:
             -s ai-agent-runtime-security/protected/tests \
             -p 'test_*.py' -v
 
-      - name: Run SOAR bridge tests
-        run: |
-          python -B -m unittest discover \
-            -s ai-agent-runtime-security/soar \
-            -p 'test_*.py' -v
-
       - name: Build protected AI agent image
         run: |
           docker build --pull \

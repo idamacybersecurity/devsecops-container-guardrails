@@ -42,14 +42,16 @@ jobs:
       - name: Build API service image
         run: |
           docker build --pull \
+            -f services/api-service/Dockerfile \
             -t devsecops-api:${{ github.sha }} \
-            services/api-service
+            .
 
       - name: Build worker service image
         run: |
           docker build --pull \
+            -f services/worker-service/Dockerfile \
             -t devsecops-worker:${{ github.sha }} \
-            services/worker-service
+            .
 
       - name: Verify container images
         run: |

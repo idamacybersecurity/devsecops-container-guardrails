@@ -1,0 +1,4 @@
+AI AGENT MODE: dlp-negative-test
+
+=== MODEL ROUND 1/4 ===
+AGENT ERROR: RuntimeError: Ollama HTTP 403: {"error": "Response blocked by DLP policy", "blocked": true, "findings": [{"rule": "synthetic_test_secret", "severity": "HIGH", "location": "$.message.content"}]}

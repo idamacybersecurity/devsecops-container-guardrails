@@ -1,0 +1,35 @@
+test_does_not_claim_success_without_exit_137 (test_correlated_soar_daemon.CorrelationAndContainmentTests.test_does_not_claim_success_without_exit_137) ... ok
+test_dry_run_resolves_target_without_killing (test_correlated_soar_daemon.CorrelationAndContainmentTests.test_dry_run_resolves_target_without_killing) ... ok
+test_execute_kills_and_verifies_exit_137 (test_correlated_soar_daemon.CorrelationAndContainmentTests.test_execute_kills_and_verifies_exit_137) ... ok
+test_marks_missing_malformed_and_pre_event_finished_at (test_correlated_soar_daemon.CorrelationAndContainmentTests.test_marks_missing_malformed_and_pre_event_finished_at) ... ok
+test_rejects_ambiguous_container_prefix (test_correlated_soar_daemon.CorrelationAndContainmentTests.test_rejects_ambiguous_container_prefix) ... ok
+test_rejects_privileged_container_without_killing (test_correlated_soar_daemon.CorrelationAndContainmentTests.test_rejects_privileged_container_without_killing) ... ok
+test_rejects_wrong_labels_without_killing (test_correlated_soar_daemon.CorrelationAndContainmentTests.test_rejects_wrong_labels_without_killing) ... ok
+test_accepts_valid_event_and_extracts_timestamp (test_correlated_soar_daemon.EventValidationTests.test_accepts_valid_event_and_extracts_timestamp) ... ok
+test_rejects_failed_write (test_correlated_soar_daemon.EventValidationTests.test_rejects_failed_write) ... ok
+test_rejects_invalid_container_id (test_correlated_soar_daemon.EventValidationTests.test_rejects_invalid_container_id) ... ok
+test_rejects_missing_timestamp (test_correlated_soar_daemon.EventValidationTests.test_rejects_missing_timestamp) ... ok
+test_rejects_non_write_permission (test_correlated_soar_daemon.EventValidationTests.test_rejects_non_write_permission) ... ok
+test_rejects_path_outside_output (test_correlated_soar_daemon.EventValidationTests.test_rejects_path_outside_output) ... ok
+test_rejects_path_traversal (test_correlated_soar_daemon.EventValidationTests.test_rejects_path_traversal) ... ok
+test_rejects_wrong_hook (test_correlated_soar_daemon.EventValidationTests.test_rejects_wrong_hook) ... ok
+test_rejects_wrong_policy (test_correlated_soar_daemon.EventValidationTests.test_rejects_wrong_policy) ... ok
+test_does_not_claim_quarantine_without_exited_state (test_tetragon_soar_bridge.ContainmentTests.test_does_not_claim_quarantine_without_exited_state) ... ok
+test_dry_run_never_stops_container (test_tetragon_soar_bridge.ContainmentTests.test_dry_run_never_stops_container) ... ok
+test_execute_stops_only_validated_target (test_tetragon_soar_bridge.ContainmentTests.test_execute_stops_only_validated_target) ... ok
+test_rejects_ambiguous_id_without_inspecting_or_stopping (test_tetragon_soar_bridge.ContainmentTests.test_rejects_ambiguous_id_without_inspecting_or_stopping) ... ok
+test_rejects_unapproved_labels_without_stopping (test_tetragon_soar_bridge.ContainmentTests.test_rejects_unapproved_labels_without_stopping) ... ok
+test_accepts_valid_write_event (test_tetragon_soar_bridge.EventFilterTests.test_accepts_valid_write_event) ... ok
+test_rejects_failed_write (test_tetragon_soar_bridge.EventFilterTests.test_rejects_failed_write) ... ok
+test_rejects_malformed_event (test_tetragon_soar_bridge.EventFilterTests.test_rejects_malformed_event) ... ok
+test_rejects_non_write_permission (test_tetragon_soar_bridge.EventFilterTests.test_rejects_non_write_permission) ... ok
+test_rejects_path_outside_output (test_tetragon_soar_bridge.EventFilterTests.test_rejects_path_outside_output) ... ok
+test_rejects_path_traversal (test_tetragon_soar_bridge.EventFilterTests.test_rejects_path_traversal) ... ok
+test_rejects_short_container_id (test_tetragon_soar_bridge.EventFilterTests.test_rejects_short_container_id) ... ok
+test_rejects_wrong_hook (test_tetragon_soar_bridge.EventFilterTests.test_rejects_wrong_hook) ... ok
+test_rejects_wrong_policy (test_tetragon_soar_bridge.EventFilterTests.test_rejects_wrong_policy) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.008s
+
+OK

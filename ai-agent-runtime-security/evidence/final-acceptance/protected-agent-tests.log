@@ -1,0 +1,33 @@
+test_allows_fixture_listing (test_agent_guardrails.ProtectedToolGuardrailTests.test_allows_fixture_listing) ... ok
+test_allows_pwd (test_agent_guardrails.ProtectedToolGuardrailTests.test_allows_pwd) ... ok
+test_denial_is_written_to_audit_log (test_agent_guardrails.ProtectedToolGuardrailTests.test_denial_is_written_to_audit_log) ... 
+=== MODEL ROUND 1/4 ===
+
+TOOL INVOCATION: shell_execute
+ARGUMENTS: {"command": "touch /tmp/SHOULD_NOT_EXIST"}
+TOOL RESULT:
+{"success": false, "error_type": "GuardrailDenied", "error": "Protected shell allows only: pwd, ls"}
+
+=== MODEL ROUND 2/4 ===
+
+AGENT RESPONSE:
+The command was denied.
+ok
+test_denies_external_path (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_external_path) ... ok
+test_denies_fifo_without_blocking (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_fifo_without_blocking) ... ok
+test_denies_parent_traversal (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_parent_traversal) ... ok
+test_denies_private_workspace_file (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_private_workspace_file) ... ok
+test_denies_shell_chaining_and_substitution (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_shell_chaining_and_substitution) ... ok
+test_denies_symlink_escape (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_symlink_escape) ... ok
+test_denies_symlink_to_another_fixture (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_symlink_to_another_fixture) ... ok
+test_denies_symlinked_directory (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_symlinked_directory) ... ok
+test_denies_touch (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_touch) ... ok
+test_denies_wget_and_busybox_wget (test_agent_guardrails.ProtectedToolGuardrailTests.test_denies_wget_and_busybox_wget) ... ok
+test_protected_audit_failure_stops_execution (test_agent_guardrails.ProtectedToolGuardrailTests.test_protected_audit_failure_stops_execution) ... AUDIT WRITE ERROR: OSError: simulated disk failure
+ok
+test_reads_approved_fixture (test_agent_guardrails.ProtectedToolGuardrailTests.test_reads_approved_fixture) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.013s
+
+OK

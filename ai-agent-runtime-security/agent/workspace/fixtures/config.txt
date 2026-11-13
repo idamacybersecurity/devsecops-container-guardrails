@@ -1,0 +1,3 @@
+application_name=runtime-security-lab
+environment=disposable-test
+log_level=INFO

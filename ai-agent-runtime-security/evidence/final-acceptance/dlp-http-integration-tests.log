@@ -1,0 +1,23 @@
+test_benign_json_response_allowed (ai-agent-runtime-security.tests.dlp-proxy.test_proxy_http.ProxyHTTPIntegrationTests.test_benign_json_response_allowed) ... {"client": "127.0.0.1", "event": "http_access", "status_message": "\"POST /api/chat HTTP/1.1\" 200 -"}
+{"event": "response_allowed", "status": 200, "streaming": false}
+ok
+test_benign_stream_allowed (ai-agent-runtime-security.tests.dlp-proxy.test_proxy_http.ProxyHTTPIntegrationTests.test_benign_stream_allowed) ... {"client": "127.0.0.1", "event": "http_access", "status_message": "\"POST /api/chat HTTP/1.1\" 200 -"}
+{"bytes": 99, "chunks": 2, "event": "response_allowed", "status": 200, "streaming": true}
+ok
+test_disallowed_endpoint_rejected (ai-agent-runtime-security.tests.dlp-proxy.test_proxy_http.ProxyHTTPIntegrationTests.test_disallowed_endpoint_rejected) ... {"client": "127.0.0.1", "event": "http_access", "status_message": "\"POST /api/delete HTTP/1.1\" 404 -"}
+/usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_split_secret_stream_blocked_before_release (ai-agent-runtime-security.tests.dlp-proxy.test_proxy_http.ProxyHTTPIntegrationTests.test_split_secret_stream_blocked_before_release) ... {"event": "response_blocked", "finding_count": 1, "findings": [{"location": "$joined.message.content", "rule": "synthetic_test_secret", "severity": "HIGH"}], "upstream_status": 200}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"POST /api/chat HTTP/1.1\" 403 -"}
+/usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 403: 'Forbidden'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_synthetic_secret_json_blocked (ai-agent-runtime-security.tests.dlp-proxy.test_proxy_http.ProxyHTTPIntegrationTests.test_synthetic_secret_json_blocked) ... {"event": "response_blocked", "finding_count": 1, "findings": [{"location": "$.message.content", "rule": "synthetic_test_secret", "severity": "HIGH"}], "upstream_status": 200}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"POST /api/chat HTTP/1.1\" 403 -"}
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.028s
+
+OK

@@ -26,7 +26,7 @@ When AGENT_MODE=protected:
 
 ## Test coverage
 
-The unit suite contains 14 tests covering:
+The unit suite contains 15 tests covering:
 
 - Approved fixture reads.
 - External and private path denial.

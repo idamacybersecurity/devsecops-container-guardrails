@@ -1,0 +1,16 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY agent.py /app/agent.py
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends --only-upgrade \
+       zlib1g \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin agentuser \
+    && chown -R agentuser:agentuser /app
+
+USER 10001:10001
+
+ENTRYPOINT ["python", "/app/agent.py"]

@@ -1,0 +1,38 @@
+{
+  "audit_date": "2026-11-13",
+  "test_suites": [
+    {
+      "name": "protected-agent",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "name": "dlp-engine",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "name": "dlp-http-integration",
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "warnings": [
+        "Python 3.14 ResourceWarning for HTTPError 404 cleanup",
+        "Python 3.14 ResourceWarning for HTTPError 403 cleanup"
+      ]
+    },
+    {
+      "name": "soar",
+      "tests": 30,
+      "passed": 30,
+      "failed": 0
+    }
+  ],
+  "total_tests": 57,
+  "total_passed": 57,
+  "total_failed": 0,
+  "result": "PASS",
+  "scope_note": "Automated test results only; they do not independently prove production readiness or replace the separately recorded live tests."
+}

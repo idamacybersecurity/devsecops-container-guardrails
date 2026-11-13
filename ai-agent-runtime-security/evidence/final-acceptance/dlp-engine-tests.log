@@ -1,0 +1,12 @@
+test_benign_response_allowed (ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine.TestDLPEngine.test_benign_response_allowed) ... ok
+test_high_entropy_token_detected (ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine.TestDLPEngine.test_high_entropy_token_detected) ... ok
+test_passwd_structure_detected (ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine.TestDLPEngine.test_passwd_structure_detected) ... ok
+test_private_key_detected (ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine.TestDLPEngine.test_private_key_detected) ... ok
+test_shadow_structure_detected (ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine.TestDLPEngine.test_shadow_structure_detected) ... ok
+test_short_text_not_flagged_as_entropy (ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine.TestDLPEngine.test_short_text_not_flagged_as_entropy) ... ok
+test_synthetic_secret_detected_in_tool_arguments (ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine.TestDLPEngine.test_synthetic_secret_detected_in_tool_arguments) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK

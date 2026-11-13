@@ -1,0 +1,27 @@
+{"event": "proxy_started", "listen_host": "0.0.0.0", "listen_port": 8080, "upstream": "http://ollama:11434"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "172.19.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"event": "response_blocked", "finding_count": 1, "findings": [{"location": "$.response", "rule": "synthetic_test_secret", "severity": "HIGH"}], "upstream_status": 200}
+{"client": "172.19.0.1", "event": "http_access", "status_message": "\"POST /api/generate HTTP/1.1\" 403 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}
+{"client": "127.0.0.1", "event": "http_access", "status_message": "\"GET /healthz HTTP/1.1\" 200 -"}

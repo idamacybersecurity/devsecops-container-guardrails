@@ -1,0 +1,7 @@
+NAME           INSTALLED   FIXED IN  TYPE    VULNERABILITY    SEVERITY  EPSS         RISK
+python         3.14.10     3.15.0a6  binary  CVE-2025-15367   Medium    0.4% (31st)  0.2
+busybox        1.37.0-r31            apk     CVE-2025-60876   Medium    0.3% (24th)  0.2
+busybox-binsh  1.37.0-r31            apk     CVE-2025-60876   Medium    0.3% (24th)  0.2
+ssl_client     1.37.0-r31            apk     CVE-2025-60876   Medium    0.3% (24th)  0.2
+python         3.14.10     3.16.0    binary  CVE-2026-116566  Medium    0.3% (17th)  0.1
+python         3.14.10     3.16.0    binary  CVE-2026-103995  Low       0.4% (29th)  < 0.1

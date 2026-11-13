@@ -220,3 +220,101 @@ The protected agent, Tetragon telemetry and selected enforcement policies,
 correlated live SOAR containment, DLP proxy behavior, and final automated test
 suites have been exercised and documented. This is a lab acceptance record,
 not a claim of production readiness.
+
+
+## Additional live enforcement and real-model DLP evidence — 2026-11-13
+
+The following tests were completed after the initial documentation was
+written. They supplement the earlier policy inventory and test results.
+
+### Docker-aware Tetragon enforcement
+
+`soar/docker_tetragon_controller.py` selects a running Docker container
+labelled `role=ai-agent`, resolves its host PID namespace, and installs a
+container-specific Tetragon LSM policy in enforce mode. The policy targets
+selected executable paths at `bprm_check_security`.
+
+Live tests recorded `KPROBE_ACTION_SIGKILL` for:
+- `/usr/bin/curl`
+- `/usr/bin/wget`
+- `/usr/bin/nc` (resolved event path `/usr/bin/nc.openbsd`)
+- `/usr/bin/bash` in the startup-gate test
+
+The curl, wget, and netcat Docker exec attempts each returned 137 while the
+test container itself remained running with exit code 0 and `OOMKilled=false`.
+
+### Startup gate
+
+`soar/docker_ai_agent_startup_gate.py` creates a labelled container with a
+waiting entrypoint, installs and verifies its container-specific Tetragon
+policy, and only then releases the supplied workload command.
+
+The live Bash test recorded:
+- Container ID:
+  `cb6615b7a6b784d24fd7c15aaa76822846d1d54926bd2a4d87b0d17ac4dc8fec`
+- Policy: `docker-ai-agent-cb6615b7a6b7`
+- Hook: `bprm_check_security`
+- Kernel action: `KPROBE_ACTION_SIGKILL`
+- Matching process exit signal: `SIGKILL`
+- Enforcement-to-process-exit interval: 1.005 ms
+- Container exit code: 137; `OOMKilled=false`
+
+The startup-gate policy and test container were removed after evidence
+collection.
+
+**Scope:** the startup gate protects containers launched through this
+launcher. It does not intercept arbitrary Docker starts or act as a
+universal Docker admission controller. The controller can separately be
+invoked against an already running labelled container.
+
+Evidence:
+- `evidence/kernel/docker-ai-agent-enforcement-test.md`
+- `evidence/kernel/docker-ai-agent-multi-binary-test.md`
+- `evidence/kernel/docker-ai-agent-startup-gate-test.md`
+
+### Real Ollama DLP test
+
+A live `/api/generate` request to the real `llama3.2:latest` Ollama model
+contained the synthetic marker `SYNTHETIC_TEST_SECRET`. Ollama returned
+HTTP 200 upstream; the DLP proxy returned HTTP 403 to the client.
+
+The proxy detected the marker at `$.response` with HIGH severity. The marker
+did not reach the client and was not present in proxy logs. This was a real
+Ollama model test, not a mock-upstream test.
+
+Evidence:
+- `evidence/dlp/live-ollama-dlp-result.md`
+- `evidence/dlp/live-ollama-dlp-proxy.log`
+
+### Correlation and scope clarification
+
+The SOAR workspace-write-to-Docker-quarantine test and the startup-gate
+process-execution test are separate demonstrations, not one continuous
+transaction. The SOAR test verified Docker container termination with exit
+code 137 and measured 0.437653 seconds from event to verified exit. The
+environment uses standalone Docker; Kubernetes pod identity is not claimed.
+
+These results do not remove the existing limitations: selected executable
+paths only, per-container PID-namespace scope, launcher-specific startup
+protection, interactive rather than supervised SOAR operation, and
+response-side DLP limited to the two supported Ollama endpoints.
+
+### Patched protected image build and vulnerability scan — 2026-11-13
+
+The CI image was built from
+`protected/Dockerfile.alpine.cpython-source` using the protected directory
+as the Docker build context. The built image was locally inspected and its
+runtime smoke test passed.
+
+The runtime checks verified Python 3.14 or later, UID/GID `10001:10001`,
+absence of `pip`, `ensurepip`, and `_sqlite3`, and working SHA-256 support.
+
+Grype scanned `ai-agent-runtime-security:ci` and reported:
+- 29 packages identified.
+- 3 package matches: 0 Critical, 0 High, 3 Medium.
+- The three matches represent one unique CVE: `CVE-2025-60876`.
+- All three matches were reported as not fixed.
+
+This is not a zero-vulnerability result. The scan JSON is retained at
+`artifacts/grype-ci-image.json`. The local image build and smoke test passed;
+a GitHub Actions run has not yet been demonstrated.

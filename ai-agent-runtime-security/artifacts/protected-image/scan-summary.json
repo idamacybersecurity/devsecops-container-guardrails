@@ -1,0 +1,47 @@
+{
+  "generated_utc": "2026-11-10T10:49:54.753328+00:00",
+  "image": {
+    "tag": "ai-agent-runtime-security:protected",
+    "docker_image_id": "sha256:2ea722b6f0075754a3825b1e4beddbf42698a03b71e3ccd8e5d354616d68768a",
+    "repo_digests": [
+      "ai-agent-runtime-security@sha256:2ea722b6f0075754a3825b1e4beddbf42698a03b71e3ccd8e5d354616d68768a"
+    ],
+    "grype_image_id": "sha256:d72e6eaa1af6113f21975bf43fc1964bee1b047707483033e7f951a7d244c809",
+    "manifest_digest": "sha256:7bebe6ff3709237334228607fb1edca2f59e79b2591df9bd7024c95631dffccc",
+    "sbom_manifest_digest": "sha256:7bebe6ff3709237334228607fb1edca2f59e79b2591df9bd7024c95631dffccc",
+    "layer_count": 8
+  },
+  "tools": {
+    "syft": "Version:       1.57.1",
+    "grype": "Version:             0.121.3"
+  },
+  "inventory": {
+    "sbom_package_count": 89,
+    "grype_package_match_count": 184,
+    "unique_cve_count": 83,
+    "fix_status_counts": {
+      "wont-fix": 135,
+      "not-fixed": 46,
+      "fixed": 3
+    },
+    "package_match_severity_counts": {
+      "High": 59,
+      "Negligible": 49,
+      "Medium": 61,
+      "Low": 15
+    },
+    "unique_cve_severity_counts": {
+      "High": 17,
+      "Negligible": 26,
+      "Medium": 32,
+      "Low": 8
+    },
+    "severity_classification_conflicts": {}
+  },
+  "sha256": {
+    "artifacts/protected-image/sbom.spdx.json": "b0e2000184d9b12d2a5cc7033e480eac9ef73a59229e1b52d06b34857e32b818",
+    "artifacts/protected-image/grype-scan.json": "d165d0dedde363c83c514fa8274e31c3c70b162ad390cb35fee532cee3f6f1ee",
+    "artifacts/protected-image/grype-scan.txt": "afd242ad796a3f7f5d6ceb53e6bea37cbff64eba5d850527f5bf2742de7b8305",
+    "artifacts/protected-image/e2e-output/tool-audit.jsonl": "f17a5f78292e1173cccb49620f66d8ca0773277e39aa007b66dd97016745a89e"
+  }
+}

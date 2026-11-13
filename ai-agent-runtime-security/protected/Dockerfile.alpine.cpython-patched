@@ -1,0 +1,36 @@
+FROM alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
+
+ENV AGENT_MODE=protected \
+    AGENT_WORKSPACE_ROOT=/workspace \
+    AUDIT_LOG=/workspace/output/tool-audit.jsonl \
+    PYTHONHOME=/opt/python314 \
+    PATH=/opt/python314/bin:$PATH \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONNOUSERSITE=1
+
+WORKDIR /app
+
+RUN apk upgrade --no-cache \
+    && apk add --no-cache libssl3 libcrypto3 zlib \
+    && adduser -D -u 10001 -H -s /bin/false agentuser
+
+COPY --chown=root:root opt/python314 /opt/python314
+COPY --chown=root:root agent.py /app/agent.py
+
+RUN chmod 0555 /opt/python314/bin/python3.14 \
+    && chmod 0555 /opt/python314 \
+    && chown root:root /app /app/agent.py \
+    && chmod 0555 /app \
+    && chmod 0444 /app/agent.py \
+    && mkdir -p /workspace/fixtures /workspace/output \
+    && chown root:root /workspace /workspace/fixtures \
+    && chmod 0755 /workspace \
+    && chmod 0555 /workspace/fixtures \
+    && chown 10001:10001 /workspace/output \
+    && chmod 0700 /workspace/output
+
+USER 10001:10001
+WORKDIR /workspace
+
+ENTRYPOINT ["/opt/python314/bin/python3.14", "/app/agent.py"]

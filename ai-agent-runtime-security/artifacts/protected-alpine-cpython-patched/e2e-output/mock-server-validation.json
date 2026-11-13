@@ -1,0 +1,26 @@
+{
+  "requests_received": 4,
+  "validations": [
+    {
+      "request": 1,
+      "passed": true,
+      "detail": "Initial model request"
+    },
+    {
+      "request": 2,
+      "passed": true,
+      "detail": "Previous tool result validated"
+    },
+    {
+      "request": 3,
+      "passed": true,
+      "detail": "Previous tool result validated"
+    },
+    {
+      "request": 4,
+      "passed": true,
+      "detail": "Previous tool result validated"
+    }
+  ],
+  "all_validations_passed": true
+}

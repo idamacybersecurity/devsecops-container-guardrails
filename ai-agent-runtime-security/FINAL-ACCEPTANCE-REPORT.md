@@ -140,3 +140,123 @@ See `EVIDENCE-AUDIT.md` for evidence selection and exclusions.
 The milestone is **accepted for the demonstrated lab scope**: automated suites passed 57/57; selected kernel SIGKILL enforcement was observed; correlated SOAR containment was verified with exit code 137 and recorded sub-second event-to-termination timing; and the DLP proxy passed benign and synthetic-secret live tests.
 
 This acceptance does not assert universal attack prevention, complete kernel coverage, continuous autonomous SOAR operation, or production readiness.
+
+
+## 11. Additional live evidence — 2026-11-13
+
+This section supplements and supersedes earlier evidence statements in this
+report where the newer live tests provide stronger results.
+
+### 11.1 Docker-aware kernel enforcement
+
+A Docker-aware controller selected containers carrying the exact
+`role=ai-agent` label, resolved their host PID namespace, and installed
+per-container Tetragon LSM enforcement policies. The controller validates
+the Docker container identity and uses the LSM `bprm_check_security` hook.
+
+The following live tests passed:
+
+| Attempt | Tetragon target path | Kernel action | Docker exec result |
+|---|---|---|---:|
+| `/usr/bin/curl` | `/usr/bin/curl` | `KPROBE_ACTION_SIGKILL` | 137 |
+| `/usr/bin/wget` | `/usr/bin/wget` | `KPROBE_ACTION_SIGKILL` | 137 |
+| `/usr/bin/nc` | `/usr/bin/nc.openbsd` | `KPROBE_ACTION_SIGKILL` | 137 |
+| `/usr/bin/bash` via startup gate | `/usr/bin/bash` | `KPROBE_ACTION_SIGKILL` | Container exit 137 |
+
+For the multi-binary test, the test container remained running after all
+three execution attempts, with container exit code 0 and `OOMKilled=false`.
+
+The startup-gate test recorded the exact container identity
+`cb6615b7a6b784d24fd7c15aaa76822846d1d54926bd2a4d87b0d17ac4dc8fec`,
+policy `docker-ai-agent-cb6615b7a6b7`, and a matching `process_exit` event
+with `SIGKILL` for the same execution ID. The interval between the LSM
+enforcement event and matching process-exit event was **1.005 ms**.
+Docker inspection separately recorded exit code 137 and `OOMKilled=false`.
+
+Evidence:
+- `evidence/kernel/docker-ai-agent-enforcement-test.md`
+- `evidence/kernel/docker-ai-agent-multi-binary-test.md`
+- `evidence/kernel/docker-ai-agent-startup-gate-test.md`
+- Corresponding JSON event records in `evidence/kernel/`
+
+The startup-gate launcher protects workloads launched through that launcher.
+It is not a Docker admission controller and does not intercept arbitrary
+containers started outside it. The controller can also protect an already
+running, explicitly selected container when invoked. These tests do not
+establish universal enforcement across every container, executable, or
+process namespace.
+
+The startup-gate test policy and disposable test container were removed
+after evidence collection. Other Tetragon policies were not removed.
+
+### 11.2 Real Ollama response DLP test
+
+A live request was sent through the DLP proxy to the real Ollama model
+`llama3.2:latest` at `/api/generate`. The upstream returned HTTP 200.
+The proxy detected `SYNTHETIC_TEST_SECRET` in `$.response` and returned
+HTTP 403 to the client.
+
+Observed results:
+- Detection rule: `synthetic_test_secret`
+- Severity: HIGH
+- Marker reached client: false
+- Marker present in proxy logs: false
+- Proxy audit event: `response_blocked`
+
+This supersedes the earlier statement that the negative DLP test used only
+a deterministic mock upstream. A separate mock-upstream test also exists,
+but the real-model result is independently documented.
+
+Evidence:
+- `evidence/dlp/live-ollama-dlp-result.md`
+- `evidence/dlp/live-ollama-dlp-proxy.log`
+
+### 11.3 Correlation scope clarification
+
+The successful SOAR workspace-write event-to-Docker quarantine test and the
+Docker startup-gate process-execution enforcement test are separate live
+demonstrations. The SOAR test verified a correlated container termination;
+the startup-gate test verified pre-release policy installation and kernel
+SIGKILL of a Bash execution. They must not be represented as one single
+end-to-end transaction.
+
+The SOAR timing measurements remain:
+- Event to termination: 0.300763 seconds
+- Event to verified exit: 0.437653 seconds
+- Verified exit code: 137
+- `OOMKilled`: false
+
+The environment is standalone Docker. No Kubernetes pod identity or
+`pod_name` attribution is claimed.
+
+### 11.4 Updated acceptance interpretation
+
+The demonstrated lab scope now includes:
+- Selected Docker-aware kernel SIGKILL enforcement for Bash, curl, wget,
+  and netcat execution attempts.
+- A tested startup gate that installs the container-specific policy before
+  releasing the supplied workload command.
+- A live Tetragon workspace-write event correlated by Docker container ID
+  to SOAR quarantine and verified exit.
+- A real Ollama synthetic-secret response blocked before reaching the client.
+
+The existing limitations on policy scope, launcher coverage, interactive
+SOAR operation, and DLP endpoint/response coverage remain in force.
+
+### 11.5 Patched protected image build and scan
+
+The replacement protected image was built locally using
+`Dockerfile.alpine.cpython-source` with the protected directory as its build
+context. Image inspection verified the non-root identity `10001:10001`.
+The runtime smoke test passed its Python version, restricted-module, and
+SHA-256 checks.
+
+Grype identified 29 packages and three Medium package matches, with no
+Critical or High matches. These three package records represent one unique
+CVE, `CVE-2025-60876`, affecting BusyBox-related packages; all three were
+reported as not fixed. The image must therefore not be described as
+vulnerability-free.
+
+The scan is retained at `artifacts/grype-ci-image.json`. These are local
+build, inspection, runtime-test, and scan results; no successful GitHub
+Actions run is claimed.

@@ -1,0 +1,17 @@
+Protected Image Evidence Identity
+Generated UTC=2026-11-10T10:49:54.753328+00:00
+Tag=ai-agent-runtime-security:protected
+Docker Image ID=sha256:2ea722b6f0075754a3825b1e4beddbf42698a03b71e3ccd8e5d354616d68768a
+Docker Repo Digests=ai-agent-runtime-security@sha256:2ea722b6f0075754a3825b1e4beddbf42698a03b71e3ccd8e5d354616d68768a
+Grype Image ID (config digest)=sha256:d72e6eaa1af6113f21975bf43fc1964bee1b047707483033e7f951a7d244c809
+Manifest Digest=sha256:7bebe6ff3709237334228607fb1edca2f59e79b2591df9bd7024c95631dffccc
+SBOM Manifest Digest=sha256:7bebe6ff3709237334228607fb1edca2f59e79b2591df9bd7024c95631dffccc
+Layer Count=8
+Syft Version=Version:       1.57.1
+Grype Version=Version:             0.121.3
+SBOM Package Count=89
+Grype Match Count=184
+Unique CVE Count=83
+Fix Status Counts={"fixed": 3, "not-fixed": 46, "wont-fix": 135}
+Package Match Severity Counts={"High": 59, "Low": 15, "Medium": 61, "Negligible": 49}
+Unique CVE Severity Counts={"High": 17, "Low": 8, "Medium": 32, "Negligible": 26}

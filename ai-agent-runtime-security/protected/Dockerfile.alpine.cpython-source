@@ -1,0 +1,79 @@
+# Build CPython from the verified upstream security-patched revision.
+FROM alpine:3.24.4 AS python-builder
+
+ARG CPYTHON_COMMIT=7d9da9208fc3dc126bebca6844dfe312afc43c34
+
+RUN apk add --no-cache \
+    git \
+    build-base \
+    linux-headers \
+    openssl-dev \
+    zlib-dev \
+    bzip2-dev \
+    xz-dev \
+    libffi-dev \
+    readline-dev \
+    ncurses-dev \
+    gdbm-dev
+
+RUN git clone https://github.com/python/cpython.git /src/cpython \
+    && cd /src/cpython \
+    && git checkout --detach "$CPYTHON_COMMIT" \
+    && test "$(git rev-parse HEAD)" = "$CPYTHON_COMMIT"
+
+WORKDIR /src/cpython
+
+RUN ./configure \
+      --prefix=/opt/python314 \
+      --with-openssl=/usr \
+      --with-ensurepip=no \
+      --disable-test-modules \
+    && make -j2 \
+    && make install
+
+# Minimal runtime image.
+FROM alpine:3.24.4
+
+ENV AGENT_MODE=protected \
+    AGENT_WORKSPACE_ROOT=/workspace \
+    AUDIT_LOG=/workspace/output/tool-audit.jsonl \
+    PYTHONHOME=/opt/python314 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONNOUSERSITE=1
+
+RUN apk upgrade --no-cache \
+    && apk add --no-cache \
+       libssl3 \
+       libcrypto3 \
+       zlib \
+       libbz2 \
+       xz-libs \
+       libffi \
+       readline \
+       ncurses-libs \
+       gdbm \
+       libstdc++ \
+    && adduser -D -u 10001 -H -s /bin/false agentuser
+
+COPY --from=python-builder /opt/python314 /opt/python314
+RUN rm -rf /opt/python314/lib/python3.14/ensurepip
+COPY --chown=root:root agent/agent.py /app/agent.py
+
+RUN chown root:root /opt/python314 /app /app/agent.py \
+    && chmod 0555 /opt/python314/bin/python3.14 \
+    && chmod 0555 /app \
+    && chmod 0444 /app/agent.py \
+    && mkdir -p /workspace/fixtures /workspace/output \
+    && chown root:root /workspace /workspace/fixtures \
+    && chmod 0755 /workspace \
+    && chmod 0555 /workspace/fixtures \
+    && chown 10001:10001 /workspace/output \
+    && chmod 0700 /workspace/output \
+    && /opt/python314/bin/python3.14 -c \
+       "import hashlib, ssl; print(ssl.OPENSSL_VERSION); print(hashlib.sha256(b'check').hexdigest())"
+
+USER 10001:10001
+WORKDIR /workspace
+
+ENTRYPOINT ["/opt/python314/bin/python3.14", "/app/agent.py"]

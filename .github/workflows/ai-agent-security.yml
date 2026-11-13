@@ -40,9 +40,9 @@ jobs:
       - name: Build protected AI agent image
         run: |
           docker build --pull \
-            -f ai-agent-runtime-security/protected/Dockerfile \
+            -f ai-agent-runtime-security/protected/Dockerfile.alpine.cpython-source \
             -t ai-agent-runtime-security:ci \
-            .
+            ai-agent-runtime-security/protected
 
       - name: Verify protected image configuration
         run: |
@@ -58,3 +58,18 @@ jobs:
           fi
 
           echo "PASS: Protected image uses UID/GID 10001:10001."
+
+      - name: Run protected image runtime smoke test
+        run: |
+          docker run --rm \
+            --entrypoint /opt/python314/bin/python3.14 \
+            ai-agent-runtime-security:ci \
+            -c 'import os, sys, importlib.util, hashlib
+          assert sys.version_info >= (3, 14), sys.version
+          assert os.getuid() == 10001, os.getuid()
+          assert os.getgid() == 10001, os.getgid()
+          assert importlib.util.find_spec("pip") is None
+          assert importlib.util.find_spec("ensurepip") is None
+          assert importlib.util.find_spec("_sqlite3") is None
+          assert hashlib.sha256(b"runtime-check").hexdigest()
+          print("PASS: Python runtime, non-root identity, restricted modules and SHA-256")'

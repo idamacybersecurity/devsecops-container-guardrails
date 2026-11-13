@@ -1,0 +1,12 @@
+FROM python:3.14.10-alpine3.24
+
+WORKDIR /app
+
+COPY agent.py /app/agent.py
+
+RUN adduser -D -u 10001 -H -s /bin/false agentuser \
+    && chown -R agentuser:agentuser /app
+
+USER 10001:10001
+
+ENTRYPOINT ["python", "/app/agent.py"]

@@ -90,3 +90,50 @@ This audit does not claim that every currently untracked file has been reviewed 
 ## 7. Audit disposition
 
 The curated evidence inventory supports the scoped claims in `FINAL-ACCEPTANCE-REPORT.md`. Exclusions and limitations are explicit. Any additional files found during repository review must be assessed individually rather than assumed safe or relevant.
+
+
+## 8. Additional evidence recorded — 2026-11-13
+
+The following live evidence was added after the original curated inventory.
+
+| Evidence path | What it supports |
+|---|---|
+| `evidence/kernel/docker-ai-agent-enforcement-test.json` and `.md` | Docker-aware Bash enforcement evidence |
+| `evidence/kernel/docker-ai-agent-multi-binary-test.jsonl` and `.md` | Live curl, wget, and netcat SIGKILL results |
+| `evidence/kernel/docker-ai-agent-startup-gate-test.json` and `.md` | Startup-gate Bash SIGKILL, exact container identity, matching process-exit event, and 1.005 ms event interval |
+| `evidence/dlp/live-ollama-dlp-result.md` | Real `llama3.2:latest` Ollama synthetic-secret response blocked with HTTP 403 |
+| `evidence/dlp/live-ollama-dlp-proxy.log` | Proxy-side metadata-only audit evidence for the real Ollama test |
+
+The real Ollama test supersedes the earlier limitation that the synthetic
+secret negative test used only a mock upstream. The mock test remains a
+separate test result.
+
+The Docker-aware enforcement tests supersede the earlier statement that
+there was no live kernel enforcement evidence for curl, wget, or netcat.
+
+### Additional scope limitations
+
+- The startup gate only controls containers launched through that launcher;
+  it does not intercept arbitrary Docker container creation or startup.
+- The startup-gate process-execution test and SOAR workspace-write
+  quarantine test are separate demonstrations, not one continuous trace.
+- The environment is standalone Docker; Kubernetes pod attribution is not
+  demonstrated.
+- The new kernel tests cover the listed executable paths and tested
+  PID namespaces, not universal executable enforcement.
+
+The startup-gate policy and disposable container were removed after the
+test. The evidence files were retained.
+
+The original inventory and exclusions above remain applicable. New evidence
+must still be reviewed individually before staging.
+
+## 9. Patched CI image evidence — 2026-11-13
+
+| Evidence path | What it supports |
+|---|---|
+| `artifacts/grype-ci-image.json` | Grype JSON scan of `ai-agent-runtime-security:ci`: 29 packages, 3 Medium package matches, 0 Critical/High, and one unique CVE (`CVE-2025-60876`), with all matches reported as not fixed |
+
+The local patched-image build and runtime smoke test passed. This does not
+establish that the GitHub Actions workflow has run successfully. The scan
+does not establish a vulnerability-free image.

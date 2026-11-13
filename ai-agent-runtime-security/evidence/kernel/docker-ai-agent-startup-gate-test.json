@@ -1,0 +1,98 @@
+{
+  "test": "Docker AI-agent startup-gate kernel enforcement",
+  "result": "PASS",
+  "container_name": "ai-agent-startup-gate-enforcement-test",
+  "container_id": "cb6615b7a6b784d24fd7c15aaa76822846d1d54926bd2a4d87b0d17ac4dc8fec",
+  "tetragon_policy": "docker-ai-agent-cb6615b7a6b7",
+  "target_executable": "/usr/bin/bash",
+  "hook": "bprm_check_security",
+  "kernel_action": "KPROBE_ACTION_SIGKILL",
+  "process_exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1Njg3ODk5MDE1OjYyMzU2",
+  "process_pid": 62356,
+  "enforcement_event": {
+    "process_lsm": {
+      "process": {
+        "exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1Njg3ODk5MDE1OjYyMzU2",
+        "pid": 62356,
+        "uid": 10001,
+        "cwd": "/app",
+        "binary": "/usr/local/bin/python",
+        "arguments": "/run/ai-agent-gate/gate.py /usr/bin/bash -lc \"echo STARTUP_GATE_BYPASSED\"",
+        "flags": "execve clone inInitTree",
+        "start_time": "2026-11-13T14:11:53.613562479Z",
+        "auid": 4294967295,
+        "docker": "cb6615b7a6b784d24fd7c15aaa76822",
+        "parent_exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1NTI4MjgwNzU0OjYyMzM0",
+        "refcnt": 1,
+        "tid": 62356,
+        "in_init_tree": true
+      },
+      "parent": {
+        "exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1NTI4MjgwNzU0OjYyMzM0",
+        "pid": 62334,
+        "uid": 0,
+        "cwd": "/run/containerd/io.containerd.runtime.v2.task/moby/cb6615b7a6b784d24fd7c15aaa76822846d1d54926bd2a4d87b0d17ac4dc8fec",
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "arguments": "-namespace moby -id cb6615b7a6b784d24fd7c15aaa76822846d1d54926bd2a4d87b0d17ac4dc8fec -address /run/containerd/containerd.sock",
+        "flags": "execve clone",
+        "start_time": "2026-11-13T14:11:53.453934706Z",
+        "auid": 4294967295,
+        "parent_exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1NTIyMzM2OTMyOjYyMzI2",
+        "tid": 62334,
+        "in_init_tree": false
+      },
+      "function_name": "bprm_check_security",
+      "policy_name": "docker-ai-agent-cb6615b7a6b7",
+      "args": [
+        {
+          "linux_binprm_arg": {
+            "path": "/usr/bin/bash",
+            "permission": "-rwxr-xr-x"
+          }
+        }
+      ],
+      "action": "KPROBE_ACTION_SIGKILL"
+    },
+    "node_name": "d605d45a9e36",
+    "time": "2026-11-13T14:11:58.125440147Z"
+  },
+  "matching_process_exit_event": {
+    "process_exit": {
+      "process": {
+        "exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1Njg3ODk5MDE1OjYyMzU2",
+        "pid": 62356,
+        "uid": 10001,
+        "cwd": "/app",
+        "binary": "/usr/local/bin/python",
+        "arguments": "/run/ai-agent-gate/gate.py /usr/bin/bash -lc \"echo STARTUP_GATE_BYPASSED\"",
+        "flags": "execve clone inInitTree",
+        "start_time": "2026-11-13T14:11:53.613562479Z",
+        "auid": 4294967295,
+        "docker": "cb6615b7a6b784d24fd7c15aaa76822",
+        "parent_exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1NTI4MjgwNzU0OjYyMzM0",
+        "tid": 62356,
+        "in_init_tree": true
+      },
+      "parent": {
+        "exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1NTI4MjgwNzU0OjYyMzM0",
+        "pid": 62334,
+        "uid": 0,
+        "cwd": "/run/containerd/io.containerd.runtime.v2.task/moby/cb6615b7a6b784d24fd7c15aaa76822846d1d54926bd2a4d87b0d17ac4dc8fec",
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "arguments": "-namespace moby -id cb6615b7a6b784d24fd7c15aaa76822846d1d54926bd2a4d87b0d17ac4dc8fec -address /run/containerd/containerd.sock",
+        "flags": "execve clone",
+        "start_time": "2026-11-13T14:11:53.453934706Z",
+        "auid": 4294967295,
+        "parent_exec_id": "ZDYwNWQ0NWE5ZTM2OjE4MjQ1NTIyMzM2OTMyOjYyMzI2",
+        "tid": 62334,
+        "in_init_tree": false
+      },
+      "signal": "SIGKILL",
+      "time": "2026-11-13T14:11:58.126445353Z"
+    },
+    "node_name": "d605d45a9e36",
+    "time": "2026-11-13T14:11:58.126444786Z"
+  },
+  "milliseconds_between_enforcement_and_sigkill_exit": 1.005,
+  "source_capture": "/tmp/ai-agent-startup-gate-events.json"
+}

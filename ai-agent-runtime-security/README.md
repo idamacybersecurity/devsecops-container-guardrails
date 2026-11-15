@@ -31,6 +31,7 @@ Experiments use synthetic fixtures and disposable containers.
 | Red-team harness | `red-team/` | Injection, path, and shell tests |
 | Tetragon policies | `tetragon/` | Kernel telemetry and selected executable enforcement |
 | SOAR | `soar/` | Tetragon event validation and Docker containment |
+| SOAR benchmark and trace scripts | `soar/soar_latency_benchmark.sh`, `soar/trace_run.sh` | Ten-run latency benchmark and single-container correlation trace |
 | DLP proxy | `dlp-proxy/` | Ollama response inspection and blocking |
 | Automated tests | `tests/`, `protected/tests/`, `soar/` | Unit and HTTP integration coverage |
 | Evidence | `evidence/` | Preserved test logs and runtime records |
@@ -101,6 +102,9 @@ Exit code 137 is consistent with SIGKILL; it is not a graceful shutdown.
 The daemon was run interactively for the lab test. A persistent supervised
 service, durable queue, replay protection, rate limiting, and production
 idempotency have not been demonstrated.
+
+A ten-run latency benchmark and a single-container correlation trace were
+added on 2026-11-14; see the section at the end of this file.
 
 The older SOAR bridge demonstration reported a 2.570-second reaction time.
 That is a separate legacy result and is not the correlated end-to-end latency
@@ -179,6 +183,7 @@ python3 -B -m unittest ai-agent-runtime-security.tests.dlp-proxy.test_dlp_engine
 python3 -B -m unittest ai-agent-runtime-security.tests.dlp-proxy.test_proxy_http -v
 python3 -B -m unittest discover -s ai-agent-runtime-security/soar -p 'test_*.py' -v
 ```
+
 Preserved final test logs and the machine-readable summary are in
 `evidence/final-acceptance/`.
 
@@ -187,7 +192,7 @@ Preserved final test logs and the machine-readable summary are in
 - evidence/red-team/ — baseline path, shell, and injection records.
 - evidence/tetragon/ — workspace-write event.
 - evidence/kernel-enforcement/ — monitor and SIGKILL event records.
-- evidence/soar/ — correlated dry-run, patched live execution, and legacy bridge log.
+- evidence/soar/ — correlated dry-run, patched live execution, 10-run latency benchmark (CSV and raw log), unbroken single-container trace, and legacy bridge log.
 - evidence/dlp/ — live agent/proxy negative-test logs.
 - evidence/final-acceptance/ — four final automated test logs and summary.
 Raw Docker inspection JSON, the private synthetic fixture, and raw agent
@@ -209,6 +214,17 @@ See EVIDENCE-AUDIT.md for evidence-selection details.
 8. The live DLP negative test used a deterministic mock upstream.
 9. Lab tests do not establish production readiness or replace host hardening,
    operational monitoring, incident response, or independent security review.
+10. The correlated SOAR daemon acts only on a container named
+    `ai-agent-correlated-soar` running `ai-agent-sandbox:baseline`, and consumes
+    only `ai-agent-workspace-write` events. Kernel enforcement events are handled
+    by Tetragon and are not routed to the daemon.
+11. A DLP request is treated as streaming only when `stream` is `true`; by code
+    review, a request that omits it would be rejected with HTTP 502 (fail-closed,
+    not tested). The proxy serves plain HTTP without authentication.
+12. The entropy rule cannot flag hexadecimal strings, and the private-key rule
+    covers only the listed header forms.
+13. Latency is measured from the Tetragon event timestamp, not an independently
+    measured syscall time, on one otherwise idle host.
 
 ## Safety
 Use synthetic data and disposable containers only. Do not place real secrets
@@ -220,6 +236,10 @@ The protected agent, Tetragon telemetry and selected enforcement policies,
 correlated live SOAR containment, DLP proxy behavior, and final automated test
 suites have been exercised and documented. This is a lab acceptance record,
 not a claim of production readiness.
+
+Updated 2026-11-14 with a ten-run latency benchmark, an unbroken
+single-container correlation trace, additional enforcement policy files, and
+source-code review corrections.
 
 
 ## Additional live enforcement and real-model DLP evidence — 2026-11-13
@@ -318,3 +338,36 @@ Grype scanned `ai-agent-runtime-security:ci` and reported:
 This is not a zero-vulnerability result. The scan JSON is retained at
 `artifacts/grype-ci-image.json`. The local image build and smoke test passed;
 a GitHub Actions run has not yet been demonstrated.
+
+
+### Latency benchmark and unbroken trace — 2026-11-14
+
+**10-run benchmark.** `soar/soar_latency_benchmark.sh` repeated the correlated
+SOAR test ten times on fresh disposable containers. All ten were quarantined,
+all ten exited with code `137`, and all ten timing statuses were `valid`.
+
+| Metric (10 runs) | Minimum | Median | Mean | Maximum |
+|---|---|---|---|---|
+| Event to termination | 0.2113 s | 0.2539 s | 0.2559 s | 0.3474 s |
+| Event to verified exit | 0.3097 s | 0.3651 s | 0.3689 s | 0.4909 s |
+
+Results: `evidence/soar/correlated-latency-benchmark.csv` and
+`evidence/soar/correlated-latency-benchmark-raw.log`. The interval starts at the
+Tetragon event timestamp, not an independently measured syscall time.
+
+**Unbroken Test A trace.** `soar/trace_run.sh` captured the Tetragon event
+stream, the daemon log, and Docker inspection for one container. The Tetragon
+event `docker` field (`55e63a434da5f32aae54aa2754000b0`), the daemon
+`QUARANTINED` record, and Docker inspect all refer to container
+`55e63a434da5f32aae54aa2754000b0ccbcdb787b413ee218fbd473b78b79238`
+(`exited`, exit code `137`, event to termination `0.298388` s). Files:
+`evidence/soar/unbroken-trace-*`. The startup-gate enforcement test remains a
+separate demonstration.
+
+**Policies added to `tetragon/`:** `ai-agent-kernel-exec-enforce-fresh.yaml`,
+`ai-agent-kernel-pid1-test2.yaml`, `ai-agent-kernel-multi-exec.yaml`
+(`curl`, `wget`, `nc`) and `ai-agent-kernel-netcat-openbsd.yaml`. Each contains
+a fixed PID namespace value specific to its test container.
+
+Ollama publishes no host port; it is reachable only from containers on the
+internal Docker network.

@@ -1,6 +1,6 @@
 # AI Agent Runtime Security — Evidence Audit
 
-**Audit date:** 2026-11-13
+**Audit date:** 2026-11-13 (updated 2026-11-14)
 **Scope:** Evidence supporting the final lab acceptance report.
 
 ## 1. Evidence handling principles
@@ -55,6 +55,8 @@ The dry-run log is retained as separate non-destructive candidate evidence.
 `correlated-soar-execute.log` records an earlier execution involving a different container ID. It is historical and must not be combined with the patched run's timing measurements.
 
 `correlated-soar-container.log` contains only `SOAR_PROBE_WRITE_OK` and adds little beyond the correlated dry-run and execution records. It is not required for the curated acceptance set.
+
+The ten-run benchmark recorded on 2026-11-14 (section 10) supplements the single patched run. The patched run remains the canonical single-execution record; the benchmark CSV is the record for the timing distribution. The two must not be merged into one measurement.
 
 ## 4. Exclusion and review rules
 
@@ -137,3 +139,28 @@ must still be reviewed individually before staging.
 The local patched-image build and runtime smoke test passed. This does not
 establish that the GitHub Actions workflow has run successfully. The scan
 does not establish a vulnerability-free image.
+
+## 10. Latency benchmark, unbroken trace and policy files — 2026-11-14
+
+The following evidence was added after sections 8 and 9.
+
+| Evidence path | What it supports |
+|---|---|
+| `evidence/soar/correlated-latency-benchmark.csv` | Ten live correlated SOAR runs on fresh containers: container ID, event time, event-to-termination and event-to-verified-exit seconds, timing status, Docker exit code and `FinishedAt`. All ten: exit code 137, timing status `valid` |
+| `evidence/soar/correlated-latency-benchmark-raw.log` | The daemon's raw output for the ten runs |
+| `evidence/soar/unbroken-trace-tetragon-events.jsonl` | Tetragon event stream for the single traced run; the `docker` field is a container ID prefix |
+| `evidence/soar/unbroken-trace-soar-daemon.log` | Daemon `QUARANTINED` record for the same container, with timings |
+| `evidence/soar/unbroken-trace-docker-inspect.txt` | Docker ID, status, exit code and `FinishedAt` for the same container |
+| `evidence/soar/unbroken-trace-container-start.txt` | Output of the container start command for the traced run |
+| `soar/soar_latency_benchmark.sh`, `soar/trace_run.sh` | Scripts that produced the benchmark and the trace |
+| `tetragon/ai-agent-kernel-exec-enforce-fresh.yaml`, `ai-agent-kernel-pid1-test2.yaml`, `ai-agent-kernel-multi-exec.yaml`, `ai-agent-kernel-netcat-openbsd.yaml` | Enforcement policies used in the kernel SIGKILL tests; each contains a fixed PID namespace value specific to its test container |
+
+The unbroken trace connects the Tetragon event, the daemon record and Docker inspection for one container. This supports the correlation claim for the workspace-write test. It does not merge that test with the startup-gate test, which remains a separate demonstration.
+
+### Additional limitations and review notes
+
+- The benchmark ran ten times on one otherwise idle host. It does not show behavior under load.
+- Timing starts at the Tetragon event timestamp, not an independently measured syscall time.
+- `unbroken-trace-tetragon-events.jsonl` contains Tetragon process metadata, including container runtime paths and identifiers. It should be reviewed under the section 4 rules.
+- `tetragon/ai-agent-kernel-pid1-enforce.yaml` was an earlier PID 1 policy and was deliberately not committed; `ai-agent-kernel-pid1-test2.yaml` is the policy used in the recorded test.
+- Statements in the project documentation about the SOAR daemon and DLP proxy behavior (fixed target container, event types consumed, streaming handling, entropy limits) were checked against the source code on 2026-11-14. This is a code review, not an additional test.

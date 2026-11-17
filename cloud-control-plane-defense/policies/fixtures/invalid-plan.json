@@ -1,0 +1,187 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "aws_iam_role_policy.wildcard",
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "policy": {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": "*",
+                "Resource": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role_policy.escalation",
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "policy": {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:PassRole",
+                  "ec2:RunInstances"
+                ],
+                "Resource": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket.unencrypted",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "server_side_encryption_configuration": [
+            {
+              "rule": [
+                {
+                  "apply_server_side_encryption_by_default": [
+                    {
+                      "sse_algorithm": "AES256"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_secretsmanager_secret.unencrypted",
+      "mode": "managed",
+      "type": "aws_secretsmanager_secret",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "kms_key_id": null
+        }
+      }
+    },
+    {
+      "address": "aws_security_group.public",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "ingress": [
+            {
+              "protocol": "tcp",
+              "from_port": 22,
+              "to_port": 22,
+              "cidr_blocks": [
+                "0.0.0.0/0"
+              ],
+              "ipv6_cidr_blocks": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_security_group.public_ipv6",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "ingress": [
+            {
+              "protocol": "tcp",
+              "from_port": 22,
+              "to_port": 22,
+              "cidr_blocks": [],
+              "ipv6_cidr_blocks": [
+                "::/0"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role_policy.lambda_escalation",
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "policy": {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": "iam:PassRole",
+                "Resource": "*"
+              },
+              {
+                "Effect": "Allow",
+                "Action": "lambda:CreateFunction",
+                "Resource": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role_policy.middle_wildcard",
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "policy": {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": "ec2:*Instances",
+                "Resource": "*"
+              },
+              {
+                "Effect": "Allow",
+                "Action": "s3:GetObject",
+                "Resource": "*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

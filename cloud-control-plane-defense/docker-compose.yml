@@ -1,0 +1,17 @@
+name: cloud-control-plane-defense
+
+services:
+  localstack:
+    image: localstack/localstack:2026.10.7
+    container_name: cloud-control-plane-localstack
+    env_file:
+      - .env
+    environment:
+      DEBUG: "0"
+      ENFORCE_IAM: "1"
+      PERSISTENCE: "1"
+    ports:
+      - "127.0.0.1:4566:4566"
+    volumes:
+      - "./volume:/var/lib/localstack"
+    restart: unless-stopped

@@ -1,0 +1,41 @@
+flowchart TB
+    subgraph Local["Local execution — Docker + LocalStack ($0 cloud spend)"]
+        TF["Terraform IaC"]
+        OPA["Conftest / OPA Rego policy gate"]
+        AWS["LocalStack AWS APIs"]
+        CT["CloudTrail audit trail"]
+        EB["EventBridge security bus"]
+        SQS["SQS security queue + DLQ"]
+        IAM["IAM users and role chain"]
+        KMS["KMS audit key"]
+        S3["Encrypted S3 audit and forensics buckets"]
+        SM["Secrets Manager"]
+        VPC["VPC, subnets and security groups"]
+
+        TF --> OPA
+        OPA -->|policy pass| AWS
+        AWS --> IAM
+        AWS --> KMS
+        AWS --> S3
+        AWS --> SM
+        AWS --> VPC
+        AWS --> CT
+        CT -.->|native event integration tested; LocalStack limitation observed| EB
+        EB --> SQS
+    end
+
+    subgraph Defense["Control-plane defense services"]
+        DET["Stateful CloudTrail detector\nAssumeRole graph + kill-chain rules"]
+        SOAR["SOAR responder\nDry-run / explicit execute"]
+        DRIFT["Terraform-state drift reconciler\nForensic snapshot + targeted rollback"]
+        TEST["Pytest adversarial and regression suite"]
+    end
+
+    SQS --> DET
+    DET -->|HIGH / CRITICAL alert| SOAR
+    AWS -->|live state inspection| DRIFT
+    TF -->|approved baseline| DRIFT
+    DRIFT -->|verified remediation| AWS
+    TEST --> DET
+    TEST --> SOAR
+    TEST --> DRIFT

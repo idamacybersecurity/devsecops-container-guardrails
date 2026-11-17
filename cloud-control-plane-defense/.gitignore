@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+evidence/runtime/
+
+# LocalStack runtime state, certificates, and license data
+volume/

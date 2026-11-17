@@ -1,0 +1,11 @@
+{
+  "expected_account_id": "000000000000",
+  "break_glass_principals": [
+    "arn:aws:iam::000000000000:role/cloud-control-plane-defense-break-glass"
+  ],
+  "deny_policy_name": "CCPDQuarantineDenyAll",
+  "session_revocation_policy_name": "AWSRevokeOlderSessions",
+  "session_revocation_buffer_seconds": 30,
+  "localstack_endpoint": "http://127.0.0.1:4566",
+  "region": "eu-north-1"
+}

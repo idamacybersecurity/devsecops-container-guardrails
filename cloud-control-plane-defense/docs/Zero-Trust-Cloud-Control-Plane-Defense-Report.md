@@ -4,7 +4,7 @@
 **Environment:** LocalStack on an EC2-hosted development environment
 **Cloud spend:** $0.00 target; AWS services emulated locally
 **Submission deadline:** Friday, 20 November 2026
-**Report status:** Initial evidence-backed draft; final evidence audit and PDF export remain outstanding.
+**Report status:** Updated evidence-backed engineering report; final evidence audit and PDF export remain outstanding.
 
 ---
 
@@ -21,11 +21,13 @@ defense-evasion detection, S3 bucket-policy deletion detection, verified IAM
 quarantine, and remediation of unauthorized security-group and IAM trust
 changes.
 
-The StopLogging attack was successfully executed against LocalStack, but the
-emulator did not emit a corresponding native CloudTrail event through the
-tested event-history, S3-delivery, or EventBridge paths. This is recorded as an
-environmental integration gap, not as a successful native StopLogging
-detection test.
+StopLogging state-transition detection was demonstrated using a separate
+independent polling monitor. The monitor observed a disposable trail transition
+from IsLogging=true to IsLogging=false and emitted a CRITICAL alert, which was
+saved to evidence/transcripts/stoplogging-state-alert.json. Logging was then
+restored, and the main audit trail remained enabled. Native StopLogging event
+delivery, attacker attribution, and SOAR containment for this alert remain
+unverified.
 
 ## 2. Architecture
 
@@ -68,8 +70,10 @@ records and maintains state for cross-role AssumeRole attribution. Detection
 logic covers:
 
 - IAM privilege-escalation API activity.
-- Defense-evasion activity, including StopLogging, bucket-policy deletion,
-  and KMS key-rotation disablement.
+- Native defense-evasion event detection for bucket-policy deletion and
+  KMS key-rotation disablement.
+- Separate independent CloudTrail state polling for StopLogging logging-state
+  transitions; this monitor is not native event parsing or SOAR integration.
 - High-velocity secret retrieval across distinct resources within a
   30-second window.
 
@@ -181,27 +185,42 @@ strengthen this design.
 | Scenario | Result | Evidence-backed qualification |
 |---|---|---|
 | 1. Multi-hop IAM privilege escalation | Demonstrated | Role-chain attribution, escalation alerting, and quarantine exercised. Native records were replayed through an isolated queue for consumer validation. |
-| 2. CloudTrail defense evasion | Partially demonstrated | Native KMS and S3 policy-deletion events detected and contained. StopLogging API call executed, but no native StopLogging event was emitted through tested LocalStack paths. |
+| 2. CloudTrail defense evasion | Partially demonstrated | Native KMS and S3 policy-deletion events detected and contained. A separate state poller detected StopLogging by observing the trail transition to IsLogging=false and emitted a CRITICAL alert. Native StopLogging event delivery, attacker attribution, and SOAR containment for this alert remain unverified. |
 | 3. Out-of-band drift persistence | Demonstrated | Public ingress and rogue IAM trust injected, snapshotted, remediated, and independently verified. |
 | 4. Unit and regression suite | Passed | 67 tests passed; focused break-glass/malformed-event tests also passed. |
 
-### StopLogging investigation record
+### StopLogging state-transition detection record
 
-The disposable StopLogging attack was executed successfully. Native event
-retrieval was attempted using:
+A separate monitor was implemented in
+`scripts/stoplogging_state_detector.py`. It polls CloudTrail trail status and
+compares the observed state with the enabled baseline.
 
-1. CloudTrail `lookup-events`.
-2. CloudTrail S3 log-object delivery inspection.
-3. A separate LocalStack development instance with an observer trail.
-4. EventBridge routing to a dedicated SQS queue.
-5. A benign S3 management API event as a control for native
-   CloudTrail-to-EventBridge delivery.
+Verified exercise:
 
-No native StopLogging event was found, and the benign S3 management event
-also did not arrive through the tested EventBridge integration. The evidence
-supports an emulator integration gap in the tested environment. It does not
-support a claim of successful native StopLogging interception or automated
-containment for that action.
+1. Created disposable trail `ccpd-stoplogging-state-detection-20261117`.
+2. Confirmed baseline `IsLogging=true`.
+3. Started the monitor and observed `MONITOR_READY`.
+4. Executed `cloudtrail stop-logging` against the disposable trail.
+5. The monitor observed `IsLogging=false` and emitted
+   `STOPLOGGING_STATE_CHANGE_DETECTED`.
+6. The alert recorded severity `CRITICAL`, alert type
+   `cloudtrail_logging_state_disabled`, and detection method
+   `independent_cloudtrail_state_polling`.
+7. Saved alert JSON to `evidence/transcripts/stoplogging-state-alert.json`.
+8. Restored logging with `start-logging` and verified the disposable trail
+   returned to `IsLogging=true`. The main audit trail also remained enabled.
+
+The alert has `native_cloudtrail_event_id: null`. Earlier attempts to retrieve
+a native StopLogging event through CloudTrail event history, S3 log delivery,
+and EventBridge did not produce one. A benign S3 control event also failed to
+arrive through the tested EventBridge integration.
+
+This demonstrates state-transition detection and recovery, not native
+StopLogging event capture, attacker-principal attribution, or automated SOAR
+containment for this alert.
+
+**Screenshot placeholder:** `evidence/screenshots/stoplogging-state-transition-detection.png`
+(Presence of this screenshot has not yet been verified.)
 
 ## 9. Automated testing
 
@@ -220,7 +239,7 @@ service behavior.
 
 - LocalStack is an emulator; successful API responses do not prove all AWS
   service-side semantics.
-- Native StopLogging event capture remains unverified in this environment.
+- Native StopLogging event capture remains unverified; independent state-polling detection was demonstrated, but does not attribute the actor or trigger SOAR containment.
 - STS token invalidation semantics were not proven against live AWS.
 - The SOAR benchmark is not a full native event-to-quarantine benchmark.
 - The HMAC key and baseline share a host.
@@ -233,11 +252,17 @@ service behavior.
 
 Evidence already recorded includes native CloudTrail event JSON for the KMS
 and S3 attacks, detector alert JSON, SOAR execution and independent
-verification, drift snapshots, and the ten-run benchmark JSON.
+verification, drift snapshots, the ten-run benchmark JSON, and the
+StopLogging state-polling alert at
+`evidence/transcripts/stoplogging-state-alert.json`. The corresponding monitor
+is `scripts/stoplogging_state_detector.py`.
 
-Screenshots and terminal transcripts must be audited against the actual
-submission folder before final sign-off. A requested screenshot is not
-considered saved until its presence is verified or the user confirms it.
+The StopLogging exercise also verified restoration of the disposable trail and
+confirmed that the main audit trail remained enabled. The screenshot
+`evidence/screenshots/stoplogging-state-transition-detection.png` is a
+placeholder only; its presence has not been verified. Screenshots and terminal
+transcripts must be audited against the actual submission folder before final
+sign-off.
 
 ## 12. Conclusion
 
@@ -247,7 +272,9 @@ alerting, controlled IAM quarantine, forensic drift capture, and targeted
 self-healing. The regression suite and ten-run SOAR benchmark passed at the
 recorded values.
 
-The report deliberately preserves the distinction between verified behavior
-and LocalStack limitations. In particular, StopLogging native-event capture,
-live AWS STS revocation semantics, and full end-to-end latency remain
-unverified and must not be presented as completed proof.
+The report deliberately distinguishes verified behavior from limitations.
+StopLogging state-transition detection and restoration were demonstrated using
+independent polling, but native StopLogging event capture and SOAR containment
+for that alert remain unverified. Live AWS STS revocation semantics and full
+end-to-end latency also remain unverified and are not presented as completed
+proof.

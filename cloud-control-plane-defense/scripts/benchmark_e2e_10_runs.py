@@ -120,7 +120,7 @@ def main():
                     break
                 if watcher.poll() is not None:
                     raise RuntimeError("SOAR watcher exited unexpectedly")
-                time.sleep(0.1)
+                time.sleep(0.01)
 
             verified = False
             error = None

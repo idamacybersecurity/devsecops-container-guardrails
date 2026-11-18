@@ -1,31 +1,30 @@
 #!/usr/bin/env python3
 """Autonomous detector-to-SOAR watcher (dry-run unless --execute).
 
-Drains the security SQS queue through the detector, then hands each
-actionable alert to the SOAR responder. Root principals and alerts that are
-not HIGH/CRITICAL or not on the responder's supported list are never
-forwarded. Each action is logged with the eventTime-to-verified latency
-reported by the responder.
+The responder and IAM client are initialized once and reused for every alert.
+The SQS detector remains a separate process.
 """
 import argparse
 import json
 import os
-import re
 import subprocess
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
+
+import boto3
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from soar.cloud_soar_responder import SUPPORTED_DETECTIONS  # noqa: E402
-
-
-def run(cmd):
-    env = {**os.environ, "PYTHONPATH": str(ROOT)}
-    return subprocess.run(cmd, capture_output=True, text=True, env=env)
+from soar.cloud_soar_responder import (  # noqa: E402
+    SUPPORTED_DETECTIONS,
+    CloudSOARResponder,
+    ResponderError,
+    load_config,
+)
 
 
 def actionable(alert):
@@ -33,38 +32,132 @@ def actionable(alert):
         return False
     if alert.get("detection_type") not in SUPPORTED_DETECTIONS:
         return False
-    target = alert.get("quarantine_principal_arn") or alert.get("caller_arn") or ""
+    target = (
+        alert.get("quarantine_principal_arn")
+        or alert.get("caller_arn")
+        or ""
+    )
     return bool(target) and not target.endswith(":root")
+
+
+def initialize_responder(config_path):
+    """Load and validate configuration, then initialize the responder once."""
+    path = Path(config_path)
+    if not path.is_absolute():
+        path = ROOT / path
+
+    config = load_config(path)
+    endpoint = config.get("localstack_endpoint")
+    parsed = urlparse(endpoint or "")
+
+    if (
+        parsed.scheme != "http"
+        or parsed.hostname not in {"127.0.0.1", "localhost"}
+        or parsed.port != 4566
+    ):
+        raise ResponderError("endpoint_must_be_localstack_loopback")
+
+    iam = boto3.client(
+        "iam",
+        endpoint_url=endpoint,
+        region_name=config.get("region", "eu-north-1"),
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
+    )
+
+    responder = CloudSOARResponder(
+        iam_client=iam,
+        expected_account_id=config["expected_account_id"],
+        break_glass_principals=config.get(
+            "break_glass_principals", []
+        ),
+        deny_policy_name=config.get(
+            "deny_policy_name", "CCPDQuarantineDenyAll"
+        ),
+        session_policy_name=config.get(
+            "session_revocation_policy_name",
+            "AWSRevokeOlderSessions",
+        ),
+        session_buffer_seconds=config.get(
+            "session_revocation_buffer_seconds", 30
+        ),
+    )
+    return responder
+
+
+def process_alert(responder, alert, execute):
+    """Run the existing responder logic without spawning another interpreter."""
+    try:
+        return (
+            responder.execute(alert)
+            if execute
+            else responder.plan(alert)
+        )
+    except Exception as exc:
+        return {
+            "status": "REJECTED",
+            "error_type": type(exc).__name__,
+            "errors": (
+                str(exc)
+                if isinstance(exc, ResponderError)
+                else "operation_failed"
+            ),
+        }
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--queue-url", default=os.environ.get("SECURITY_EVENT_QUEUE_URL"))
+    ap.add_argument(
+        "--queue-url",
+        default=os.environ.get("SECURITY_EVENT_QUEUE_URL"),
+    )
     ap.add_argument("--config", default="config/soar.json")
     ap.add_argument("--alerts", default="evidence/runtime/auto-alerts.jsonl")
     ap.add_argument("--state", default="evidence/runtime/auto-state.json")
     ap.add_argument("--log", default="evidence/runtime/auto-soar-log.jsonl")
     ap.add_argument("--duration", type=int, default=90)
-    ap.add_argument("--execute", action="store_true",
-                    help="Perform containment. Without it the responder only plans.")
+    ap.add_argument(
+        "--execute",
+        action="store_true",
+        help="Perform containment. Without it the responder only plans.",
+    )
     a = ap.parse_args()
+
     if not a.queue_url:
         sys.exit("REFUSED: --queue-url or SECURITY_EVENT_QUEUE_URL is required")
 
+    # Fail closed if configuration or endpoint validation fails.
+    try:
+        responder = initialize_responder(a.config)
+    except Exception as exc:
+        reason = (
+            str(exc)
+            if isinstance(exc, ResponderError)
+            else "responder_initialization_failed"
+        )
+        sys.exit(f"REFUSED: {reason}")
+
     alerts, log = Path(a.alerts), Path(a.log)
     alerts.parent.mkdir(parents=True, exist_ok=True)
+    log.parent.mkdir(parents=True, exist_ok=True)
+
     offset = alerts.stat().st_size if alerts.exists() else 0
     seen = set()
     mode = "EXECUTE" if a.execute else "DRY_RUN"
+
     print(f"WATCHER_READY mode={mode}", flush=True)
 
-    end = time.monotonic() + a.duration
     consumer = subprocess.Popen(
         [
-            sys.executable, "-m", "detector.sqs_consumer",
-            "--queue-url", a.queue_url,
-            "--state-path", a.state,
-            "--alert-path", a.alerts,
+            sys.executable,
+            "-m",
+            "detector.sqs_consumer",
+            "--queue-url",
+            a.queue_url,
+            "--state-path",
+            a.state,
+            "--alert-path",
+            a.alerts,
         ],
         cwd=ROOT,
         env={**os.environ, "PYTHONPATH": str(ROOT)},
@@ -97,38 +190,23 @@ def main():
                             continue
 
                         eid = alert.get("event_id")
-                        if not eid or eid in seen or not actionable(alert):
+                        if (
+                            not eid
+                            or eid in seen
+                            or not actionable(alert)
+                        ):
                             continue
 
                         seen.add(eid)
-                        safe = re.sub(
-                            r"[^A-Za-z0-9_.-]", "_", str(eid)
+                        seen_at = datetime.now(timezone.utc)
+
+                        # No per-alert responder subprocess or temporary
+                        # alert file: reuse the initialized responder.
+                        out = process_alert(
+                            responder,
+                            alert,
+                            a.execute,
                         )
-                        path = alerts.parent / f"auto-alert-{safe}.json"
-                        path.write_text(
-                            json.dumps(alert) + "\n",
-                            encoding="utf-8",
-                        )
-                        os.chmod(path, 0o600)
-
-                        cmd = [
-                            sys.executable, "-m",
-                            "soar.cloud_soar_responder",
-                            "--alert-file", str(path),
-                            "--config", a.config,
-                        ]
-                        if a.execute:
-                            cmd.append("--execute")
-
-                        res = run(cmd)
-
-                        try:
-                            out = json.loads(res.stdout)
-                        except ValueError:
-                            out = {
-                                "status": "RESPONDER_ERROR",
-                                "stderr": res.stderr.strip()[-300:],
-                            }
 
                         record = {
                             "mode": mode,
@@ -140,8 +218,11 @@ def main():
                                 out.get("event_to_verified_seconds"),
                             "execution_duration_seconds":
                                 out.get("execution_duration_seconds"),
-                            "verified_controls": out.get("verified_controls"),
-                            "errors": out.get("errors") or out.get("stderr"),
+                            "verified_controls":
+                                out.get("verified_controls"),
+                            "errors": out.get("errors"),
+                            "alert_event_time": alert.get("event_time"),
+                            "watcher_seen_utc": seen_at.isoformat(),
                             "logged_utc": datetime.now(
                                 timezone.utc
                             ).isoformat(),
@@ -161,7 +242,8 @@ def main():
             consumer.wait(timeout=5)
         except subprocess.TimeoutExpired:
             consumer.kill()
-            consumer.wait() 
+            consumer.wait()
+
     print("WATCHER_DONE", flush=True)
     return 0
 

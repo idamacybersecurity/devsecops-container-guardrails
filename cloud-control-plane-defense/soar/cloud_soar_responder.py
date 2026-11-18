@@ -24,6 +24,7 @@ IAM_PRINCIPAL_RE = re.compile(
     r"^arn:(aws|aws-us-gov|aws-cn):iam::(\d{12}):(user|role)/(.+)$"
 )
 ROOT_RE = re.compile(r"^arn:(aws|aws-us-gov|aws-cn):iam::(\d{12}):root$")
+ROLE_NAME_RE = re.compile(r"^[\w+=,.@-]{1,64}$")
 
 SUPPORTED_DETECTIONS = {
     "iam_privilege_escalation",
@@ -31,6 +32,7 @@ SUPPORTED_DETECTIONS = {
     "role_chain_escalation",
     "secret_enumeration",
     "secret_enumeration_burst",
+    "privileged_role_chain",
 }
 
 DENY_ALL_DOCUMENT = {
@@ -81,6 +83,7 @@ class CloudSOARResponder:
         session_policy_name: str = "AWSRevokeOlderSessions",
         session_buffer_seconds: int = 30,
         clock: Any = None,
+        revoke_chain_roles: bool = True,
     ):
         if not re.fullmatch(r"\d{12}", expected_account_id):
             raise ResponderError("configured_account_id_invalid")
@@ -93,6 +96,7 @@ class CloudSOARResponder:
         self.session_policy_name = session_policy_name
         self.session_buffer_seconds = session_buffer_seconds
         self.clock = clock or (lambda: datetime.now(timezone.utc))
+        self.revoke_chain_roles = revoke_chain_roles
 
     def _validate_alert(self, alert: Any) -> tuple[datetime, str]:
         if not isinstance(alert, dict):
@@ -197,6 +201,11 @@ class CloudSOARResponder:
                 if item.get("Status") == "Active"
             ]
 
+        chain_roles: list[dict[str, str]] = []
+        chain_skipped: list[str] = []
+        if self.revoke_chain_roles:
+            chain_roles, chain_skipped = self._chain_roles(alert, target)
+
         return {
             "status": "DRY_RUN",
             "event_id": alert["event_id"],
@@ -214,6 +223,8 @@ class CloudSOARResponder:
                 ),
             ],
             "active_access_keys_discovered": len(active_keys),
+            "planned_chain_role_revocations": [r["name"] for r in chain_roles],
+            "chain_roles_skipped": chain_skipped,
             "mutations_performed": False,
         }
 
@@ -242,6 +253,28 @@ class CloudSOARResponder:
                 UserName=target["name"], PolicyName=name
             )
         return policy_document(result["PolicyDocument"])
+
+    def _chain_roles(self, alert: dict[str, Any],
+                     target: dict[str, str]) -> tuple[list[dict[str, str]], list[str]]:
+        """Roles in the attacker's AssumeRole chain that need session revocation."""
+        chain = (alert.get("metadata") or {}).get("role_chain", [])
+        roles: list[dict[str, str]] = []
+        skipped: list[str] = []
+        if not isinstance(chain, list):
+            return roles, ["role_chain_not_a_list"]
+        for name in chain:
+            if not isinstance(name, str) or not ROLE_NAME_RE.fullmatch(name):
+                skipped.append("invalid_role_name")
+                continue
+            arn = f"arn:aws:iam::{self.account_id}:role/{name}"
+            if arn in self.break_glass or name in self.break_glass:
+                skipped.append(f"break_glass:{name}")
+                continue
+            if target["type"] == "role" and target["name"] == name:
+                continue
+            if all(r["name"] != name for r in roles):
+                roles.append({"type": "role", "name": name})
+        return roles, skipped
 
     def execute(self, alert: Any) -> dict[str, Any]:
         execution_started = time.perf_counter()
@@ -324,6 +357,21 @@ class CloudSOARResponder:
             except Exception as exc:
                 errors.append(f"access_keys:{type(exc).__name__}")
 
+        chain_roles: list[dict[str, str]] = []
+        chain_skipped: list[str] = []
+        if self.revoke_chain_roles and not errors:
+            chain_roles, chain_skipped = self._chain_roles(alert, target)
+            for role in chain_roles:
+                try:
+                    self._put_policy(role, self.session_policy_name, session_policy)
+                    completed.append(f"revoke_chain_role_sessions:{role['name']}")
+                    observed = self._get_policy(role, self.session_policy_name)
+                    if observed != session_policy:
+                        raise ResponderError("chain_role_revocation_verification_failed")
+                    verified.append(f"chain_role_session_revocation:{role['name']}")
+                except Exception as exc:
+                    errors.append(f"chain_role:{role['name']}:{type(exc).__name__}")
+
         verified_at = self.clock().astimezone(timezone.utc)
         latency = (verified_at - event_time).total_seconds()
         execution_duration = time.perf_counter() - execution_started
@@ -339,6 +387,8 @@ class CloudSOARResponder:
             "target": target,
             "completed_actions": completed,
             "verified_controls": verified,
+            "chain_roles_revoked": [r["name"] for r in chain_roles],
+            "chain_roles_skipped": chain_skipped,
             "errors": errors,
             "mutations_performed": bool(completed),
         }

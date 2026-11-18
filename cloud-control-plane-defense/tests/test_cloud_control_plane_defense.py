@@ -614,3 +614,55 @@ def test_restore_legacy_state_without_role_origins(tmp_path):
         "cloud-control-plane-defense-developer"
     ]
     assert restored._role_origins == {}
+
+
+def _chain_alerts(origin_arn, tag):
+    detector = CloudControlPlaneDetector()
+    developer_session = (
+        "arn:aws:sts::000000000000:assumed-role/"
+        f"cloud-control-plane-defense-developer/{tag}-dev"
+    )
+    cicd_session = (
+        "arn:aws:sts::000000000000:assumed-role/"
+        f"cloud-control-plane-defense-cicd/{tag}-cicd"
+    )
+    production_session = (
+        "arn:aws:sts::000000000000:assumed-role/"
+        f"cloud-control-plane-defense-production/{tag}-production"
+    )
+    alerts = []
+    for event in (
+        assume_role_event(
+            f"{tag}-sts-1", origin_arn, DEVELOPER_ROLE,
+            developer_session, "2026-11-17T14:00:00Z"
+        ),
+        assume_role_event(
+            f"{tag}-sts-2", developer_session, CICD_ROLE,
+            cicd_session, "2026-11-17T14:00:01Z"
+        ),
+        assume_role_event(
+            f"{tag}-sts-3", cicd_session, PRODUCTION_ROLE,
+            production_session, "2026-11-17T14:00:02Z"
+        ),
+    ):
+        alerts.extend(detector.process_event(event))
+    return [
+        alert for alert in alerts
+        if alert["detection_type"] == "privileged_role_chain"
+    ]
+
+
+def test_privileged_role_chain_alert_names_originating_user():
+    user_arn = "arn:aws:iam::000000000000:user/chain-origin-test"
+    chain = _chain_alerts(user_arn, "origin")
+
+    assert len(chain) == 1
+    assert chain[0]["originating_principal_arn"] == user_arn
+    assert chain[0]["quarantine_principal_arn"] == user_arn
+
+
+def test_privileged_role_chain_from_root_keeps_root_as_origin():
+    chain = _chain_alerts(ROOT_ARN, "rootorigin")
+
+    assert len(chain) == 1
+    assert chain[0]["quarantine_principal_arn"] == ROOT_ARN

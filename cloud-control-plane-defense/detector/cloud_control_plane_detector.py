@@ -492,16 +492,19 @@ class CloudControlPlaneDetector:
         ]
 
         if len(chain) >= 3 and chain[-3:] == expected_suffix:
-            alerts.append(
-                self._alert(
-                    event,
-                    "privileged_role_chain",
-                    "HIGH",
-                    "Developer-to-CI/CD-to-Production role chain observed.",
-                    role_chain=chain,
-                    assumed_role_arn=assumed_arn,
-                )
+            chain_alert = self._alert(
+                event,
+                "privileged_role_chain",
+                "HIGH",
+                "Developer-to-CI/CD-to-Production role chain observed.",
+                role_chain=chain,
+                assumed_role_arn=assumed_arn,
             )
+            # Name the original principal so SOAR never quarantines the
+            # shared role itself.
+            chain_alert["originating_principal_arn"] = origin_arn
+            chain_alert["quarantine_principal_arn"] = origin_arn
+            alerts.append(chain_alert)
 
         return alerts
 

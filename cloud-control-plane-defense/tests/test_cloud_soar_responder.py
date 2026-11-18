@@ -377,3 +377,19 @@ def test_secret_enumeration_burst_alert_is_supported():
     assert result["status"] == "DRY_RUN"
     assert result["detection_type"] == "secret_enumeration_burst"
     assert iam.mutations == []
+
+
+def test_privileged_role_chain_alert_targets_originating_user():
+    responder, iam = make_responder()
+    result = responder.plan(
+        make_alert(
+            SESSION_ARN,
+            detection_type="privileged_role_chain",
+            originating_principal_arn=USER_ARN,
+            quarantine_principal_arn=USER_ARN,
+        )
+    )
+    assert result["status"] == "DRY_RUN"
+    assert result["detection_type"] == "privileged_role_chain"
+    assert result["target"]["type"] == "user"
+    assert iam.mutations == []

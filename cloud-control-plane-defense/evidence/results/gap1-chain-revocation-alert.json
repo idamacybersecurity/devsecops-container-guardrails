@@ -1,0 +1,15 @@
+{
+  "account_id": "000000000000",
+  "caller_arn": "arn:aws:sts::000000000000:assumed-role/cloud-control-plane-defense-cicd/gap1-demo",
+  "caller_type_reported": "AssumedRole",
+  "description": "Gap 1 demo: chain-role session revocation",
+  "detection_type": "iam_privilege_escalation",
+  "event_id": "gap1-demo-1795014678",
+  "event_name": "AttachRolePolicy",
+  "event_source": "iam.amazonaws.com",
+  "event_time": "2026-11-18T15:11:18Z",
+  "metadata": {"role_chain": ["cloud-control-plane-defense-developer","cloud-control-plane-defense-cicd"]},
+  "originating_principal_arn": "arn:aws:iam::000000000000:user/ccpd-gap1-demo",
+  "quarantine_principal_arn": "arn:aws:iam::000000000000:user/ccpd-gap1-demo",
+  "severity": "HIGH"
+}

@@ -59,58 +59,109 @@ def main():
     print(f"WATCHER_READY mode={mode}", flush=True)
 
     end = time.monotonic() + a.duration
-    while time.monotonic() < end:
-        run([sys.executable, "-m", "detector.sqs_consumer",
-             "--queue-url", a.queue_url, "--state-path", a.state,
-             "--alert-path", a.alerts, "--once"])
-        if not alerts.exists():
-            time.sleep(0.2)
-            continue
-        with alerts.open("rb") as handle:
-            handle.seek(offset)
-            chunk = handle.read()
-        cut = chunk.rfind(b"\n") + 1
-        offset += cut
-        for line in chunk[:cut].decode("utf-8", "replace").splitlines():
-            try:
-                alert = json.loads(line)
-            except ValueError:
-                continue
-            eid = alert.get("event_id")
-            if not eid or eid in seen or not actionable(alert):
-                continue
-            seen.add(eid)
-            safe = re.sub(r"[^A-Za-z0-9_.-]", "_", str(eid))
-            path = alerts.parent / f"auto-alert-{safe}.json"
-            path.write_text(json.dumps(alert) + "\n", encoding="utf-8")
-            os.chmod(path, 0o600)
-            cmd = [sys.executable, "-m", "soar.cloud_soar_responder",
-                   "--alert-file", str(path), "--config", a.config]
-            if a.execute:
-                cmd.append("--execute")
-            res = run(cmd)
-            try:
-                out = json.loads(res.stdout)
-            except ValueError:
-                out = {"status": "RESPONDER_ERROR",
-                       "stderr": res.stderr.strip()[-300:]}
-            record = {
-                "mode": mode,
-                "event_id": eid,
-                "detection_type": alert.get("detection_type"),
-                "target": (out.get("target") or {}).get("arn"),
-                "status": out.get("status"),
-                "event_to_verified_seconds": out.get("event_to_verified_seconds"),
-                "execution_duration_seconds": out.get("execution_duration_seconds"),
-                "verified_controls": out.get("verified_controls"),
-                "errors": out.get("errors") or out.get("stderr"),
-                "logged_utc": datetime.now(timezone.utc).isoformat(),
-            }
-            with log.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps(record) + "\n")
-            os.chmod(log, 0o600)
-            print("ACTION " + json.dumps(record), flush=True)
+    consumer = subprocess.Popen(
+        [
+            sys.executable, "-m", "detector.sqs_consumer",
+            "--queue-url", a.queue_url,
+            "--state-path", a.state,
+            "--alert-path", a.alerts,
+        ],
+        cwd=ROOT,
+        env={**os.environ, "PYTHONPATH": str(ROOT)},
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
 
+    try:
+        end = time.monotonic() + a.duration
+
+        while time.monotonic() < end:
+            if consumer.poll() is not None:
+                raise RuntimeError("SQS consumer exited unexpectedly")
+
+            if alerts.exists():
+                with alerts.open("rb") as handle:
+                    handle.seek(offset)
+                    chunk = handle.read()
+
+                cut = chunk.rfind(b"\n") + 1
+                if cut:
+                    offset += cut
+
+                    for line in chunk[:cut].decode(
+                        "utf-8", "replace"
+                    ).splitlines():
+                        try:
+                            alert = json.loads(line)
+                        except ValueError:
+                            continue
+
+                        eid = alert.get("event_id")
+                        if not eid or eid in seen or not actionable(alert):
+                            continue
+
+                        seen.add(eid)
+                        safe = re.sub(
+                            r"[^A-Za-z0-9_.-]", "_", str(eid)
+                        )
+                        path = alerts.parent / f"auto-alert-{safe}.json"
+                        path.write_text(
+                            json.dumps(alert) + "\n",
+                            encoding="utf-8",
+                        )
+                        os.chmod(path, 0o600)
+
+                        cmd = [
+                            sys.executable, "-m",
+                            "soar.cloud_soar_responder",
+                            "--alert-file", str(path),
+                            "--config", a.config,
+                        ]
+                        if a.execute:
+                            cmd.append("--execute")
+
+                        res = run(cmd)
+
+                        try:
+                            out = json.loads(res.stdout)
+                        except ValueError:
+                            out = {
+                                "status": "RESPONDER_ERROR",
+                                "stderr": res.stderr.strip()[-300:],
+                            }
+
+                        record = {
+                            "mode": mode,
+                            "event_id": eid,
+                            "detection_type": alert.get("detection_type"),
+                            "target": (out.get("target") or {}).get("arn"),
+                            "status": out.get("status"),
+                            "event_to_verified_seconds":
+                                out.get("event_to_verified_seconds"),
+                            "execution_duration_seconds":
+                                out.get("execution_duration_seconds"),
+                            "verified_controls": out.get("verified_controls"),
+                            "errors": out.get("errors") or out.get("stderr"),
+                            "logged_utc": datetime.now(
+                                timezone.utc
+                            ).isoformat(),
+                        }
+
+                        with log.open("a", encoding="utf-8") as handle:
+                            handle.write(json.dumps(record) + "\n")
+
+                        os.chmod(log, 0o600)
+                        print("ACTION " + json.dumps(record), flush=True)
+
+            time.sleep(0.05)
+
+    finally:
+        consumer.terminate()
+        try:
+            consumer.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            consumer.kill()
+            consumer.wait() 
     print("WATCHER_DONE", flush=True)
     return 0
 

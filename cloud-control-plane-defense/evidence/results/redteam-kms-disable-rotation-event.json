@@ -1,0 +1,28 @@
+{
+  "eventVersion": "1.11",
+  "eventCategory": "Management",
+  "managementEvent": true,
+  "userIdentity": {
+    "type": "Root",
+    "principalId": "000000000000",
+    "arn": "arn:aws:iam::000000000000:user/ccpd-redteam-kms-20261117",
+    "accountId": "000000000000",
+    "accessKeyId": "LKIAQAAAAAAAPIFBYHI5"
+  },
+  "eventTime": "2026-11-17T17:36:18.127Z",
+  "eventSource": "kms.amazonaws.com",
+  "eventName": "DisableKeyRotation",
+  "awsRegion": "eu-north-1",
+  "sourceIPAddress": "1.2.3.4",
+  "userAgent": "console.amazonaws.com",
+  "requestParameters": {
+    "keyId": "c1e8e63b-2066-4702-a17e-6821de528415"
+  },
+  "responseElements": null,
+  "requestID": "6c168ac1-5a94-47b8-bda2-c6c07c6724c8",
+  "eventID": "28337d71-7599-4e3c-a035-c2c1540a8c7b",
+  "eventType": "AwsApiCall",
+  "apiVersion": "2014-11-01",
+  "readOnly": true,
+  "recipientAccountId": "000000000000"
+}

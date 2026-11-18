@@ -1,0 +1,13 @@
+{
+  "event_id": "6f06c1d9-68fb-4b27-8d78-125298dceab1",
+  "event_time": "2026-11-17T18:27:00.345000+00:00",
+  "event_source": "s3.amazonaws.com",
+  "event_name": "DeleteBucketPolicy",
+  "account_id": "000000000000",
+  "caller_arn": "arn:aws:iam::000000000000:user/ccpd-redteam-s3policy-20261117",
+  "caller_type_reported": "Root",
+  "detection_type": "defense_evasion",
+  "severity": "CRITICAL",
+  "description": "A security logging, storage-policy, or key-protection control change was observed.",
+  "metadata": {}
+}

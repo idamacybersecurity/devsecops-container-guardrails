@@ -1,0 +1,13 @@
+{
+  "account_id": "000000000000",
+  "caller_arn": "arn:aws:iam::000000000000:user/ccpd-redteam-evasion-20261117",
+  "caller_type_reported": "IAMUser",
+  "description": "A security logging, storage-policy, or key-protection control change was observed.",
+  "detection_type": "defense_evasion",
+  "event_id": "redteam-stoplogging-replay-20261117-001",
+  "event_name": "StopLogging",
+  "event_source": "cloudtrail.amazonaws.com",
+  "event_time": "2026-11-17T17:31:28.999388+00:00",
+  "metadata": {},
+  "severity": "CRITICAL"
+}

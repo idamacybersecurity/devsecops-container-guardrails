@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "alert_type": "cloudtrail_logging_state_disabled",
+  "severity": "CRITICAL",
+  "detection_method": "independent_cloudtrail_state_polling",
+  "trail_name": "ccpd-stoplog-attrib-20261118",
+  "baseline_is_logging": true,
+  "observed_is_logging": false,
+  "baseline_timestamp_utc": "2026-11-18T02:56:22.563990+00:00",
+  "detection_timestamp_utc": "2026-11-18T02:56:47.289293+00:00",
+  "native_cloudtrail_event_id": null,
+  "description": "CloudTrail logging transitioned from enabled to disabled.",
+  "auto_restore": {
+    "attempted": true,
+    "verified_is_logging": true,
+    "restore_finished_utc": "2026-11-18T02:56:49.301193+00:00"
+  }
+}

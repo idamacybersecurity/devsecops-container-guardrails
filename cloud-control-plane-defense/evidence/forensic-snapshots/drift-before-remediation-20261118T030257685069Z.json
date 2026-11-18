@@ -1,0 +1,152 @@
+{
+  "baseline_sha256": "2723f05c53801c3b6f83621f8c0876c3a3518ef6e11c6cd86f0517e1579dd4d2",
+  "captured_at": "2026-11-18T03:02:57.685132+00:00",
+  "findings": [
+    "cloud-control-plane-defense-audit: bucket policy drift",
+    "cloud-control-plane-defense-audit: encryption configuration drift"
+  ],
+  "live_configuration": {
+    "buckets": {
+      "cloud-control-plane-defense-audit": {
+        "encryption": {
+          "Rules": [
+            {
+              "ApplyServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              },
+              "BlockedEncryptionTypes": {
+                "EncryptionType": [
+                  "SSE-C"
+                ]
+              },
+              "BucketKeyEnabled": false
+            }
+          ]
+        },
+        "policy": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Resource": "arn:aws:s3:::cloud-control-plane-defense-audit/*",
+              "Sid": "RogueDriftTest"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "cloud-control-plane-defense-forensics": {
+        "encryption": {
+          "Rules": [
+            {
+              "ApplyServerSideEncryptionByDefault": {
+                "KMSMasterKeyID": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+                "SSEAlgorithm": "aws:kms"
+              },
+              "BlockedEncryptionTypes": {
+                "EncryptionType": [
+                  "SSE-C"
+                ]
+              },
+              "BucketKeyEnabled": true
+            }
+          ]
+        },
+        "policy": null
+      }
+    },
+    "roles": {
+      "cloud-control-plane-defense-cicd": {
+        "arn": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-cicd",
+        "trust": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-developer"
+              },
+              "Sid": "TrustDeveloperRole"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "cloud-control-plane-defense-developer": {
+        "arn": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-developer",
+        "trust": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "sts:ExternalId": "cloud-control-plane-defense-developer-entry"
+                }
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::000000000000:root"
+              },
+              "Sid": "AllowLabAccountBootstrap"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "cloud-control-plane-defense-production": {
+        "arn": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-production",
+        "trust": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-cicd"
+              },
+              "Sid": "TrustCICDRole"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "security_group": {
+      "egress": [
+        {
+          "IpProtocol": "-1",
+          "IpRanges": [
+            {
+              "CidrIp": "0.0.0.0/0"
+            }
+          ],
+          "Ipv6Ranges": [],
+          "PrefixListIds": [],
+          "UserIdGroupPairs": []
+        }
+      ],
+      "id": "sg-25097a9a8de3143e7",
+      "ingress": [
+        {
+          "FromPort": 443,
+          "IpProtocol": "tcp",
+          "IpRanges": [
+            {
+              "CidrIp": "10.40.1.0/24"
+            },
+            {
+              "CidrIp": "10.40.2.0/24"
+            }
+          ],
+          "Ipv6Ranges": [],
+          "PrefixListIds": [],
+          "ToPort": 443,
+          "UserIdGroupPairs": []
+        }
+      ],
+      "vpc_id": "vpc-1faa702c68a2925c3"
+    }
+  },
+  "schema_version": 1,
+  "source": "LocalStack"
+}

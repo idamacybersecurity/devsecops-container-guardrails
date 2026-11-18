@@ -1,0 +1,18 @@
+{
+  "event_id": "stoplogging-588b6623d0ae424b9929a037cabbd610",
+  "event_time": "2026-11-18T07:28:50.307350+00:00",
+  "event_source": "cloudtrail.amazonaws.com",
+  "event_name": "StopLogging",
+  "account_id": "000000000000",
+  "caller_arn": "arn:aws:iam::000000000000:user/ccpd-sl2-attacker-20261118",
+  "caller_type_reported": "IAMUser",
+  "detection_type": "defense_evasion",
+  "severity": "CRITICAL",
+  "description": "CloudTrail logging was disabled; caller attributed from the observed-call IAM summary.",
+  "metadata": {
+    "trail_name": "ccpd-sl2-trail-20261118",
+    "detection_method": "independent_cloudtrail_state_polling",
+    "attribution_method": "localstack_iam_policy_summary",
+    "event_time_basis": "monitor_detection_time"
+  }
+}

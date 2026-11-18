@@ -1,0 +1,21 @@
+{
+  "account_id": "000000000000",
+  "caller_arn": "arn:aws:sts::000000000000:assumed-role/cloud-control-plane-defense-production/ccpd-attribution-production",
+  "caller_type_reported": "Root",
+  "description": "An IAM policy, credential, or trust configuration change was observed.",
+  "detection_type": "iam_privilege_escalation",
+  "event_id": "a2ae18e8-6a6b-49e2-be19-f883b17080bd",
+  "event_name": "AttachRolePolicy",
+  "event_source": "iam.amazonaws.com",
+  "event_time": "2026-11-17T16:56:12.678437+00:00",
+  "metadata": {
+    "role_chain": [
+      "cloud-control-plane-defense-developer",
+      "cloud-control-plane-defense-cicd",
+      "cloud-control-plane-defense-production"
+    ]
+  },
+  "originating_principal_arn": "arn:aws:iam::000000000000:user/ccpd-soar-timing-20261117",
+  "quarantine_principal_arn": "arn:aws:iam::000000000000:user/ccpd-soar-timing-20261117",
+  "severity": "HIGH"
+}

@@ -367,3 +367,13 @@ def test_soar_rejects_conflicting_origin_and_quarantine_target():
         responder.plan(alert)
 
     assert iam.mutations == []
+
+
+def test_secret_enumeration_burst_alert_is_supported():
+    responder, iam = make_responder()
+    result = responder.plan(
+        make_alert(USER_ARN, detection_type="secret_enumeration_burst")
+    )
+    assert result["status"] == "DRY_RUN"
+    assert result["detection_type"] == "secret_enumeration_burst"
+    assert iam.mutations == []

@@ -28,6 +28,84 @@ def get_logging_state(trail, endpoint):
     return json.loads(result.stdout)
 
 
+def attribute_caller(trail, endpoint):
+    """Best-effort attribution from LocalStack's observed-call IAM summary.
+
+    The summary carries no timestamps, so a principal is accepted only when
+    exactly one non-root principal has StopLogging recorded on this trail.
+    """
+    import urllib.request
+
+    result = {
+        "attribution_method": "localstack_iam_policy_summary",
+        "attribution_candidates": [],
+        "attributed_principal_arn": None,
+        "attribution_note": None,
+    }
+    suffix = "trail/" + trail
+    for attempt in range(6):
+        try:
+            url = endpoint + "/_aws/iam/policies/summary"
+            with urllib.request.urlopen(url, timeout=10) as response:
+                entries = json.load(response)
+        except Exception as exc:
+            result["attribution_note"] = "summary_unavailable:" + type(exc).__name__
+            return result
+        found = set()
+        for entry in entries:
+            principal = entry.get("resource", "")
+            if not principal or principal.endswith(":root"):
+                continue
+            statements = entry.get("policy_document", {}).get("Statement", [])
+            for statement in statements:
+                actions = statement.get("Action", [])
+                actions = [actions] if isinstance(actions, str) else actions
+                if "cloudtrail:StopLogging" not in actions:
+                    continue
+                resources = statement.get("Resource", [])
+                resources = [resources] if isinstance(resources, str) else resources
+                if any(r == trail or r.endswith(suffix) for r in resources):
+                    found.add(principal)
+                    break
+        result["attribution_candidates"] = sorted(found)
+        if found:
+            break
+        time.sleep(1)
+    if len(result["attribution_candidates"]) == 1:
+        result["attributed_principal_arn"] = result["attribution_candidates"][0]
+        result["attribution_note"] = "single_candidate_no_timestamp"
+    else:
+        result["attribution_note"] = "ambiguous_or_none"
+    return result
+
+
+def write_soar_alert(path, alert):
+    import uuid
+
+    principal = alert["attributed_principal_arn"]
+    soar = {
+        "event_id": "stoplogging-" + uuid.uuid4().hex,
+        "event_time": alert["detection_timestamp_utc"],
+        "event_source": "cloudtrail.amazonaws.com",
+        "event_name": "StopLogging",
+        "account_id": principal.split(":")[4],
+        "caller_arn": principal,
+        "caller_type_reported": "IAMUser",
+        "detection_type": "defense_evasion",
+        "severity": "CRITICAL",
+        "description": "CloudTrail logging was disabled; caller attributed from the observed-call IAM summary.",
+        "metadata": {
+            "trail_name": alert["trail_name"],
+            "detection_method": alert["detection_method"],
+            "attribution_method": alert["attribution_method"],
+            "event_time_basis": "monitor_detection_time",
+        },
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(soar, indent=2) + "\n")
+    os.chmod(path, 0o600)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--trail", required=True)
@@ -35,6 +113,8 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--interval", type=float, default=0.5)
     parser.add_argument("--timeout", type=int, default=120)
+    parser.add_argument("--restore", action="store_true", help="After alerting, re-enable logging and verify it.")
+    parser.add_argument("--soar-alert-out", default=None, help="Write a SOAR alert if exactly one non-root caller is attributed.")
     args = parser.parse_args()
 
     output = Path(args.output)
@@ -70,6 +150,10 @@ def main():
                 ),
             }
 
+            alert.update(attribute_caller(args.trail, args.endpoint))
+            if args.soar_alert_out and alert.get("attributed_principal_arn"):
+                write_soar_alert(Path(args.soar_alert_out), alert)
+                alert["soar_alert_file"] = args.soar_alert_out
             temp = output.with_suffix(output.suffix + ".tmp")
             with temp.open("w", encoding="utf-8") as handle:
                 json.dump(alert, handle, indent=2)
@@ -83,6 +167,15 @@ def main():
             print("STOPLOGGING_STATE_CHANGE_DETECTED", flush=True)
             print(json.dumps(alert, indent=2), flush=True)
             print(f"EVIDENCE_FILE={output}", flush=True)
+            if args.restore:
+                subprocess.run(['aws','--endpoint-url',args.endpoint,'cloudtrail','start-logging','--name',args.trail],capture_output=True,text=True,check=True)
+                ok=get_logging_state(args.trail,args.endpoint).get('IsLogging') is True
+                alert['auto_restore']={'attempted':True,'verified_is_logging':ok,'restore_finished_utc':utc_now()}
+                output.write_text(json.dumps(alert,indent=2)+'\n')
+                os.chmod(output,0o600)
+                print(f'LOGGING_RESTORE_VERIFIED={ok}',flush=True)
+                print(json.dumps(alert['auto_restore'],indent=2),flush=True)
+                return 0 if ok else 3
             return 0
 
         time.sleep(args.interval)

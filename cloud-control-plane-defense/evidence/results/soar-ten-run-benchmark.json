@@ -1,0 +1,228 @@
+{
+  "benchmark": "10 consecutive simulated SOAR containment attacks",
+  "environment": "LocalStack",
+  "target_user": "ccpd-soar-benchmark-20261117",
+  "target_arn": "arn:aws:iam::000000000000:user/ccpd-soar-benchmark-20261117",
+  "runs_requested": 10,
+  "runs_passed": 10,
+  "runs_failed": 0,
+  "success_criteria": {
+    "quarantine_verified": true,
+    "independent_readback_all_three_controls": true,
+    "execution_duration_below_one_second": true,
+    "event_to_verified_latency_below_one_second": true
+  },
+  "execution_duration_seconds": {
+    "mean": 0.253783868300161,
+    "median": 0.2427375915012817,
+    "maximum": 0.3171718929988856
+  },
+  "event_to_verified_seconds": {
+    "mean": 0.2537971,
+    "median": 0.2427505,
+    "maximum": 0.317188
+  },
+  "results": [
+    {
+      "run": 1,
+      "event_id": "dbb9b37c-ecff-4c8b-81b3-fc8f35a17c1e",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:31.982244+00:00",
+      "execution_duration_seconds": 0.28321273799883784,
+      "event_to_verified_seconds": 0.283224,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 2,
+      "event_id": "303225f4-b8ee-4258-b51b-75d900b3a4f5",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:32.449947+00:00",
+      "execution_duration_seconds": 0.22704837299897918,
+      "event_to_verified_seconds": 0.22706,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 3,
+      "event_id": "bb010db7-124a-4e66-acb6-8896f0d0ba5b",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:32.880216+00:00",
+      "execution_duration_seconds": 0.22591228899909765,
+      "event_to_verified_seconds": 0.225926,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 4,
+      "event_id": "6203bf2f-ad5b-4d28-a4c8-b578ce72360d",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:33.284203+00:00",
+      "execution_duration_seconds": 0.23374728600174421,
+      "event_to_verified_seconds": 0.233759,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 5,
+      "event_id": "b4b36b85-8530-4dfb-95d2-7f96647702ef",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:33.700313+00:00",
+      "execution_duration_seconds": 0.2300137510028435,
+      "event_to_verified_seconds": 0.230023,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 6,
+      "event_id": "f7153267-f896-4bb0-ad99-8d96fdcf6130",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:34.131709+00:00",
+      "execution_duration_seconds": 0.27762941699984367,
+      "event_to_verified_seconds": 0.277649,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 7,
+      "event_id": "10ec9f7a-02d8-4a26-99f3-42970494287c",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:34.627866+00:00",
+      "execution_duration_seconds": 0.3171718929988856,
+      "event_to_verified_seconds": 0.317188,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 8,
+      "event_id": "ece58872-971b-43c4-b986-5a642932eb93",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:35.164203+00:00",
+      "execution_duration_seconds": 0.23306225200212793,
+      "event_to_verified_seconds": 0.233073,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 9,
+      "event_id": "134560d0-5bf6-4803-985b-ff1bf6b80d1a",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:35.603841+00:00",
+      "execution_duration_seconds": 0.2517278970008192,
+      "event_to_verified_seconds": 0.251742,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 10,
+      "event_id": "4239a7b4-1dbd-48ee-8bf5-7dfc702ef318",
+      "status": "PASS",
+      "event_time": "2026-11-17T18:15:36.044888+00:00",
+      "execution_duration_seconds": 0.25831278699843097,
+      "event_to_verified_seconds": 0.258327,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    }
+  ],
+  "completed_at": "2026-11-17T18:15:36.413018+00:00"
+}

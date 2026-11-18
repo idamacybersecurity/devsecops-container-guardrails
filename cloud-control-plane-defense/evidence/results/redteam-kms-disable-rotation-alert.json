@@ -1,0 +1,13 @@
+{
+  "event_id": "28337d71-7599-4e3c-a035-c2c1540a8c7b",
+  "event_time": "2026-11-17T17:36:18.127000+00:00",
+  "event_source": "kms.amazonaws.com",
+  "event_name": "DisableKeyRotation",
+  "account_id": "000000000000",
+  "caller_arn": "arn:aws:iam::000000000000:user/ccpd-redteam-kms-20261117",
+  "caller_type_reported": "Root",
+  "detection_type": "defense_evasion",
+  "severity": "CRITICAL",
+  "description": "A security logging, storage-policy, or key-protection control change was observed.",
+  "metadata": {}
+}

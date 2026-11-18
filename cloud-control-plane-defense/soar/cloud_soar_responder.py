@@ -30,6 +30,7 @@ SUPPORTED_DETECTIONS = {
     "defense_evasion",
     "role_chain_escalation",
     "secret_enumeration",
+    "secret_enumeration_burst",
 }
 
 DENY_ALL_DOCUMENT = {

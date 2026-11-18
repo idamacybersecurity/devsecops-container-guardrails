@@ -1,0 +1,30 @@
+{
+  "eventVersion": "1.11",
+  "eventCategory": "Management",
+  "managementEvent": true,
+  "userIdentity": {
+    "type": "Root",
+    "principalId": "000000000000",
+    "arn": "arn:aws:iam::000000000000:user/ccpd-redteam-s3policy-20261117",
+    "accountId": "000000000000",
+    "accessKeyId": "LKIAQAAAAAAAEB4ZORYN"
+  },
+  "eventTime": "2026-11-17T18:27:00.345Z",
+  "eventSource": "s3.amazonaws.com",
+  "eventName": "DeleteBucketPolicy",
+  "awsRegion": "eu-north-1",
+  "sourceIPAddress": "1.2.3.4",
+  "userAgent": "console.amazonaws.com",
+  "requestParameters": {
+    "bucketName": "cloud-control-plane-defense-audit",
+    "policy": "",
+    "Host": "cloud-control-plane-defense-audit.s3.eu-north-1.amazonaws.com"
+  },
+  "responseElements": {},
+  "requestID": "3ae8764f-935d-4238-9df6-0ae9d7540887",
+  "eventID": "6f06c1d9-68fb-4b27-8d78-125298dceab1",
+  "eventType": "AwsApiCall",
+  "apiVersion": "2006-03-01",
+  "readOnly": false,
+  "recipientAccountId": "000000000000"
+}

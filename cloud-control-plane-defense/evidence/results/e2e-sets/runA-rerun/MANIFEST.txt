@@ -1,0 +1,6 @@
+Run A rerun, 2026-11-19T01:27:36Z
+watcher: git show 92300f9:scripts/auto_soar_watcher.py (committed in 3ba02be)
+benchmark: git show 92300f9:scripts/benchmark_e2e_10_runs.py (100 ms wait-loop poll)
+e57af9342e55619f4c6ad773f9791f6542800b3aefee8a3d98c10c28bebd4eb6  /tmp/ccpd-runA/scripts/auto_soar_watcher.py
+c558642d98fe67159b274fcb8c4aa1933072574a7217bcc89b08a4f5ef3cfdd5  /tmp/ccpd-runA/scripts/benchmark_e2e_10_runs.py
+repo head: 0d55e35

@@ -1,0 +1,111 @@
+{
+  "runs": [
+    {
+      "run": 1,
+      "event_id": "3b1da662-f1e8-45e7-ac20-6d4ab1dbd348",
+      "username": "ccpd-e2e-229d9cc3a56a",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.551464,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 2,
+      "event_id": "41010b79-6527-4529-9529-d5b4153d8ddc",
+      "username": "ccpd-e2e-64c524da547a",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.466354,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 3,
+      "event_id": "e70cbf77-eb5c-48f7-904d-79c4b5f9ce92",
+      "username": "ccpd-e2e-be3732919fed",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.462475,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 4,
+      "event_id": "b89b3a59-058e-4bc7-b19b-33adff3de8b5",
+      "username": "ccpd-e2e-a4898327b02d",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.778211,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 5,
+      "event_id": "9a412e55-5ff1-4dbc-87ed-45681138f6bb",
+      "username": "ccpd-e2e-9d474d74db66",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.885889,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 6,
+      "event_id": "5a00c5e0-0af8-44c7-8ae7-2c7b8ba9250c",
+      "username": "ccpd-e2e-077809f7906a",
+      "status": "FAIL",
+      "injection_to_verification_seconds": 45.226268,
+      "responder_status": null,
+      "independent_verification": false,
+      "error": "TIMEOUT"
+    },
+    {
+      "run": 7,
+      "event_id": "04c13dd0-57dd-4cac-9bdf-aedd569a4168",
+      "username": "ccpd-e2e-7f7e009915b6",
+      "status": "PASS",
+      "injection_to_verification_seconds": 48.37894,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 8,
+      "event_id": "434a62d4-09a6-4046-a7a8-9046453d22d7",
+      "username": "ccpd-e2e-08ee7def98ab",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.597744,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 9,
+      "event_id": "8d7ab4a2-34e2-4909-978b-f637a43214ac",
+      "username": "ccpd-e2e-0dc1c70bf16f",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.565357,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    },
+    {
+      "run": 10,
+      "event_id": "31184d01-c3f1-4612-a2d4-75a96e42819b",
+      "username": "ccpd-e2e-86bdde9e9996",
+      "status": "PASS",
+      "injection_to_verification_seconds": 1.618877,
+      "responder_status": "QUARANTINE_VERIFIED",
+      "independent_verification": true,
+      "error": null
+    }
+  ],
+  "successful_runs": 9,
+  "failed_runs": 1,
+  "mean_seconds": 6.811701222222222,
+  "median_seconds": 1.597744,
+  "under_one_second": 0,
+  "measurement": "EventBridge PutEvents to independent IAM read-back",
+  "limitation": "Does not measure CloudTrail delivery delay or prove STS session invalidation"
+}

@@ -1,0 +1,107 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "git_sha": "970e5b63d11f358f66a16a4a285e7f6dd26281c5",
+  "modified_tracked_files": [],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "4d0303e14a54",
+    "soar/cloud_soar_responder.py": "d42c945a16bf",
+    "detector/sqs_consumer.py": "e841d143535b",
+    "scripts/benchmark_native_eventtime.py": "8b5e5ef91f6e"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.10.7:af52d629",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.31982421875,
+    0.3095703125,
+    0.4033203125
+  ],
+  "started_utc": "2026-11-23T21:21:09.182337+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-0d36a0dafb",
+      "t_call": 1795468869.1823373,
+      "t_call_end": 1795468869.2490313,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795468869.236,
+      "t_watcher_seen": 1795468869.308574,
+      "t_logged": 1795468869.64939,
+      "responder_event_to_verified_s": 0.413322,
+      "responder_execution_s": 0.3407469890007633,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795468869.703615,
+      "event_to_verified_s": 0.468,
+      "event_to_logged_s": 0.413,
+      "call_to_verified_s": 0.521
+    },
+    {
+      "run": 2,
+      "user": "ccpd-nat-df28638bab",
+      "t_call": 1795468870.870945,
+      "t_call_end": 1795468870.945016,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795468870.929,
+      "t_watcher_seen": 1795468871.007357,
+      "t_logged": 1795468871.304448,
+      "responder_event_to_verified_s": 0.375405,
+      "responder_execution_s": 0.2970471600019664,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795468871.3630292,
+      "event_to_verified_s": 0.434,
+      "event_to_logged_s": 0.375,
+      "call_to_verified_s": 0.492
+    },
+    {
+      "run": 3,
+      "user": "ccpd-nat-127af3368b",
+      "t_call": 1795468872.5106454,
+      "t_call_end": 1795468872.5955784,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795468872.582,
+      "t_watcher_seen": 1795468872.663964,
+      "t_logged": 1795468872.934442,
+      "responder_event_to_verified_s": 0.352407,
+      "responder_execution_s": 0.2704417099994316,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795468872.9928658,
+      "event_to_verified_s": 0.411,
+      "event_to_logged_s": 0.352,
+      "call_to_verified_s": 0.482
+    }
+  ],
+  "summary": {
+    "runs": 3,
+    "verified": 3,
+    "timed_out": 0,
+    "under_1s": 3,
+    "under_1s_of_total": "3/3",
+    "verified_of_total": "3/3",
+    "attack_call_over_5s": 0,
+    "median_s": 0.434,
+    "p90_s": 0.468,
+    "max_s": 0.468
+  }
+}

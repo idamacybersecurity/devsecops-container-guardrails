@@ -125,7 +125,7 @@ def verify_containment():
 
 results = []
 
-print("=== TEN CONSECUTIVE SOAR CONTAINMENT RUNS ===")
+print("=== TEN CONSECUTIVE SIMULATED SOAR RESPONDER RUNS ===")
 print("Target:", USER)
 print("Scope: LocalStack only; disposable IAM identity")
 
@@ -153,11 +153,11 @@ for run_number in range(1, 11):
 
         response = responder.execute(alert)
         result.update({
-            "event_time": alert["event_time"],
+            "synthetic_event_time": alert["event_time"],
             "status": response["status"],
             "execution_duration_seconds":
                 response["execution_duration_seconds"],
-            "event_to_verified_seconds":
+            "synthetic_event_to_verified_seconds":
                 response["event_to_verified_seconds"],
             "clock_anomaly": response["clock_anomaly"],
             "responder_verified_controls": response["verified_controls"],
@@ -204,7 +204,7 @@ durations = [
     if item["status"] == "PASS"
 ]
 latencies = [
-    item["event_to_verified_seconds"]
+    item["synthetic_event_to_verified_seconds"]
     for item in results
     if item["status"] == "PASS"
 ]
@@ -221,14 +221,14 @@ report = {
         "quarantine_verified": True,
         "independent_readback_all_three_controls": True,
         "execution_duration_below_one_second": True,
-        "event_to_verified_latency_below_one_second": True,
+        "synthetic_event_to_verified_latency_below_one_second": True,
     },
     "execution_duration_seconds": {
         "mean": statistics.mean(durations) if durations else None,
         "median": statistics.median(durations) if durations else None,
         "maximum": max(durations) if durations else None,
     },
-    "event_to_verified_seconds": {
+    "synthetic_event_to_verified_seconds": {
         "mean": statistics.mean(latencies) if latencies else None,
         "median": statistics.median(latencies) if latencies else None,
         "maximum": max(latencies) if latencies else None,
@@ -247,8 +247,8 @@ print(f"Passed: {passed}/10")
 print(f"Failed: {10 - passed}/10")
 print("Mean execution:", report["execution_duration_seconds"]["mean"])
 print("Maximum execution:", report["execution_duration_seconds"]["maximum"])
-print("Mean event-to-verified:", report["event_to_verified_seconds"]["mean"])
-print("Maximum event-to-verified:", report["event_to_verified_seconds"]["maximum"])
+print("Mean synthetic event-to-verified:", report["synthetic_event_to_verified_seconds"]["mean"])
+print("Maximum synthetic event-to-verified:", report["synthetic_event_to_verified_seconds"]["maximum"])
 print("Evidence:", REPORT)
 print("Evidence mode:", oct(REPORT.stat().st_mode & 0o777))
 

@@ -29,54 +29,13 @@ def get_logging_state(trail, endpoint):
 
 
 def attribute_caller(trail, endpoint):
-    """Best-effort attribution from LocalStack's observed-call IAM summary.
-
-    The summary carries no timestamps, so a principal is accepted only when
-    exactly one non-root principal has StopLogging recorded on this trail.
-    """
-    import urllib.request
-
-    result = {
-        "attribution_method": "localstack_iam_policy_summary",
+    """Attribution is not available on the free LocalStack tier. An operator decides who to quarantine."""
+    return {
+        "attribution_method": "none_available_free_tier",
         "attribution_candidates": [],
         "attributed_principal_arn": None,
-        "attribution_note": None,
+        "attribution_note": "operator_decision_required",
     }
-    suffix = "trail/" + trail
-    for attempt in range(6):
-        try:
-            url = endpoint + "/_aws/iam/policies/summary"
-            with urllib.request.urlopen(url, timeout=10) as response:
-                entries = json.load(response)
-        except Exception as exc:
-            result["attribution_note"] = "summary_unavailable:" + type(exc).__name__
-            return result
-        found = set()
-        for entry in entries:
-            principal = entry.get("resource", "")
-            if not principal or principal.endswith(":root"):
-                continue
-            statements = entry.get("policy_document", {}).get("Statement", [])
-            for statement in statements:
-                actions = statement.get("Action", [])
-                actions = [actions] if isinstance(actions, str) else actions
-                if "cloudtrail:StopLogging" not in actions:
-                    continue
-                resources = statement.get("Resource", [])
-                resources = [resources] if isinstance(resources, str) else resources
-                if any(r == trail or r.endswith(suffix) for r in resources):
-                    found.add(principal)
-                    break
-        result["attribution_candidates"] = sorted(found)
-        if found:
-            break
-        time.sleep(1)
-    if len(result["attribution_candidates"]) == 1:
-        result["attributed_principal_arn"] = result["attribution_candidates"][0]
-        result["attribution_note"] = "single_candidate_no_timestamp"
-    else:
-        result["attribution_note"] = "ambiguous_or_none"
-    return result
 
 
 def write_soar_alert(path, alert):
@@ -93,7 +52,7 @@ def write_soar_alert(path, alert):
         "caller_type_reported": "IAMUser",
         "detection_type": "defense_evasion",
         "severity": "CRITICAL",
-        "description": "CloudTrail logging was disabled; caller attributed from the observed-call IAM summary.",
+        "description": "CloudTrail logging was disabled; the caller could not be attributed on the free tier, so an operator decides who to quarantine.",
         "metadata": {
             "trail_name": alert["trail_name"],
             "detection_method": alert["detection_method"],

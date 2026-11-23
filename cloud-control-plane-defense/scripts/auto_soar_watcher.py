@@ -105,6 +105,22 @@ def process_alert(responder, alert, execute):
         }
 
 
+def process_with_retry(responder, alert, execute, max_attempts=3,
+                       base_delay=1.0, sleep=time.sleep):
+    """Retry until the responder reports QUARANTINE_VERIFIED.
+
+    Dry-run never retries. Returns (result, attempts_used).
+    """
+    out = {}
+    for attempt in range(1, max(1, max_attempts) + 1):
+        out = process_alert(responder, alert, execute)
+        if not execute or out.get("status") == "QUARANTINE_VERIFIED":
+            return out, attempt
+        if attempt < max_attempts:
+            sleep(base_delay * (2 ** (attempt - 1)))
+    return out, max(1, max_attempts)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
@@ -120,6 +136,12 @@ def main():
         "--execute",
         action="store_true",
         help="Perform containment. Without it the responder only plans.",
+    )
+    ap.add_argument(
+        "--max-attempts",
+        type=int,
+        default=3,
+        help="Attempts per alert before giving up (execute mode only).",
     )
     a = ap.parse_args()
 
@@ -202,10 +224,11 @@ def main():
 
                         # No per-alert responder subprocess or temporary
                         # alert file: reuse the initialized responder.
-                        out = process_alert(
+                        out, attempts = process_with_retry(
                             responder,
                             alert,
                             a.execute,
+                            a.max_attempts,
                         )
 
                         record = {
@@ -221,6 +244,7 @@ def main():
                             "verified_controls":
                                 out.get("verified_controls"),
                             "errors": out.get("errors"),
+                            "attempts": attempts,
                             "alert_event_time": alert.get("event_time"),
                             "watcher_seen_utc": seen_at.isoformat(),
                             "logged_utc": datetime.now(

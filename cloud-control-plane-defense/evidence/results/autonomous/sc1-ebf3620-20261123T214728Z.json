@@ -1,0 +1,56 @@
+{
+  "scenario": "1 multi-hop IAM privilege escalation, autonomous",
+  "operator_actions": [],
+  "git_sha": "ebf36202f792bff13f18ba59f14e7f172c71403c",
+  "modified_tracked_files": [],
+  "temporary_permission": "cicd may iam:AttachRolePolicy on arn:aws:iam::000000000000:role/ccpd-sc1-target-f1f2840c only (removed at end)",
+  "attack_call_s": 0.139,
+  "watcher_action": {
+    "mode": "EXECUTE",
+    "event_id": "6d24050c-3be1-4973-812d-77ff2e68155f",
+    "detection_type": "iam_privilege_escalation",
+    "target": "arn:aws:iam::000000000000:user/ccpd-sc1-auto-f1f2840c",
+    "status": "QUARANTINE_VERIFIED",
+    "event_to_verified_seconds": 0.515654,
+    "execution_duration_seconds": 0.4279924190013844,
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive",
+      "chain_role_session_revocation:cloud-control-plane-defense-developer",
+      "chain_role_session_revocation:cloud-control-plane-defense-cicd"
+    ],
+    "errors": [],
+    "attempts": 1,
+    "alert_event_time": "2026-11-23T21:47:26.971000+00:00",
+    "watcher_seen_utc": "2026-11-23T21:47:27.058654+00:00",
+    "logged_utc": "2026-11-23T21:47:27.486711+00:00"
+  },
+  "readback": {
+    "deny_policy": true,
+    "session_policy": true,
+    "keys_inactive": true
+  },
+  "verified": true,
+  "event_to_verified_s": 0.594,
+  "call_to_verified_s": 0.722,
+  "watcher_attempts": 1,
+  "reuse_original_key": "STILL WORKS (interception failed)",
+  "issued_session_after_quarantine": "blocked: AccessDenied",
+  "policies_added_to_shared_roles": {
+    "cloud-control-plane-defense-developer": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    },
+    "cloud-control-plane-defense-cicd": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    }
+  },
+  "cleanup_problems": [],
+  "roles_restored_to_original": true
+}

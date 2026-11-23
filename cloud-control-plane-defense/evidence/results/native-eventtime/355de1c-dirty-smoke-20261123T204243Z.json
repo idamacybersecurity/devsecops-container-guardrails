@@ -1,0 +1,61 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "git_sha": "355de1c3a350f35d14a4d1008387046addc26925",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/scripts/benchmark_soar_10_runs.py",
+    "cloud-control-plane-defense/scripts/stoplogging_state_detector.py"
+  ],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "4d0303e14a54",
+    "soar/cloud_soar_responder.py": "d42c945a16bf",
+    "detector/sqs_consumer.py": "e841d143535b",
+    "scripts/benchmark_native_eventtime.py": "cc1f9971b59c"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.10.7:af52d629",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.40673828125,
+    0.236328125,
+    0.15478515625
+  ],
+  "started_utc": "2026-11-23T20:42:42.284630+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-5544acd9e1",
+      "t_call": 1795466562.2846296,
+      "t_call_end": 1795466562.5811129,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795466562.531,
+      "t_watcher_seen": 1795466562.784036,
+      "t_logged": 1795466563.394564,
+      "responder_event_to_verified_s": 0.863515,
+      "responder_execution_s": 0.6104715729998134,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795466563.514791,
+      "event_to_verified_s": 0.984,
+      "event_to_logged_s": 0.864,
+      "call_to_verified_s": 1.23
+    }
+  ],
+  "summary": {
+    "runs": 1,
+    "verified": 1,
+    "timed_out": 0,
+    "under_1s": 1,
+    "median_s": 0.984,
+    "p90_s": 0.984,
+    "max_s": 0.984
+  }
+}

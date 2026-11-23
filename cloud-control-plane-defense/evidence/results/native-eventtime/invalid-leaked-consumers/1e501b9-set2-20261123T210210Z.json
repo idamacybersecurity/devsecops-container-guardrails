@@ -1,0 +1,160 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "git_sha": "1e501b9feb135848c2e4f4acde991ce276c6a59b",
+  "modified_tracked_files": [],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "4d0303e14a54",
+    "soar/cloud_soar_responder.py": "d42c945a16bf",
+    "detector/sqs_consumer.py": "e841d143535b",
+    "scripts/benchmark_native_eventtime.py": "cc1f9971b59c"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.10.7:af52d629",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.5419921875,
+    0.61962890625,
+    0.54345703125
+  ],
+  "started_utc": "2026-11-23T20:52:58.808723+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-f3b66482df",
+      "t_call": 1795467178.808723,
+      "t_call_end": 1795467178.8746176,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795467178.864,
+      "t_watcher_seen": 1795467199.080276,
+      "t_logged": 1795467207.564509,
+      "responder_event_to_verified_s": 28.700472,
+      "responder_execution_s": 8.484185804001754,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795467207.6302366,
+      "event_to_verified_s": 28.766,
+      "event_to_logged_s": 28.701,
+      "call_to_verified_s": 28.822
+    },
+    {
+      "run": 2,
+      "user": "ccpd-nat-5a466c1368",
+      "t_call": 1795467208.7667003,
+      "t_call_end": 1795467208.8772342,
+      "status": null,
+      "timed_out": true
+    },
+    {
+      "run": 3,
+      "user": "ccpd-nat-4d89876762",
+      "t_call": 1795467269.8998327,
+      "t_call_end": 1795467295.5382478,
+      "status": null,
+      "timed_out": true
+    },
+    {
+      "run": 4,
+      "user": "ccpd-nat-fda076e396",
+      "t_call": 1795467332.6720817,
+      "t_call_end": 1795467332.783914,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795467332.727,
+      "t_watcher_seen": 1795467332.788074,
+      "t_logged": 1795467333.078877,
+      "responder_event_to_verified_s": 0.351836,
+      "responder_execution_s": 0.29075621499941917,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795467333.1439033,
+      "event_to_verified_s": 0.417,
+      "event_to_logged_s": 0.352,
+      "call_to_verified_s": 0.472
+    },
+    {
+      "run": 5,
+      "user": "ccpd-nat-0cc80f74d5",
+      "t_call": 1795467334.2646787,
+      "t_call_end": 1795467334.3302834,
+      "status": null,
+      "timed_out": true
+    },
+    {
+      "run": 6,
+      "user": "ccpd-nat-62c9aa43ae",
+      "t_call": 1795467401.8670516,
+      "t_call_end": 1795467401.9828804,
+      "status": null,
+      "timed_out": true
+    },
+    {
+      "run": 7,
+      "user": "ccpd-nat-84b1e521bb",
+      "t_call": 1795467463.0096912,
+      "t_call_end": 1795467463.0769262,
+      "status": null,
+      "timed_out": true
+    },
+    {
+      "run": 8,
+      "user": "ccpd-nat-6a10b1eb85",
+      "t_call": 1795467524.1265295,
+      "t_call_end": 1795467553.5770643,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795467534.421,
+      "t_watcher_seen": 1795467553.623937,
+      "t_logged": 1795467553.891693,
+      "responder_event_to_verified_s": 19.470659,
+      "responder_execution_s": 0.2677195739997842,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795467583.134651,
+      "event_to_verified_s": 48.714,
+      "event_to_logged_s": 19.471,
+      "call_to_verified_s": 59.008
+    },
+    {
+      "run": 9,
+      "user": "ccpd-nat-d1d59d6e2c",
+      "t_call": 1795467584.265006,
+      "t_call_end": 1795467613.234953,
+      "status": null,
+      "timed_out": true
+    },
+    {
+      "run": 10,
+      "user": "ccpd-nat-3285df4381",
+      "t_call": 1795467661.9479334,
+      "t_call_end": 1795467662.070336,
+      "status": null,
+      "timed_out": true
+    }
+  ],
+  "summary": {
+    "runs": 10,
+    "verified": 3,
+    "timed_out": 7,
+    "under_1s": 1,
+    "median_s": 28.766,
+    "p90_s": 48.714,
+    "max_s": 48.714
+  }
+}

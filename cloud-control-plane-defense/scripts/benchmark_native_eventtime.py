@@ -5,7 +5,7 @@ Attack: a disposable IAM user disables KMS key rotation with its own access key.
 t_event is the CloudTrail eventTime carried by the real event.
 t_verified is taken after this script's own IAM read-back confirms the controls.
 """
-import argparse, hashlib, json, math, os, statistics, subprocess, sys
+import argparse, hashlib, json, math, os, signal, statistics, subprocess, sys
 import tempfile, time, urllib.request, uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -76,6 +76,11 @@ def main():
     sess = cfg.get("session_revocation_policy_name", "AWSRevokeOlderSessions")
     account = cfg["expected_account_id"]
 
+    others = subprocess.run(["pgrep", "-af", "sqs_consumer|auto_soar_watcher"],
+                            capture_output=True, text=True).stdout.strip()
+    if others:
+        sys.exit("REFUSED: other consumers/watchers would steal queue messages:\n" + others)
+
     iam, kms, sqs = client("iam"), client("kms"), client("sqs")
     queue = os.environ.get("SECURITY_EVENT_QUEUE_URL") or next(
         u for u in sqs.list_queues().get("QueueUrls", [])
@@ -90,7 +95,8 @@ def main():
          "--config", "config/soar.json", "--alerts", str(work / "alerts.jsonl"),
          "--state", str(work / "state.json"), "--log", str(log),
          "--duration", str(int(a.runs * (a.timeout + 10) + 30)), "--execute"],
-        cwd=ROOT, stdout=open(work / "watcher.out", "w"), stderr=subprocess.STDOUT)
+        cwd=ROOT, stdout=open(work / "watcher.out", "w"), stderr=subprocess.STDOUT,
+        start_new_session=True)
     time.sleep(3)
 
     runs, created = [], []
@@ -149,7 +155,14 @@ def main():
                   f"call_to_verified={rec.get('call_to_verified_s')} "
                   f"in_window={rec.get('event_time_inside_call_window')}", flush=True)
     finally:
-        watcher.terminate()
+        try:
+            os.killpg(watcher.pid, signal.SIGTERM)
+            watcher.wait(timeout=10)
+        except Exception:
+            try:
+                os.killpg(watcher.pid, signal.SIGKILL)
+            except Exception:
+                pass
         for user, key_id in created:
             for fn in (
                 lambda: [iam.delete_user_policy(UserName=user, PolicyName=p)
@@ -189,6 +202,9 @@ def main():
         "summary": {
             "runs": len(runs), "verified": len(good), "timed_out": sum(r["timed_out"] for r in runs),
             "under_1s": sum(v < 1 for v in good),
+            "under_1s_of_total": f"{sum(v < 1 for v in good)}/{len(runs)}",
+            "verified_of_total": f"{len(good)}/{len(runs)}",
+            "attack_call_over_5s": sum((r["t_call_end"] - r["t_call"]) > 5 for r in runs),
             "median_s": statistics.median(good) if good else None,
             "p90_s": pct(good, 0.9) if good else None,
             "max_s": max(good) if good else None}}

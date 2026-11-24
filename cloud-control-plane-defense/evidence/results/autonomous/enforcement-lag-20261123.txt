@@ -1,0 +1,7 @@
+run 1: deny enforced after 5.09 s
+run 2: deny enforced after 7.19 s
+run 3: deny enforced after 5.13 s
+run 4: deny enforced after 8.12 s
+run 5: deny enforced after 5.13 s
+run 6: deny enforced after 7.57 s
+cleaned up 6 users

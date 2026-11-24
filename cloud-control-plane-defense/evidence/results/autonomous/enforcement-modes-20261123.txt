@@ -1,0 +1,6 @@
+A1 baseline                    iam:ListUsers=ALLOWED  sts:AssumeRole=ALLOWED
+A2 DenyAll +0.3s               iam:ListUsers=ALLOWED  sts:AssumeRole=ALLOWED
+A3 DenyAll +5s                 iam:ListUsers=DENIED(AccessDenied)  sts:AssumeRole=DENIED(AccessDenied)
+B1 key Inactive +0.3s          iam:ListUsers=ALLOWED  sts:AssumeRole=ALLOWED
+B2 key Inactive +5s            iam:ListUsers=ALLOWED  sts:AssumeRole=ALLOWED
+cleaned up 2 test users

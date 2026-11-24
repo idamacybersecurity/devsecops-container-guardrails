@@ -1,0 +1,58 @@
+{
+  "scenario": "1 multi-hop IAM privilege escalation, autonomous",
+  "operator_actions": [],
+  "git_sha": "49c0c23a6f1a4123b100ed467580c1481619ff94",
+  "modified_tracked_files": [],
+  "temporary_permission": "cicd may iam:AttachRolePolicy on arn:aws:iam::000000000000:role/ccpd-sc1-target-eca63b0f only (removed at end)",
+  "attack_call_s": 0.146,
+  "watcher_action": {
+    "mode": "EXECUTE",
+    "event_id": "0083a3f4-2751-4161-9b59-6d9046d0e6b9",
+    "detection_type": "iam_privilege_escalation",
+    "target": "arn:aws:iam::000000000000:user/ccpd-sc1-auto-eca63b0f",
+    "status": "QUARANTINE_VERIFIED",
+    "event_to_verified_seconds": 0.52231,
+    "execution_duration_seconds": 0.4379797880028491,
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive",
+      "chain_role_session_revocation:cloud-control-plane-defense-developer",
+      "chain_role_session_revocation:cloud-control-plane-defense-cicd"
+    ],
+    "errors": [],
+    "attempts": 1,
+    "alert_event_time": "2026-11-24T01:41:06.971000+00:00",
+    "watcher_seen_utc": "2026-11-24T01:41:07.055332+00:00",
+    "logged_utc": "2026-11-24T01:41:07.493377+00:00"
+  },
+  "readback": {
+    "deny_policy": true,
+    "session_policy": true,
+    "keys_inactive": true
+  },
+  "verified": true,
+  "event_to_verified_s": 0.599,
+  "call_to_verified_s": 0.731,
+  "watcher_attempts": 1,
+  "reuse_original_key": "blocked: AccessDenied",
+  "call_to_blocked_s": 4.965,
+  "event_to_blocked_s": 4.833,
+  "issued_session_after_quarantine": "STILL WORKS (revocation policy not enforced on this emulator)",
+  "policies_added_to_shared_roles": {
+    "cloud-control-plane-defense-developer": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    },
+    "cloud-control-plane-defense-cicd": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    }
+  },
+  "cleanup_problems": [],
+  "roles_restored_to_original": true
+}

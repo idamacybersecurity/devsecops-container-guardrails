@@ -1,0 +1,60 @@
+{
+  "scenario": "1 multi-hop IAM privilege escalation, autonomous",
+  "operator_actions": [],
+  "git_sha": "d5f34a4ae659c499c0aaa4adf4b2619f690483e5",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/scripts/run_scenario1_autonomous.py"
+  ],
+  "temporary_permission": "cicd may iam:AttachRolePolicy on arn:aws:iam::000000000000:role/ccpd-sc1-target-325e8da2 only (removed at end)",
+  "attack_call_s": 0.148,
+  "watcher_action": {
+    "mode": "EXECUTE",
+    "event_id": "9596575a-99b4-47d2-972f-f26991876648",
+    "detection_type": "iam_privilege_escalation",
+    "target": "arn:aws:iam::000000000000:user/ccpd-sc1-auto-325e8da2",
+    "status": "QUARANTINE_VERIFIED",
+    "event_to_verified_seconds": 0.526645,
+    "execution_duration_seconds": 0.4618604260031134,
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive",
+      "chain_role_session_revocation:cloud-control-plane-defense-developer",
+      "chain_role_session_revocation:cloud-control-plane-defense-cicd"
+    ],
+    "errors": [],
+    "attempts": 1,
+    "alert_event_time": "2026-11-24T01:38:26.839000+00:00",
+    "watcher_seen_utc": "2026-11-24T01:38:26.903777+00:00",
+    "logged_utc": "2026-11-24T01:38:27.365708+00:00"
+  },
+  "readback": {
+    "deny_policy": true,
+    "session_policy": true,
+    "keys_inactive": true
+  },
+  "verified": true,
+  "event_to_verified_s": 0.64,
+  "call_to_verified_s": 0.772,
+  "watcher_attempts": 1,
+  "reuse_original_key": "blocked: AccessDenied",
+  "call_to_blocked_s": 21.305,
+  "event_to_blocked_s": 21.172,
+  "issued_session_after_quarantine": "blocked: AccessDenied",
+  "policies_added_to_shared_roles": {
+    "cloud-control-plane-defense-developer": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    },
+    "cloud-control-plane-defense-cicd": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    }
+  },
+  "cleanup_problems": [],
+  "roles_restored_to_original": true
+}

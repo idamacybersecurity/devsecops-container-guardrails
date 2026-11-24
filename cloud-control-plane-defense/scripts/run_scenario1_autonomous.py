@@ -132,18 +132,30 @@ def main():
                         "event_to_verified_s": round(t_verified - t_event, 3),
                         "call_to_verified_s": round(t_verified - t_attack, 3),
                         "watcher_attempts": action.get("attempts")})
-        # interception proof: the attacker's original key must no longer work
+        # interception: poll until the attacker's original key is actually blocked
+        t_poll = time.time()
+        blocked_after = None
+        while time.time() - t_poll < 30:
+            try:
+                c("sts", ak["AccessKeyId"], ak["SecretAccessKey"]).assume_role(
+                    RoleArn=f"arn:aws:iam::{ACC}:role/{DEV}", RoleSessionName="reuse-check",
+                    ExternalId="cloud-control-plane-defense-developer-entry")
+            except ClientError as e:
+                blocked_after = time.time()
+                res["reuse_original_key"] = "blocked: " + e.response["Error"]["Code"]
+                break
+            time.sleep(0.1)
+        if blocked_after is None:
+            res["reuse_original_key"] = "STILL WORKS after 30 s (interception failed)"
+        else:
+            res["call_to_blocked_s"] = round(blocked_after - t_attack, 3)
+            if action:
+                res["event_to_blocked_s"] = round(blocked_after - t_event, 3)
+        # informational: replay the call the issued cicd session was allowed to make
         try:
-            c("sts", ak["AccessKeyId"], ak["SecretAccessKey"]).assume_role(
-                RoleArn=f"arn:aws:iam::{ACC}:role/{DEV}", RoleSessionName="again",
-                ExternalId="cloud-control-plane-defense-developer-entry")
-            res["reuse_original_key"] = "STILL WORKS (interception failed)"
-        except ClientError as e:
-            res["reuse_original_key"] = "blocked: " + e.response["Error"]["Code"]
-        # informational only: does the already-issued session survive? (item 4 gap)
-        try:
-            c("iam", k2["AccessKeyId"], k2["SecretAccessKey"], k2["SessionToken"]).list_role_policies(RoleName=target)
-            res["issued_session_after_quarantine"] = "STILL WORKS (session revocation not effective on this emulator)"
+            c("iam", k2["AccessKeyId"], k2["SecretAccessKey"], k2["SessionToken"]).attach_role_policy(
+                RoleName=target, PolicyArn=RO)
+            res["issued_session_after_quarantine"] = "STILL WORKS (revocation policy not enforced on this emulator)"
         except ClientError as e:
             res["issued_session_after_quarantine"] = "blocked: " + e.response["Error"]["Code"]
         after = {r: role_policies(iam, r) for r in (DEV, CICD)}
@@ -190,8 +202,8 @@ def main():
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     path = out / f"sc1-{res['git_sha'][:7]}{'-dirty' if res['modified_tracked_files'] else ''}-{stamp}.json"
     path.write_text(json.dumps(res, indent=2, default=str))
-    keys = ("verified", "readback", "attack_call_s", "event_to_verified_s", "call_to_verified_s", "watcher_attempts",
-            "reuse_original_key", "issued_session_after_quarantine", "policies_added_to_shared_roles",
+    keys = ("verified", "readback", "attack_call_s", "event_to_verified_s", "call_to_verified_s", "call_to_blocked_s", "event_to_blocked_s",
+            "watcher_attempts", "reuse_original_key", "issued_session_after_quarantine", "policies_added_to_shared_roles",
             "cleanup_problems", "roles_restored_to_original", "operator_actions")
     print(json.dumps({k: res.get(k) for k in keys}, indent=2))
     print("written:", path)

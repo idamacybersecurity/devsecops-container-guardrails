@@ -1,0 +1,80 @@
+{
+  "scenario": "2 defense evasion (KMS rotation, S3 policy delete), quarantine only, autonomous",
+  "operator_actions": [],
+  "restoration": "NOT performed by this run (S3: drift reconciler; KMS: manual)",
+  "git_sha": "7c0feff3490851ae38207cc34a67a1601dc288b4",
+  "modified_tracked_files": [],
+  "attacks": [
+    {
+      "attack": "kms:DisableKeyRotation",
+      "user": "arn:aws:iam::000000000000:user/ccpd-sc2-kms-1cc72860",
+      "attack_call_s": 0.072,
+      "watcher_action": {
+        "mode": "EXECUTE",
+        "event_id": "fc4aa592-d209-4f7e-9f53-28cecbc74ce0",
+        "detection_type": "defense_evasion",
+        "target": "arn:aws:iam::000000000000:user/ccpd-sc2-kms-1cc72860",
+        "status": "QUARANTINE_VERIFIED",
+        "event_to_verified_seconds": 0.349627,
+        "execution_duration_seconds": 0.2803001319989562,
+        "verified_controls": [
+          "explicit_deny_all",
+          "session_revocation_policy",
+          "all_access_keys_inactive"
+        ],
+        "errors": [],
+        "attempts": 1,
+        "alert_event_time": "2026-11-24T01:46:40.403000+00:00",
+        "watcher_seen_utc": "2026-11-24T01:46:40.472316+00:00",
+        "logged_utc": "2026-11-24T01:46:40.752667+00:00"
+      },
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "verified": true,
+      "event_to_verified_s": 0.439,
+      "call_to_verified_s": 0.496,
+      "watcher_attempts": 1,
+      "call_to_blocked_s": 22.507,
+      "original_key": "blocked"
+    },
+    {
+      "attack": "s3:DeleteBucketPolicy",
+      "user": "arn:aws:iam::000000000000:user/ccpd-sc2-s3-1cc72860",
+      "attack_call_s": 0.065,
+      "watcher_action": {
+        "mode": "EXECUTE",
+        "event_id": "3e7e1e7e-4d2e-4ee1-b4e6-59c8360c256f",
+        "detection_type": "defense_evasion",
+        "target": "arn:aws:iam::000000000000:user/ccpd-sc2-s3-1cc72860",
+        "status": "QUARANTINE_VERIFIED",
+        "event_to_verified_seconds": 0.342336,
+        "execution_duration_seconds": 0.2785885830016923,
+        "verified_controls": [
+          "explicit_deny_all",
+          "session_revocation_policy",
+          "all_access_keys_inactive"
+        ],
+        "errors": [],
+        "attempts": 1,
+        "alert_event_time": "2026-11-24T01:47:21.867000+00:00",
+        "watcher_seen_utc": "2026-11-24T01:47:21.930741+00:00",
+        "logged_utc": "2026-11-24T01:47:22.209380+00:00"
+      },
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "verified": true,
+      "event_to_verified_s": 0.423,
+      "call_to_verified_s": 0.466,
+      "watcher_attempts": 1,
+      "call_to_blocked_s": 5.105,
+      "original_key": "blocked"
+    }
+  ],
+  "cleanup_problems": []
+}

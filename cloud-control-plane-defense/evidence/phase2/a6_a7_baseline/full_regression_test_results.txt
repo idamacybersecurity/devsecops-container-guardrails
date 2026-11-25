@@ -1,0 +1,95 @@
+PHASE 2 REGRESSION TEST EVIDENCE
+Date: 2026-11-24T16:10:15Z
+
+===== PYTEST VERSION =====
+pytest 9.2.0
+
+===== TEST COLLECTION =====
+tests/test_chain_role_revocation.py::test_every_chain_role_gets_session_revocation_policy
+tests/test_chain_role_revocation.py::test_chain_roles_never_receive_deny_all
+tests/test_chain_role_revocation.py::test_break_glass_chain_role_is_skipped
+tests/test_chain_role_revocation.py::test_dry_run_lists_chain_roles_and_mutates_nothing
+tests/test_chain_role_revocation.py::test_chain_role_readback_mismatch_is_not_reported_verified
+tests/test_chain_role_revocation.py::test_responder_supports_every_actionable_detector_alert_type
+tests/test_cloud_control_plane_defense.py::test_parse_eventbridge_envelope
+tests/test_cloud_control_plane_defense.py::test_parse_direct_cloudtrail_record
+tests/test_cloud_control_plane_defense.py::test_reject_malformed_event
+tests/test_cloud_control_plane_defense.py::test_benign_control_plane_activity_does_not_alert[DescribeKey-kms.amazonaws.com-request_params0]
+tests/test_cloud_control_plane_defense.py::test_benign_control_plane_activity_does_not_alert[GetRole-iam.amazonaws.com-request_params1]
+tests/test_cloud_control_plane_defense.py::test_benign_control_plane_activity_does_not_alert[ListBuckets-s3.amazonaws.com-request_params2]
+tests/test_cloud_control_plane_defense.py::test_benign_control_plane_activity_does_not_alert[DescribeTrails-cloudtrail.amazonaws.com-request_params3]
+tests/test_cloud_control_plane_defense.py::test_benign_control_plane_activity_does_not_alert[DescribeEventBus-events.amazonaws.com-request_params4]
+tests/test_cloud_control_plane_defense.py::test_benign_control_plane_activity_does_not_alert[GetSecretValue-secretsmanager.amazonaws.com-request_params5]
+tests/test_cloud_control_plane_defense.py::test_detect_iam_privilege_escalation
+tests/test_cloud_control_plane_defense.py::test_detect_defense_evasion
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[StopLogging-cloudtrail.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[DisableKeyRotation-kms.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[ScheduleKeyDeletion-kms.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[DeleteBucketPolicy-s3.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[PutBucketPolicy-s3.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[DeleteTrail-cloudtrail.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[UpdateTrail-cloudtrail.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[DeleteEventBus-events.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[RemoveTargets-events.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_requires_matching_event_source[DisableRule-events.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_rejects_mismatched_event_source[DisableKeyRotation-cloudtrail.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_rejects_mismatched_event_source[StopLogging-kms.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_rejects_mismatched_event_source[DeleteBucketPolicy-events.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_defense_evasion_rejects_mismatched_event_source[DisableRule-s3.amazonaws.com]
+tests/test_cloud_control_plane_defense.py::test_attribute_developer_cicd_production_chain
+tests/test_cloud_control_plane_defense.py::test_duplicate_cloudtrail_event_is_ignored
+tests/test_cloud_control_plane_defense.py::test_secret_enumeration_requires_three_distinct_resources
+tests/test_cloud_control_plane_defense.py::test_secret_enumeration_ignores_events_outside_window
+tests/test_cloud_control_plane_defense.py::test_out_of_order_delivery_does_not_retain_stale_events
+tests/test_cloud_control_plane_defense.py::test_role_chain_survives_detector_restart
+tests/test_cloud_control_plane_defense.py::test_duplicate_suppression_survives_detector_restart
+tests/test_cloud_control_plane_defense.py::test_secret_enumeration_history_survives_detector_restart
+tests/test_cloud_control_plane_defense.py::test_state_file_permissions_and_schema_validation
+tests/test_cloud_control_plane_defense.py::test_sensitive_credentials_are_recursively_redacted
+tests/test_cloud_control_plane_defense.py::test_original_user_attribution_survives_multihop_restart
+tests/test_cloud_control_plane_defense.py::test_restore_legacy_state_without_role_origins
+tests/test_cloud_control_plane_defense.py::test_privileged_role_chain_alert_names_originating_user
+tests/test_cloud_control_plane_defense.py::test_privileged_role_chain_from_root_keeps_root_as_origin
+tests/test_cloud_soar_responder.py::test_dry_run_resolves_role_without_mutations
+tests/test_cloud_soar_responder.py::test_dry_run_resolves_assumed_role_to_iam_role
+tests/test_cloud_soar_responder.py::test_root_principal_is_never_quarantined
+tests/test_cloud_soar_responder.py::test_break_glass_principal_is_protected
+tests/test_cloud_soar_responder.py::test_cross_account_principal_rejected[arn:aws:iam::999999999999:role/other]
+tests/test_cloud_soar_responder.py::test_cross_account_principal_rejected[arn:aws:sts::999999999999:assumed-role/other/session]
+tests/test_cloud_soar_responder.py::test_malformed_or_unsupported_principal_rejected[not-an-arn]
+tests/test_cloud_soar_responder.py::test_malformed_or_unsupported_principal_rejected[arn:aws:sts::000000000000:assumed-role/role-without-session]
+tests/test_cloud_soar_responder.py::test_malformed_or_unsupported_principal_rejected[arn:aws:iam::000000000000:group/admins]
+tests/test_cloud_soar_responder.py::test_missing_event_id_rejected
+tests/test_cloud_soar_responder.py::test_low_severity_alert_not_actionable
+tests/test_cloud_soar_responder.py::test_dry_run_rejects_unknown_detection_type
+tests/test_cloud_soar_responder.py::test_role_execution_verifies_both_policies
+tests/test_cloud_soar_responder.py::test_user_execution_deactivates_and_verifies_active_key
+tests/test_cloud_soar_responder.py::test_policy_write_failure_never_claims_quarantine
+tests/test_cloud_soar_responder.py::test_policy_readback_mismatch_never_claims_quarantine
+tests/test_cloud_soar_responder.py::test_user_keys_are_not_deactivated_if_policy_stage_fails
+tests/test_cloud_soar_responder.py::test_event_timestamp_must_include_timezone
+tests/test_cloud_soar_responder.py::test_latency_is_not_reported_as_negative
+tests/test_cloud_soar_responder.py::test_quarantine_original_user_from_assumed_role_alert
+tests/test_cloud_soar_responder.py::test_soar_rejects_conflicting_origin_and_quarantine_target
+tests/test_cloud_soar_responder.py::test_secret_enumeration_burst_alert_is_supported
+tests/test_cloud_soar_responder.py::test_privileged_role_chain_alert_targets_originating_user
+tests/test_sqs_consumer.py::test_success_persists_alert_and_state_before_ack
+tests/test_sqs_consumer.py::test_no_alert_event_still_persists_state_before_ack
+tests/test_sqs_consumer.py::test_malformed_json_is_not_acknowledged_and_state_rolls_back
+tests/test_sqs_consumer.py::test_alert_write_failure_does_not_save_state_or_ack
+tests/test_sqs_consumer.py::test_state_write_failure_does_not_ack_and_rolls_back
+tests/test_sqs_consumer.py::test_failed_ack_keeps_persisted_deduplication_state
+tests/test_sqs_consumer.py::test_alert_file_permissions_are_restrictive
+tests/test_sqs_consumer.py::test_queue_url_rejects_non_localstack_hosts_and_schemes
+tests/test_sqs_consumer.py::test_consumer_does_not_log_malformed_message_body
+tests/test_watcher_retry_and_stoplogging.py::test_retries_until_verified
+tests/test_watcher_retry_and_stoplogging.py::test_gives_up_after_max_attempts_and_reports_failure
+tests/test_watcher_retry_and_stoplogging.py::test_dry_run_never_retries
+tests/test_watcher_retry_and_stoplogging.py::test_stoplogging_never_names_a_principal_without_native_attribution
+
+81 tests collected in 0.55s
+
+===== FULL TEST SUITE =====
+........................................................................ [ 88%]
+.........                                                                [100%]
+81 passed in 0.57s

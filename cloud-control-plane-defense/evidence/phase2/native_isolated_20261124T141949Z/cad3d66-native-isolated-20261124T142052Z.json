@@ -1,0 +1,268 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "modified_tracked_files": [],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "560c454c0d29",
+    "soar/cloud_soar_responder.py": "d42c945a16bf",
+    "detector/sqs_consumer.py": "e841d143535b",
+    "scripts/benchmark_native_eventtime.py": "8b5e5ef91f6e"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.10.7:af52d629",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.51025390625,
+    0.25341796875,
+    0.2607421875
+  ],
+  "started_utc": "2026-11-24T14:19:57.157601+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-74ce0ac29b",
+      "t_call": 1795529997.1576009,
+      "t_call_end": 1795529997.2312443,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795529997.217,
+      "t_watcher_seen": 1795529997.344695,
+      "t_logged": 1795529997.595941,
+      "responder_event_to_verified_s": 0.378902,
+      "responder_execution_s": 0.25119375399663113,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795529997.6634674,
+      "event_to_verified_s": 0.446,
+      "event_to_logged_s": 0.379,
+      "call_to_verified_s": 0.506
+    },
+    {
+      "run": 2,
+      "user": "ccpd-nat-1e5de61aeb",
+      "t_call": 1795529998.7959652,
+      "t_call_end": 1795529998.8842807,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795529998.869,
+      "t_watcher_seen": 1795530016.682628,
+      "t_logged": 1795530016.956734,
+      "responder_event_to_verified_s": 18.087693,
+      "responder_execution_s": 0.27405677299248055,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530017.0358064,
+      "event_to_verified_s": 18.167,
+      "event_to_logged_s": 18.088,
+      "call_to_verified_s": 18.24
+    },
+    {
+      "run": 3,
+      "user": "ccpd-nat-7000599bbc",
+      "t_call": 1795530018.2075377,
+      "t_call_end": 1795530018.2832866,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530018.271,
+      "t_watcher_seen": 1795530018.367582,
+      "t_logged": 1795530018.717069,
+      "responder_event_to_verified_s": 0.446031,
+      "responder_execution_s": 0.34944180700404104,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530018.7963312,
+      "event_to_verified_s": 0.525,
+      "event_to_logged_s": 0.446,
+      "call_to_verified_s": 0.589
+    },
+    {
+      "run": 4,
+      "user": "ccpd-nat-cc4de9a475",
+      "t_call": 1795530019.941064,
+      "t_call_end": 1795530020.0385404,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530020.018,
+      "t_watcher_seen": 1795530020.129508,
+      "t_logged": 1795530020.471833,
+      "responder_event_to_verified_s": 0.453797,
+      "responder_execution_s": 0.34228306799195707,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530020.570726,
+      "event_to_verified_s": 0.553,
+      "event_to_logged_s": 0.454,
+      "call_to_verified_s": 0.63
+    },
+    {
+      "run": 5,
+      "user": "ccpd-nat-5d968d6eb4",
+      "t_call": 1795530021.7238317,
+      "t_call_end": 1795530021.7998674,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530021.788,
+      "t_watcher_seen": 1795530021.880964,
+      "t_logged": 1795530022.230651,
+      "responder_event_to_verified_s": 0.442613,
+      "responder_execution_s": 0.3496413440007018,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530022.3269117,
+      "event_to_verified_s": 0.539,
+      "event_to_logged_s": 0.443,
+      "call_to_verified_s": 0.603
+    },
+    {
+      "run": 6,
+      "user": "ccpd-nat-ccfbeca926",
+      "t_call": 1795530023.4739203,
+      "t_call_end": 1795530023.5478976,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530023.534,
+      "t_watcher_seen": 1795530023.640022,
+      "t_logged": 1795530023.90461,
+      "responder_event_to_verified_s": 0.370572,
+      "responder_execution_s": 0.26454683698830195,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530023.981448,
+      "event_to_verified_s": 0.447,
+      "event_to_logged_s": 0.371,
+      "call_to_verified_s": 0.508
+    },
+    {
+      "run": 7,
+      "user": "ccpd-nat-a5f9660842",
+      "t_call": 1795530025.1227765,
+      "t_call_end": 1795530025.2080486,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530025.189,
+      "t_watcher_seen": 1795530025.312783,
+      "t_logged": 1795530025.594323,
+      "responder_event_to_verified_s": 0.405286,
+      "responder_execution_s": 0.2814966389996698,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530025.6760027,
+      "event_to_verified_s": 0.487,
+      "event_to_logged_s": 0.405,
+      "call_to_verified_s": 0.553
+    },
+    {
+      "run": 8,
+      "user": "ccpd-nat-7db8c68596",
+      "t_call": 1795530026.8161767,
+      "t_call_end": 1795530026.8896952,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530026.875,
+      "t_watcher_seen": 1795530026.952894,
+      "t_logged": 1795530027.217969,
+      "responder_event_to_verified_s": 0.342934,
+      "responder_execution_s": 0.26503265999781433,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530027.2828672,
+      "event_to_verified_s": 0.408,
+      "event_to_logged_s": 0.343,
+      "call_to_verified_s": 0.467
+    },
+    {
+      "run": 9,
+      "user": "ccpd-nat-7dd1825a9c",
+      "t_call": 1795530028.4017498,
+      "t_call_end": 1795530028.4715006,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530028.458,
+      "t_watcher_seen": 1795530028.575859,
+      "t_logged": 1795530028.820579,
+      "responder_event_to_verified_s": 0.362536,
+      "responder_execution_s": 0.244666861006408,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530028.8862054,
+      "event_to_verified_s": 0.428,
+      "event_to_logged_s": 0.363,
+      "call_to_verified_s": 0.484
+    },
+    {
+      "run": 10,
+      "user": "ccpd-nat-1349c9d6aa",
+      "t_call": 1795530050.388895,
+      "t_call_end": 1795530050.4650323,
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "t_event": 1795530050.451,
+      "t_watcher_seen": 1795530050.564224,
+      "t_logged": 1795530050.794162,
+      "responder_event_to_verified_s": 0.34308,
+      "responder_execution_s": 0.2298512919951463,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795530050.863556,
+      "event_to_verified_s": 0.413,
+      "event_to_logged_s": 0.343,
+      "call_to_verified_s": 0.475
+    }
+  ],
+  "summary": {
+    "runs": 10,
+    "verified": 10,
+    "timed_out": 0,
+    "under_1s": 9,
+    "under_1s_of_total": "9/10",
+    "verified_of_total": "10/10",
+    "attack_call_over_5s": 0,
+    "median_s": 0.46699999999999997,
+    "p90_s": 0.553,
+    "max_s": 18.167
+  }
+}

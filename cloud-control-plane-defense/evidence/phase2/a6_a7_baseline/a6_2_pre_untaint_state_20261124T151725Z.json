@@ -1,0 +1,1978 @@
+{
+  "version": 4,
+  "terraform_version": "1.17.2",
+  "serial": 72,
+  "lineage": "be9b0d17-1f8f-62f7-875a-a3314db3c8fb",
+  "outputs": {
+    "application_config_secret_arn": {
+      "value": "arn:aws:secretsmanager:eu-north-1:000000000000:secret:cloud-control-plane-defense/application-config-MQOORv",
+      "type": "string"
+    },
+    "application_security_group_id": {
+      "value": "sg-ba54daaa7eeaecdec",
+      "type": "string"
+    },
+    "audit_bucket_name": {
+      "value": "cloud-control-plane-defense-audit",
+      "type": "string"
+    },
+    "audit_kms_key_arn": {
+      "value": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+      "type": "string"
+    },
+    "cicd_role_arn": {
+      "value": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-cicd",
+      "type": "string"
+    },
+    "cloudtrail_arn": {
+      "value": "arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail",
+      "type": "string"
+    },
+    "connected_account_id": {
+      "value": "000000000000",
+      "type": "string"
+    },
+    "connected_arn": {
+      "value": "arn:aws:iam::000000000000:root",
+      "type": "string"
+    },
+    "developer_role_arn": {
+      "value": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-developer",
+      "type": "string"
+    },
+    "forensics_bucket_name": {
+      "value": "cloud-control-plane-defense-forensics",
+      "type": "string"
+    },
+    "private_subnet_ids": {
+      "value": {
+        "private_a": "subnet-47504de8c1217a434",
+        "private_b": "subnet-d049cdaf06c2a094e"
+      },
+      "type": [
+        "object",
+        {
+          "private_a": "string",
+          "private_b": "string"
+        }
+      ]
+    },
+    "production_role_arn": {
+      "value": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-production",
+      "type": "string"
+    },
+    "public_subnet_ids": {
+      "value": {
+        "public_a": "subnet-a4852cae3c23d372e",
+        "public_b": "subnet-eaebb7fea6cb72151"
+      },
+      "type": [
+        "object",
+        {
+          "public_a": "string",
+          "public_b": "string"
+        }
+      ]
+    },
+    "security_event_bus_name": {
+      "value": "default",
+      "type": "string"
+    },
+    "security_event_dlq_arn": {
+      "value": "arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events-dlq",
+      "type": "string"
+    },
+    "security_event_dlq_url": {
+      "value": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events-dlq",
+      "type": "string"
+    },
+    "security_event_queue_arn": {
+      "value": "arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events",
+      "type": "string"
+    },
+    "security_event_queue_url": {
+      "value": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events",
+      "type": "string"
+    },
+    "security_event_rule_arn": {
+      "value": "arn:aws:events:eu-north-1:000000000000:rule/cloud-control-plane-defense-security-events",
+      "type": "string"
+    },
+    "vpc_id": {
+      "value": "vpc-5f0cbd52c6f30297a",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "aws_caller_identity",
+      "name": "localstack",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "account_id": "000000000000",
+            "arn": "arn:aws:iam::000000000000:root",
+            "id": "000000000000",
+            "user_id": "000000000000"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_cloudtrail",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "status": "tainted",
+          "schema_version": 1,
+          "attributes": {
+            "advanced_event_selector": [],
+            "arn": null,
+            "cloud_watch_logs_group_arn": null,
+            "cloud_watch_logs_role_arn": null,
+            "enable_log_file_validation": true,
+            "enable_logging": true,
+            "event_selector": [],
+            "home_region": null,
+            "id": "arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail",
+            "include_global_service_events": true,
+            "insight_selector": [],
+            "is_multi_region_trail": true,
+            "is_organization_trail": false,
+            "kms_key_id": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+            "name": "cloud-control-plane-defense-trail",
+            "region": "eu-north-1",
+            "s3_bucket_name": "cloud-control-plane-defense-audit",
+            "s3_key_prefix": null,
+            "sns_topic_arn": null,
+            "sns_topic_name": null,
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-trail",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloud-control-plane-audit"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-trail",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloud-control-plane-audit"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "aws_kms_key.audit",
+            "aws_kms_key_policy.audit_cloudtrail",
+            "aws_s3_bucket.audit",
+            "aws_s3_bucket_policy.audit_cloudtrail",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_cloudwatch_event_rule",
+      "name": "security_events",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:events:eu-north-1:000000000000:rule/cloud-control-plane-defense-security-events",
+            "description": "Routes CloudTrail security-sensitive API activity to the security event queue",
+            "event_bus_name": "default",
+            "event_pattern": "{\"detail\":{\"eventName\":[\"PutUserPolicy\",\"PutRolePolicy\",\"AttachUserPolicy\",\"AttachRolePolicy\",\"CreateAccessKey\",\"UpdateAssumeRolePolicy\",\"PassRole\",\"RunInstances\",\"CreateFunction\",\"StopLogging\",\"DeleteTrail\",\"DeleteBucketPolicy\",\"DisableKeyRotation\",\"GetSecretValue\",\"GetParameters\",\"GetParametersByPath\",\"AssumeRole\",\"AssumeRoleWithSAML\",\"AssumeRoleWithWebIdentity\",\"PutBucketPolicy\"],\"eventSource\":[\"iam.amazonaws.com\",\"cloudtrail.amazonaws.com\",\"secretsmanager.amazonaws.com\",\"ssm.amazonaws.com\",\"ec2.amazonaws.com\",\"lambda.amazonaws.com\",\"sts.amazonaws.com\",\"s3.amazonaws.com\",\"kms.amazonaws.com\"]},\"detail-type\":[\"AWS API Call via CloudTrail\"],\"source\":[\"aws.iam\",\"aws.cloudtrail\",\"aws.secretsmanager\",\"aws.ssm\",\"aws.ec2\",\"aws.lambda\",\"aws.sts\",\"aws.s3\",\"aws.kms\"]}",
+            "force_destroy": false,
+            "id": "cloud-control-plane-defense-security-events",
+            "is_enabled": true,
+            "name": "cloud-control-plane-defense-security-events",
+            "name_prefix": "",
+            "region": "eu-north-1",
+            "role_arn": "",
+            "schedule_expression": "",
+            "state": "ENABLED",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-security-events",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "security-event-detection"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-security-events",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "security-event-detection"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "cloud-control-plane-defense-security-events",
+            "region": "eu-north-1"
+          },
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_cloudwatch_event_target",
+      "name": "security_events_sqs",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "appsync_target": [],
+            "arn": "arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events",
+            "batch_target": [],
+            "dead_letter_config": [],
+            "ecs_target": [],
+            "event_bus_name": "default",
+            "force_destroy": false,
+            "http_target": [],
+            "id": "cloud-control-plane-defense-security-events-SecurityEventQueue",
+            "input": "",
+            "input_path": "",
+            "input_transformer": [],
+            "kinesis_target": [],
+            "redshift_target": [],
+            "region": "eu-north-1",
+            "retry_policy": [],
+            "role_arn": "",
+            "rule": "cloud-control-plane-defense-security-events",
+            "run_command_targets": [],
+            "sagemaker_pipeline_target": [],
+            "sqs_target": [],
+            "target_id": "SecurityEventQueue"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "event_bus_name": "default",
+            "region": "eu-north-1",
+            "rule": "cloud-control-plane-defense-security-events",
+            "target_id": "SecurityEventQueue"
+          },
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "aws_cloudwatch_event_rule.security_events",
+            "aws_sqs_queue.security_events",
+            "aws_sqs_queue_policy.security_events"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "cicd",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-cicd",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::000000000000:role/cloud-control-plane-defense-developer\"},\"Sid\":\"TrustDeveloperRole\"}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2026-11-17T12:58:29Z",
+            "description": "CI/CD role assumable only by the developer role",
+            "force_detach_policies": false,
+            "id": "cloud-control-plane-defense-cicd",
+            "inline_policy": [
+              {
+                "name": "cloud-control-plane-defense-cicd-assume-production",
+                "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"sts:AssumeRole\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:iam::000000000000:role/cloud-control-plane-defense-production\"}]}"
+              }
+            ],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "cloud-control-plane-defense-cicd",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-cicd",
+              "Project": "cloud-control-plane-defense",
+              "Role": "cicd"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-cicd",
+              "Project": "cloud-control-plane-defense",
+              "Role": "cicd"
+            },
+            "unique_id": "AROAQAAAAAAAA7DIGDN4T"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "cloud-control-plane-defense-cicd"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.developer",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "developer",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-developer",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Condition\":{\"StringEquals\":{\"sts:ExternalId\":\"cloud-control-plane-defense-developer-entry\"}},\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::000000000000:root\"},\"Sid\":\"AllowLabAccountBootstrap\"}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2026-11-17T12:58:29Z",
+            "description": "Developer entry role for the controlled CI/CD assumption chain",
+            "force_detach_policies": false,
+            "id": "cloud-control-plane-defense-developer",
+            "inline_policy": [
+              {
+                "name": "cloud-control-plane-defense-developer-assume-cicd",
+                "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"sts:AssumeRole\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:iam::000000000000:role/cloud-control-plane-defense-cicd\"}]}"
+              }
+            ],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "cloud-control-plane-defense-developer",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-developer",
+              "Project": "cloud-control-plane-defense",
+              "Role": "developer"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-developer",
+              "Project": "cloud-control-plane-defense",
+              "Role": "developer"
+            },
+            "unique_id": "AROAQAAAAAAAL36ZTA5SX"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "cloud-control-plane-defense-developer"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "production",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::000000000000:role/cloud-control-plane-defense-production",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::000000000000:role/cloud-control-plane-defense-cicd\"},\"Sid\":\"TrustCICDRole\"}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2026-11-17T12:58:29Z",
+            "description": "Production application role assumable only by the CI/CD role",
+            "force_detach_policies": false,
+            "id": "cloud-control-plane-defense-production",
+            "inline_policy": [
+              {
+                "name": "cloud-control-plane-defense-production-secret-access",
+                "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"secretsmanager:DescribeSecret\",\"secretsmanager:GetSecretValue\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:secretsmanager:eu-north-1:000000000000:secret:cloud-control-plane-defense/application-config-MQOORv\",\"Sid\":\"ReadApplicationConfiguration\"},{\"Action\":[\"kms:Decrypt\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415\",\"Sid\":\"DecryptApplicationConfiguration\"}]}"
+              }
+            ],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "cloud-control-plane-defense-production",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-production",
+              "Project": "cloud-control-plane-defense",
+              "Role": "production"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-production",
+              "Project": "cloud-control-plane-defense",
+              "Role": "production"
+            },
+            "unique_id": "AROAQAAAAAAAO5G7Z6WPY"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "cloud-control-plane-defense-production"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.cicd",
+            "aws_iam_role.developer",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "name": "cicd_assume_production",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "cloud-control-plane-defense-cicd:cloud-control-plane-defense-cicd-assume-production",
+            "name": "cloud-control-plane-defense-cicd-assume-production",
+            "name_prefix": "",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"sts:AssumeRole\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:iam::000000000000:role/cloud-control-plane-defense-production\"}]}",
+            "role": "cloud-control-plane-defense-cicd"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "cloud-control-plane-defense-cicd-assume-production",
+            "role": "cloud-control-plane-defense-cicd"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.cicd",
+            "aws_iam_role.developer",
+            "aws_iam_role.production",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "name": "developer_assume_cicd",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "cloud-control-plane-defense-developer:cloud-control-plane-defense-developer-assume-cicd",
+            "name": "cloud-control-plane-defense-developer-assume-cicd",
+            "name_prefix": "",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"sts:AssumeRole\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:iam::000000000000:role/cloud-control-plane-defense-cicd\"}]}",
+            "role": "cloud-control-plane-defense-developer"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "cloud-control-plane-defense-developer-assume-cicd",
+            "role": "cloud-control-plane-defense-developer"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.cicd",
+            "aws_iam_role.developer",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "name": "production_secret_access",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "cloud-control-plane-defense-production:cloud-control-plane-defense-production-secret-access",
+            "name": "cloud-control-plane-defense-production-secret-access",
+            "name_prefix": "",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"secretsmanager:DescribeSecret\",\"secretsmanager:GetSecretValue\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:secretsmanager:eu-north-1:000000000000:secret:cloud-control-plane-defense/application-config-MQOORv\",\"Sid\":\"ReadApplicationConfiguration\"},{\"Action\":[\"kms:Decrypt\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415\",\"Sid\":\"DecryptApplicationConfiguration\"}]}",
+            "role": "cloud-control-plane-defense-production"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "cloud-control-plane-defense-production-secret-access",
+            "role": "cloud-control-plane-defense-production"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.cicd",
+            "aws_iam_role.developer",
+            "aws_iam_role.production",
+            "aws_kms_key.audit",
+            "aws_secretsmanager_secret.application_config",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_internet_gateway",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:internet-gateway/igw-114f184b151fe9b97",
+            "id": "igw-114f184b151fe9b97",
+            "owner_id": "000000000000",
+            "region": "eu-north-1",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-igw",
+              "Project": "cloud-control-plane-defense"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-igw",
+              "Project": "cloud-control-plane-defense"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_kms_alias",
+      "name": "audit",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:kms:eu-north-1:000000000000:alias/cloud-control-plane-defense-audit",
+            "id": "alias/cloud-control-plane-defense-audit",
+            "name": "alias/cloud-control-plane-defense-audit",
+            "name_prefix": "",
+            "region": "eu-north-1",
+            "target_key_arn": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+            "target_key_id": "c1e8e63b-2066-4702-a17e-6821de528415"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "name": "alias/cloud-control-plane-defense-audit",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_kms_key.audit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_kms_key",
+      "name": "audit",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+            "bypass_policy_lockout_safety_check": false,
+            "custom_key_store_id": "",
+            "customer_master_key_spec": "SYMMETRIC_DEFAULT",
+            "deletion_window_in_days": 7,
+            "description": "KMS key for cloud control plane audit and forensic storage",
+            "enable_key_rotation": true,
+            "id": "c1e8e63b-2066-4702-a17e-6821de528415",
+            "is_enabled": true,
+            "key_id": "c1e8e63b-2066-4702-a17e-6821de528415",
+            "key_usage": "ENCRYPT_DECRYPT",
+            "multi_region": false,
+            "policy": "{\"Id\":\"cloud-control-plane-audit-key-policy\",\"Statement\":[{\"Action\":\"kms:*\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::000000000000:root\"},\"Resource\":\"*\",\"Sid\":\"EnableAccountRootAdministration\"},{\"Action\":[\"kms:GenerateDataKey*\"],\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowCloudTrailGenerateDataKey\"},{\"Action\":[\"kms:Decrypt\"],\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowCloudTrailDecrypt\"},{\"Action\":[\"kms:DescribeKey\"],\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowCloudTrailDescribeKey\"}],\"Version\":\"2012-10-17\"}",
+            "region": "eu-north-1",
+            "rotation_period_in_days": 365,
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-audit-key",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "audit-and-forensics"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-audit-key",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "audit-and-forensics"
+            },
+            "timeouts": null,
+            "xks_key_id": ""
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "c1e8e63b-2066-4702-a17e-6821de528415",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDB9fQ=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_kms_key_policy",
+      "name": "audit_cloudtrail",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bypass_policy_lockout_safety_check": false,
+            "id": "c1e8e63b-2066-4702-a17e-6821de528415",
+            "key_id": "c1e8e63b-2066-4702-a17e-6821de528415",
+            "policy": "{\"Id\":\"cloud-control-plane-audit-key-policy\",\"Statement\":[{\"Action\":\"kms:*\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::000000000000:root\"},\"Resource\":\"*\",\"Sid\":\"EnableAccountRootAdministration\"},{\"Action\":[\"kms:GenerateDataKey*\"],\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowCloudTrailGenerateDataKey\"},{\"Action\":[\"kms:Decrypt\"],\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowCloudTrailDecrypt\"},{\"Action\":[\"kms:DescribeKey\"],\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowCloudTrailDescribeKey\"}],\"Version\":\"2012-10-17\"}",
+            "region": "eu-north-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_kms_key.audit",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route",
+      "name": "public_internet",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "carrier_gateway_id": "",
+            "core_network_arn": "",
+            "destination_cidr_block": "0.0.0.0/0",
+            "destination_ipv6_cidr_block": "",
+            "destination_prefix_list_id": "",
+            "egress_only_gateway_id": "",
+            "gateway_id": "igw-114f184b151fe9b97",
+            "id": "r-rtb-5b93791fbe182726b1080289494",
+            "instance_id": "",
+            "instance_owner_id": "",
+            "local_gateway_id": "",
+            "nat_gateway_id": "",
+            "network_interface_id": "",
+            "origin": "CreateRoute",
+            "region": "eu-north-1",
+            "route_table_id": "rtb-5b93791fbe182726b",
+            "state": "active",
+            "timeouts": null,
+            "transit_gateway_id": "",
+            "vpc_endpoint_id": "",
+            "vpc_peering_connection_id": ""
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "destination_cidr_block": "0.0.0.0/0",
+            "destination_ipv6_cidr_block": null,
+            "destination_prefix_list_id": null,
+            "region": "eu-north-1",
+            "route_table_id": "rtb-5b93791fbe182726b"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_internet_gateway.main",
+            "aws_route_table.public",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table",
+      "name": "private",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:route-table/rtb-97fa4ba39c4a50036",
+            "id": "rtb-97fa4ba39c4a50036",
+            "owner_id": "000000000000",
+            "propagating_vgws": [],
+            "region": "eu-north-1",
+            "route": [],
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-private-rt",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "private"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-private-rt",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "private"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "rtb-97fa4ba39c4a50036",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table",
+      "name": "public",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:route-table/rtb-5b93791fbe182726b",
+            "id": "rtb-5b93791fbe182726b",
+            "owner_id": "000000000000",
+            "propagating_vgws": [],
+            "region": "eu-north-1",
+            "route": [],
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-public-rt",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "public"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-public-rt",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "public"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "rtb-5b93791fbe182726b",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table_association",
+      "name": "private",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "index_key": "private_a",
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-c52b32a3a13cae59c",
+            "region": "eu-north-1",
+            "route_table_id": "rtb-97fa4ba39c4a50036",
+            "subnet_id": "subnet-47504de8c1217a434",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_route_table.private",
+            "aws_subnet.private",
+            "aws_vpc.main"
+          ]
+        },
+        {
+          "index_key": "private_b",
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-e1c1d3dc5ebaa2179",
+            "region": "eu-north-1",
+            "route_table_id": "rtb-97fa4ba39c4a50036",
+            "subnet_id": "subnet-d049cdaf06c2a094e",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_route_table.private",
+            "aws_subnet.private",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table_association",
+      "name": "public",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "index_key": "public_a",
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-1974aeb7a4de6985e",
+            "region": "eu-north-1",
+            "route_table_id": "rtb-5b93791fbe182726b",
+            "subnet_id": "subnet-a4852cae3c23d372e",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_route_table.public",
+            "aws_subnet.public",
+            "aws_vpc.main"
+          ]
+        },
+        {
+          "index_key": "public_b",
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-476606be475a2e3f2",
+            "region": "eu-north-1",
+            "route_table_id": "rtb-5b93791fbe182726b",
+            "subnet_id": "subnet-eaebb7fea6cb72151",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_route_table.public",
+            "aws_subnet.public",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "audit",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "acceleration_status": "",
+            "acl": null,
+            "arn": "arn:aws:s3:::cloud-control-plane-defense-audit",
+            "bucket": "cloud-control-plane-defense-audit",
+            "bucket_domain_name": "cloud-control-plane-defense-audit.s3.amazonaws.com",
+            "bucket_prefix": "",
+            "bucket_region": "eu-north-1",
+            "bucket_regional_domain_name": "cloud-control-plane-defense-audit.s3.eu-north-1.amazonaws.com",
+            "cors_rule": [],
+            "force_destroy": false,
+            "grant": [
+              {
+                "id": "75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a",
+                "permissions": [
+                  "FULL_CONTROL"
+                ],
+                "type": "CanonicalUser",
+                "uri": ""
+              }
+            ],
+            "hosted_zone_id": "Z3BAZG2TWCNX0D",
+            "id": "cloud-control-plane-defense-audit",
+            "lifecycle_rule": [],
+            "logging": [],
+            "object_lock_configuration": [],
+            "object_lock_enabled": false,
+            "policy": "{\"Statement\":[{\"Action\":\"s3:GetBucketAcl\",\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"arn:aws:s3:::cloud-control-plane-defense-audit\",\"Sid\":\"AllowCloudTrailBucketAclCheck\"},{\"Action\":\"s3:PutObject\",\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\",\"s3:x-amz-acl\":\"bucket-owner-full-control\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"arn:aws:s3:::cloud-control-plane-defense-audit/AWSLogs/000000000000/*\",\"Sid\":\"AllowCloudTrailLogDelivery\"}],\"Version\":\"2012-10-17\"}",
+            "region": "eu-north-1",
+            "replication_configuration": [],
+            "request_payer": "BucketOwner",
+            "server_side_encryption_configuration": [
+              {
+                "rule": [
+                  {
+                    "apply_server_side_encryption_by_default": [
+                      {
+                        "kms_master_key_id": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+                        "sse_algorithm": "aws:kms"
+                      }
+                    ],
+                    "bucket_key_enabled": true
+                  }
+                ]
+              }
+            ],
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-audit",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloudtrail-audit-logs"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-audit",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloudtrail-audit-logs"
+            },
+            "timeouts": null,
+            "versioning": [
+              {
+                "enabled": true,
+                "mfa_delete": false
+              }
+            ],
+            "website": [],
+            "website_domain": null,
+            "website_endpoint": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-audit",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "forensics",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "acceleration_status": "",
+            "acl": null,
+            "arn": "arn:aws:s3:::cloud-control-plane-defense-forensics",
+            "bucket": "cloud-control-plane-defense-forensics",
+            "bucket_domain_name": "cloud-control-plane-defense-forensics.s3.amazonaws.com",
+            "bucket_prefix": "",
+            "bucket_region": "eu-north-1",
+            "bucket_regional_domain_name": "cloud-control-plane-defense-forensics.s3.eu-north-1.amazonaws.com",
+            "cors_rule": [],
+            "force_destroy": false,
+            "grant": [
+              {
+                "id": "75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a",
+                "permissions": [
+                  "FULL_CONTROL"
+                ],
+                "type": "CanonicalUser",
+                "uri": ""
+              }
+            ],
+            "hosted_zone_id": "Z3BAZG2TWCNX0D",
+            "id": "cloud-control-plane-defense-forensics",
+            "lifecycle_rule": [],
+            "logging": [],
+            "object_lock_configuration": [],
+            "object_lock_enabled": false,
+            "policy": "",
+            "region": "eu-north-1",
+            "replication_configuration": [],
+            "request_payer": "BucketOwner",
+            "server_side_encryption_configuration": [
+              {
+                "rule": [
+                  {
+                    "apply_server_side_encryption_by_default": [
+                      {
+                        "kms_master_key_id": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+                        "sse_algorithm": "aws:kms"
+                      }
+                    ],
+                    "bucket_key_enabled": true
+                  }
+                ]
+              }
+            ],
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-forensics",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "security-forensic-snapshots"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-forensics",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "security-forensic-snapshots"
+            },
+            "timeouts": null,
+            "versioning": [
+              {
+                "enabled": true,
+                "mfa_delete": false
+              }
+            ],
+            "website": [],
+            "website_domain": null,
+            "website_endpoint": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-forensics",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_policy",
+      "name": "audit_cloudtrail",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "cloud-control-plane-defense-audit",
+            "id": "cloud-control-plane-defense-audit",
+            "policy": "{\"Statement\":[{\"Action\":\"s3:GetBucketAcl\",\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"arn:aws:s3:::cloud-control-plane-defense-audit\",\"Sid\":\"AllowCloudTrailBucketAclCheck\"},{\"Action\":\"s3:PutObject\",\"Condition\":{\"StringEquals\":{\"aws:SourceArn\":\"arn:aws:cloudtrail:eu-north-1:000000000000:trail/cloud-control-plane-defense-trail\",\"s3:x-amz-acl\":\"bucket-owner-full-control\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudtrail.amazonaws.com\"},\"Resource\":\"arn:aws:s3:::cloud-control-plane-defense-audit/AWSLogs/000000000000/*\",\"Sid\":\"AllowCloudTrailLogDelivery\"}],\"Version\":\"2012-10-17\"}",
+            "region": "eu-north-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-audit",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.audit",
+            "data.aws_caller_identity.localstack"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "audit",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "block_public_acls": true,
+            "block_public_policy": true,
+            "bucket": "cloud-control-plane-defense-audit",
+            "id": "cloud-control-plane-defense-audit",
+            "ignore_public_acls": true,
+            "region": "eu-north-1",
+            "restrict_public_buckets": true,
+            "skip_destroy": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-audit",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.audit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "forensics",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "block_public_acls": true,
+            "block_public_policy": true,
+            "bucket": "cloud-control-plane-defense-forensics",
+            "id": "cloud-control-plane-defense-forensics",
+            "ignore_public_acls": true,
+            "region": "eu-north-1",
+            "restrict_public_buckets": true,
+            "skip_destroy": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-forensics",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.forensics"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_server_side_encryption_configuration",
+      "name": "audit",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "cloud-control-plane-defense-audit",
+            "expected_bucket_owner": "",
+            "id": "cloud-control-plane-defense-audit",
+            "region": "eu-north-1",
+            "rule": [
+              {
+                "apply_server_side_encryption_by_default": [
+                  {
+                    "kms_master_key_id": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+                    "sse_algorithm": "aws:kms"
+                  }
+                ],
+                "blocked_encryption_types": [
+                  "SSE-C"
+                ],
+                "bucket_key_enabled": true
+              }
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-audit",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_kms_key.audit",
+            "aws_s3_bucket.audit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_server_side_encryption_configuration",
+      "name": "forensics",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "cloud-control-plane-defense-forensics",
+            "expected_bucket_owner": "",
+            "id": "cloud-control-plane-defense-forensics",
+            "region": "eu-north-1",
+            "rule": [
+              {
+                "apply_server_side_encryption_by_default": [
+                  {
+                    "kms_master_key_id": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+                    "sse_algorithm": "aws:kms"
+                  }
+                ],
+                "blocked_encryption_types": [
+                  "SSE-C"
+                ],
+                "bucket_key_enabled": true
+              }
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-forensics",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_kms_key.audit",
+            "aws_s3_bucket.forensics"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_versioning",
+      "name": "audit",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "cloud-control-plane-defense-audit",
+            "expected_bucket_owner": "",
+            "id": "cloud-control-plane-defense-audit",
+            "mfa": null,
+            "region": "eu-north-1",
+            "versioning_configuration": [
+              {
+                "mfa_delete": "",
+                "status": "Enabled"
+              }
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-audit",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.audit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_versioning",
+      "name": "forensics",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "cloud-control-plane-defense-forensics",
+            "expected_bucket_owner": "",
+            "id": "cloud-control-plane-defense-forensics",
+            "mfa": null,
+            "region": "eu-north-1",
+            "versioning_configuration": [
+              {
+                "mfa_delete": "",
+                "status": "Enabled"
+              }
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "account_id": "000000000000",
+            "bucket": "cloud-control-plane-defense-forensics",
+            "region": "eu-north-1"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.forensics"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_secretsmanager_secret",
+      "name": "application_config",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:secretsmanager:eu-north-1:000000000000:secret:cloud-control-plane-defense/application-config-MQOORv",
+            "description": "Application configuration secret for the cloud control plane security lab",
+            "force_overwrite_replica_secret": false,
+            "id": "arn:aws:secretsmanager:eu-north-1:000000000000:secret:cloud-control-plane-defense/application-config-MQOORv",
+            "kms_key_id": "arn:aws:kms:eu-north-1:000000000000:key/c1e8e63b-2066-4702-a17e-6821de528415",
+            "name": "cloud-control-plane-defense/application-config",
+            "name_prefix": "",
+            "policy": "",
+            "recovery_window_in_days": 30,
+            "region": "eu-north-1",
+            "replica": [],
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-application-config",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "encrypted-application-configuration"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-application-config",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "encrypted-application-configuration"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "arn": "arn:aws:secretsmanager:eu-north-1:000000000000:secret:cloud-control-plane-defense/application-config-MQOORv"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_kms_key.audit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "application",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:security-group/sg-ba54daaa7eeaecdec",
+            "description": "HTTPS ingress only from designated public subnets",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "Outbound IPv4 traffic",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-ba54daaa7eeaecdec",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "10.40.1.0/24",
+                  "10.40.2.0/24"
+                ],
+                "description": "HTTPS from public subnet tier",
+                "from_port": 443,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 443
+              }
+            ],
+            "name": "cloud-control-plane-defense-application",
+            "name_prefix": "",
+            "owner_id": "000000000000",
+            "region": "eu-north-1",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-application-sg",
+              "Project": "cloud-control-plane-defense"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-application-sg",
+              "Project": "cloud-control-plane-defense"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "sg-ba54daaa7eeaecdec",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "security_events",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events",
+            "content_based_deduplication": false,
+            "deduplication_scope": "",
+            "delay_seconds": 0,
+            "fifo_queue": false,
+            "fifo_throughput_limit": "",
+            "id": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events",
+            "kms_data_key_reuse_period_seconds": 300,
+            "kms_master_key_id": "",
+            "max_message_size": 262144,
+            "message_retention_seconds": 86400,
+            "name": "cloud-control-plane-defense-security-events",
+            "name_prefix": "",
+            "policy": "{\"Statement\":[{\"Action\":\"sqs:SendMessage\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:eu-north-1:000000000000:rule/cloud-control-plane-defense-security-events\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Resource\":\"arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events\",\"Sid\":\"AllowEventBridgeSecurityRule\"}],\"Version\":\"2012-10-17\"}",
+            "receive_wait_time_seconds": 0,
+            "redrive_allow_policy": "",
+            "redrive_policy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events-dlq\",\"maxReceiveCount\":5}",
+            "region": "eu-north-1",
+            "sqs_managed_sse_enabled": true,
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-security-events",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloud-control-plane-security-event-buffer"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-security-events",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloud-control-plane-security-event-buffer"
+            },
+            "timeouts": null,
+            "url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events",
+            "visibility_timeout_seconds": 60
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAsImRlbGV0ZSI6MTgwMDAwMDAwMDAwLCJ1cGRhdGUiOjE4MDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "security_events_dlq",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events-dlq",
+            "content_based_deduplication": false,
+            "deduplication_scope": "",
+            "delay_seconds": 0,
+            "fifo_queue": false,
+            "fifo_throughput_limit": "",
+            "id": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events-dlq",
+            "kms_data_key_reuse_period_seconds": 300,
+            "kms_master_key_id": "",
+            "max_message_size": 262144,
+            "message_retention_seconds": 345600,
+            "name": "cloud-control-plane-defense-security-events-dlq",
+            "name_prefix": "",
+            "policy": "",
+            "receive_wait_time_seconds": 0,
+            "redrive_allow_policy": "{\"redrivePermission\":\"byQueue\",\"sourceQueueArns\":[\"arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events\"]}",
+            "redrive_policy": "",
+            "region": "eu-north-1",
+            "sqs_managed_sse_enabled": true,
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-security-events-dlq",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloud-control-plane-security-event-dead-letter"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-security-events-dlq",
+              "Project": "cloud-control-plane-defense",
+              "Purpose": "cloud-control-plane-security-event-dead-letter"
+            },
+            "timeouts": null,
+            "url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events-dlq",
+            "visibility_timeout_seconds": 60
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events-dlq"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAsImRlbGV0ZSI6MTgwMDAwMDAwMDAwLCJ1cGRhdGUiOjE4MDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_sqs_queue_policy",
+      "name": "security_events",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "id": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events",
+            "policy": "{\"Statement\":[{\"Action\":\"sqs:SendMessage\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:eu-north-1:000000000000:rule/cloud-control-plane-defense-security-events\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Resource\":\"arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events\",\"Sid\":\"AllowEventBridgeSecurityRule\"}],\"Version\":\"2012-10-17\"}",
+            "queue_url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events",
+            "region": "eu-north-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "queue_url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events"
+          },
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "aws_cloudwatch_event_rule.security_events",
+            "aws_sqs_queue.security_events"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_sqs_queue_redrive_allow_policy",
+      "name": "security_events_dlq",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events-dlq",
+            "queue_url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events-dlq",
+            "redrive_allow_policy": "{\"redrivePermission\":\"byQueue\",\"sourceQueueArns\":[\"arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events\"]}",
+            "region": "eu-north-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "queue_url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events-dlq"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_sqs_queue.security_events",
+            "aws_sqs_queue.security_events_dlq"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_sqs_queue_redrive_policy",
+      "name": "security_events",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events",
+            "queue_url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events",
+            "redrive_policy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-north-1:000000000000:cloud-control-plane-defense-security-events-dlq\",\"maxReceiveCount\":5}",
+            "region": "eu-north-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "queue_url": "http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/cloud-control-plane-defense-security-events"
+          },
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_sqs_queue.security_events",
+            "aws_sqs_queue.security_events_dlq"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "private",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "index_key": "private_a",
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:subnet/subnet-47504de8c1217a434",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "eu-north-1a",
+            "availability_zone_id": "eun1-az1",
+            "cidr_block": "10.40.11.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-47504de8c1217a434",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_ipam_pool_id": null,
+            "ipv6_native": false,
+            "ipv6_netmask_length": null,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": false,
+            "outpost_arn": "",
+            "owner_id": "000000000000",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "region": "eu-north-1",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-private_a",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "private"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-private_a",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "private"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "subnet-47504de8c1217a434",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        },
+        {
+          "index_key": "private_b",
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:subnet/subnet-d049cdaf06c2a094e",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "eu-north-1b",
+            "availability_zone_id": "eun1-az2",
+            "cidr_block": "10.40.12.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-d049cdaf06c2a094e",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_ipam_pool_id": null,
+            "ipv6_native": false,
+            "ipv6_netmask_length": null,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": false,
+            "outpost_arn": "",
+            "owner_id": "000000000000",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "region": "eu-north-1",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-private_b",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "private"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-private_b",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "private"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "subnet-d049cdaf06c2a094e",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "public",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "index_key": "public_a",
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:subnet/subnet-a4852cae3c23d372e",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "eu-north-1a",
+            "availability_zone_id": "eun1-az1",
+            "cidr_block": "10.40.1.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-a4852cae3c23d372e",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_ipam_pool_id": null,
+            "ipv6_native": false,
+            "ipv6_netmask_length": null,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": true,
+            "outpost_arn": "",
+            "owner_id": "000000000000",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "region": "eu-north-1",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-public_a",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "public"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-public_a",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "public"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "subnet-a4852cae3c23d372e",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        },
+        {
+          "index_key": "public_b",
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:subnet/subnet-eaebb7fea6cb72151",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "eu-north-1b",
+            "availability_zone_id": "eun1-az2",
+            "cidr_block": "10.40.2.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-eaebb7fea6cb72151",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_ipam_pool_id": null,
+            "ipv6_native": false,
+            "ipv6_netmask_length": null,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": true,
+            "outpost_arn": "",
+            "owner_id": "000000000000",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "region": "eu-north-1",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-public_b",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "public"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-public_b",
+              "Project": "cloud-control-plane-defense",
+              "Tier": "public"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-5f0cbd52c6f30297a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "subnet-eaebb7fea6cb72151",
+            "region": "eu-north-1"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_vpc",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:eu-north-1:000000000000:vpc/vpc-5f0cbd52c6f30297a",
+            "assign_generated_ipv6_cidr_block": false,
+            "cidr_block": "10.40.0.0/16",
+            "default_network_acl_id": "acl-f5acef6807ab994a5",
+            "default_route_table_id": "rtb-ac3ffbad661f81e4f",
+            "default_security_group_id": "sg-6762a7e0bf2b578a4",
+            "dhcp_options_id": "default",
+            "enable_dns_hostnames": true,
+            "enable_dns_support": true,
+            "enable_network_address_usage_metrics": false,
+            "id": "vpc-5f0cbd52c6f30297a",
+            "instance_tenancy": "default",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_association_id": "",
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_network_border_group": "",
+            "ipv6_ipam_pool_id": "",
+            "ipv6_netmask_length": 0,
+            "main_route_table_id": "rtb-ac3ffbad661f81e4f",
+            "owner_id": "000000000000",
+            "region": "eu-north-1",
+            "tags": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-vpc",
+              "Project": "cloud-control-plane-defense"
+            },
+            "tags_all": {
+              "Environment": "security-lab",
+              "ManagedBy": "Terraform",
+              "Name": "cloud-control-plane-defense-vpc",
+              "Project": "cloud-control-plane-defense"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "000000000000",
+            "id": "vpc-5f0cbd52c6f30297a",
+            "region": "eu-north-1"
+          },
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ=="
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

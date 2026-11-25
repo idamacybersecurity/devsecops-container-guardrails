@@ -1,0 +1,20 @@
+== time ==
+Tue Nov 24 12:34:35 UTC 2026
+== instance type ==
+t3.large
+== cpu / mem / disk ==
+CPU(s):                                  2
+Model name:                              Intel(R) Xeon(R) Platinum 8175M CPU @ 2.50GHz
+Thread(s) per core:                      2
+               total        used        free      shared  buff/cache   available
+Mem:           7.6Gi       1.9Gi       682Mi       4.8Mi       5.4Gi       5.7Gi
+Swap:             0B          0B          0B
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root        38G   36G  2.6G  94% /
+== repo ==
+cad3d6652e4057f7b2f5e293fb684739614b1439
+== containers ==
+== localstack health ==
+{"features": {"persistence": "initialized"}, "services": {"account": "available", "acm-pca": "available", "acm": "available", "amplify": "available", "apigateway": "available", "apigatewaymanagementapi": "available", "apigatewayv2": "available", "appconfig": "available", "appconfigdata": "available", "application-autoscaling": "available", "appsync": "available", "athena": "available", "autoscaling": "available", "backup": "available", "batch": "available", "bedrock-agentcore-control": "available", "bedrock-agentcore": "available", "bedrock-runtime": "available", "bedrock": "available", "ce":
+== persistence setting ==
+12:      PERSISTENCE: "1"

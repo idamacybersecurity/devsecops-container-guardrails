@@ -1,0 +1,134 @@
+{
+  "scenario": "Synthetic CloudTrail DeleteTrail downstream integration",
+  "classification": "SYNTHETIC_EVENT_NOT_LIVE_CLOUDTRAIL",
+  "event_source": "aws.cloudtrail",
+  "event_name": "DeleteTrail",
+  "target_principal": "arn:aws:iam::000000000000:user/ccpd-ct-synthetic-857e735969",
+  "verified": true,
+  "cleanup_problems": [],
+  "preflight": {
+    "isolated_queue_empty": true,
+    "original_target_preserved": true,
+    "isolated_target_routes_to_queue": true,
+    "eventbridge_rule_enabled": true
+  },
+  "pre_event_key_works": true,
+  "event_id": "952e8b9f-15c1-4b36-b69a-3617678649ab",
+  "put_events_response": {
+    "failed_entry_count": 0,
+    "event_ids_returned": [
+      "c0c54896-60f1-442d-a78c-570da3a63b3a"
+    ]
+  },
+  "watcher_action": {
+    "alert_event_time": "2026-11-24T23:36:01.868160+00:00",
+    "attempts": 1,
+    "detection_type": "defense_evasion",
+    "error_code": null,
+    "error_type": null,
+    "errors": [],
+    "event_id": "952e8b9f-15c1-4b36-b69a-3617678649ab",
+    "event_to_verified_seconds": 1.037785,
+    "execution_duration_seconds": 0.6020279419899452,
+    "logged_utc": "2026-11-24T23:36:02.905998+00:00",
+    "mode": "EXECUTE",
+    "rollback_state": {
+      "account_id": "000000000000",
+      "captured_at": "2026-11-24T23:36:02.392773+00:00",
+      "event_id": "952e8b9f-15c1-4b36-b69a-3617678649ab",
+      "principals": [
+        {
+          "access_keys": [
+            {
+              "access_key_id": "LKIAQAAAAAAAGLJPEC7L",
+              "status": "Active"
+            }
+          ],
+          "applied_policies": {
+            "AWSRevokeOlderSessions": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Condition": {
+                    "DateLessThan": {
+                      "aws:TokenIssueTime": "2026-11-24T23:36:32Z"
+                    }
+                  },
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "RevokeOlderTemporarySessions"
+                }
+              ],
+              "Version": "2012-10-17"
+            },
+            "CCPDQuarantineDenyAll": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "CCPDExplicitDenyAll"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          },
+          "policies": {
+            "AWSRevokeOlderSessions": {
+              "document": null,
+              "existed": false
+            },
+            "CCPDQuarantineDenyAll": {
+              "document": null,
+              "existed": false
+            }
+          },
+          "principal": {
+            "arn": "arn:aws:iam::000000000000:user/ccpd-ct-synthetic-857e735969",
+            "name": "ccpd-ct-synthetic-857e735969",
+            "partition": "aws",
+            "type": "user"
+          }
+        }
+      ],
+      "version": 1
+    },
+    "status": "QUARANTINE_VERIFIED",
+    "target": "arn:aws:iam::000000000000:user/ccpd-ct-synthetic-857e735969",
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive"
+    ],
+    "watcher_seen_utc": "2026-11-24T23:36:02.303687+00:00"
+  },
+  "detector_alerts": {
+    "account_id": "000000000000",
+    "caller_arn": "arn:aws:iam::000000000000:user/ccpd-ct-synthetic-857e735969",
+    "caller_type_reported": "IAMUser",
+    "description": "A security logging, storage-policy, or key-protection control change was observed.",
+    "detection_type": "defense_evasion",
+    "event_id": "952e8b9f-15c1-4b36-b69a-3617678649ab",
+    "event_name": "DeleteTrail",
+    "event_source": "cloudtrail.amazonaws.com",
+    "event_time": "2026-11-24T23:36:01.868160+00:00",
+    "metadata": {},
+    "severity": "CRITICAL"
+  },
+  "detector_alert_verified": true,
+  "quarantine_readback": {
+    "deny_policy_present": true,
+    "session_policy_present": true,
+    "all_access_keys_inactive": true
+  },
+  "post_quarantine_key_blocked": true,
+  "post_quarantine_key_error": "AccessDenied",
+  "watcher_output_tail": "WATCHER_READY mode=EXECUTE\nACTION {\"mode\": \"EXECUTE\", \"event_id\": \"952e8b9f-15c1-4b36-b69a-3617678649ab\", \"detection_type\": \"defense_evasion\", \"target\": \"arn:aws:iam::000000000000:user/ccpd-ct-synthetic-857e735969\", \"status\": \"QUARANTINE_VERIFIED\", \"event_to_verified_seconds\": 1.037785, \"execution_duration_seconds\": 0.6020279419899452, \"verified_controls\": [\"explicit_deny_all\", \"session_revocation_policy\", \"all_access_keys_inactive\"], \"rollback_state\": {\"version\": 1, \"event_id\": \"952e8b9f-15c1-4b36-b69a-3617678649ab\", \"account_id\": \"000000000000\", \"captured_at\": \"2026-11-24T23:36:02.392773+00:00\", \"principals\": [{\"principal\": {\"type\": \"user\", \"name\": \"ccpd-ct-synthetic-857e735969\", \"arn\": \"arn:aws:iam::000000000000:user/ccpd-ct-synthetic-857e735969\", \"partition\": \"aws\"}, \"policies\": {\"CCPDQuarantineDenyAll\": {\"existed\": false, \"document\": null}, \"AWSRevokeOlderSessions\": {\"existed\": false, \"document\": null}}, \"access_keys\": [{\"access_key_id\": \"LKIAQAAAAAAAGLJPEC7L\", \"status\": \"Active\"}], \"applied_policies\": {\"CCPDQuarantineDenyAll\": {\"Version\": \"2012-10-17\", \"Statement\": [{\"Sid\": \"CCPDExplicitDenyAll\", \"Effect\": \"Deny\", \"Action\": \"*\", \"Resource\": \"*\"}]}, \"AWSRevokeOlderSessions\": {\"Version\": \"2012-10-17\", \"Statement\": [{\"Sid\": \"RevokeOlderTemporarySessions\", \"Effect\": \"Deny\", \"Action\": \"*\", \"Resource\": \"*\", \"Condition\": {\"DateLessThan\": {\"aws:TokenIssueTime\": \"2026-11-24T23:36:32Z\"}}}]}}}]}, \"error_type\": null, \"error_code\": null, \"errors\": [], \"attempts\": 1, \"alert_event_time\": \"2026-11-24T23:36:01.868160+00:00\", \"watcher_seen_utc\": \"2026-11-24T23:36:02.303687+00:00\", \"logged_utc\": \"2026-11-24T23:36:02.905998+00:00\"}\n",
+  "temporary_user_deleted": true,
+  "queue_after_test": {
+    "visible": "0",
+    "in_flight": "0"
+  },
+  "queue_empty_after_test": true,
+  "eventbridge_targets_preserved": true
+}

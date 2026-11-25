@@ -1,0 +1,115 @@
+{
+  "scenario": "5 cross-user IAM CreateAccessKey containment",
+  "attack": "iam:CreateAccessKey",
+  "attacker": "arn:aws:iam::000000000000:user/ccpd-sc5-attacker-c775d7ffde",
+  "target_user": "ccpd-sc5-victim-c775d7ffde",
+  "expected_quarantine_principal": "arn:aws:iam::000000000000:user/ccpd-sc5-attacker-c775d7ffde",
+  "expected_unaffected_principal": "arn:aws:iam::000000000000:user/ccpd-sc5-victim-c775d7ffde",
+  "operator_actions": [],
+  "watcher_action": {
+    "alert_event_time": "2026-11-24T22:55:39.813000+00:00",
+    "attempts": 1,
+    "detection_type": "iam_privilege_escalation",
+    "error_code": null,
+    "error_type": null,
+    "errors": [],
+    "event_id": "f684aeb7-dcdb-409b-a7cd-129b9af63087",
+    "event_to_verified_seconds": 3.221763,
+    "execution_duration_seconds": 0.4718260129884584,
+    "logged_utc": "2026-11-24T22:55:43.034816+00:00",
+    "mode": "EXECUTE",
+    "rollback_state": {
+      "account_id": "000000000000",
+      "captured_at": "2026-11-24T22:55:42.629241+00:00",
+      "event_id": "f684aeb7-dcdb-409b-a7cd-129b9af63087",
+      "principals": [
+        {
+          "access_keys": [
+            {
+              "access_key_id": "LKIAQAAAAAAAPGAKN7LU",
+              "status": "Active"
+            }
+          ],
+          "applied_policies": {
+            "AWSRevokeOlderSessions": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Condition": {
+                    "DateLessThan": {
+                      "aws:TokenIssueTime": "2026-11-24T22:56:12Z"
+                    }
+                  },
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "RevokeOlderTemporarySessions"
+                }
+              ],
+              "Version": "2012-10-17"
+            },
+            "CCPDQuarantineDenyAll": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "CCPDExplicitDenyAll"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          },
+          "policies": {
+            "AWSRevokeOlderSessions": {
+              "document": null,
+              "existed": false
+            },
+            "CCPDQuarantineDenyAll": {
+              "document": null,
+              "existed": false
+            }
+          },
+          "principal": {
+            "arn": "arn:aws:iam::000000000000:user/ccpd-sc5-attacker-c775d7ffde",
+            "name": "ccpd-sc5-attacker-c775d7ffde",
+            "partition": "aws",
+            "type": "user"
+          }
+        }
+      ],
+      "version": 1
+    },
+    "status": "QUARANTINE_VERIFIED",
+    "target": "arn:aws:iam::000000000000:user/ccpd-sc5-attacker-c775d7ffde",
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive"
+    ],
+    "watcher_seen_utc": "2026-11-24T22:55:42.562662+00:00"
+  },
+  "verified": true,
+  "cleanup_problems": [],
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "attack_call": "SUCCEEDED",
+  "victim_attack_key_id": "LKIAQAAAAAAAMUV2534Q",
+  "attack_call_duration_s": 12.968,
+  "attacker_quarantine_readback": {
+    "explicit_deny_policy": true,
+    "session_revocation_policy": true,
+    "all_access_keys_inactive": true
+  },
+  "victim_readback": {
+    "original_key_status": "Active",
+    "attack_created_key_status": "Active",
+    "quarantine_deny_policy_absent": true,
+    "session_revocation_policy_absent": true
+  },
+  "victim_unaffected": true,
+  "event_to_verified_s": 3.406,
+  "watcher_attempts": 1,
+  "original_attacker_key_blocked": true,
+  "original_attacker_key_error_code": "AccessDenied",
+  "key_rejection_wait_seconds": 32.28,
+  "evidence_directory": "/tmp/ccpd-sc5-95oqw6zi"
+}

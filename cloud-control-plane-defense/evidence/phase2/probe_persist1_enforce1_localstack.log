@@ -1,0 +1,573 @@
+2026-11-24T12:49:31.411  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2521 ms
+2026-11-24T12:49:31.412  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 2.52 seconds
+2026-11-24T12:50:31.734  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2843 ms
+2026-11-24T12:50:31.734  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 2.84 seconds
+2026-11-24T12:51:31.161  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2269 ms
+2026-11-24T12:51:31.161  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 2.27 seconds
+2026-11-24T12:52:30.328  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1438 ms
+2026-11-24T12:52:30.328  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.44 seconds
+2026-11-24T12:52:35.449  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.CreateKey => 200
+2026-11-24T12:52:35.487  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:35.527  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:35.606  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:36.648  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:36.690  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:36.736  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:36.840  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:36.874  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:36.931  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:36.990  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:37.038  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:37.074  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:37.112  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:37.165  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:37.243  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:38.286  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:38.309  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:38.346  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:38.423  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:38.451  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:38.477  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:38.526  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:38.555  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:38.575  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:38.596  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:38.620  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:38.669  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:39.712  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:39.733  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:39.773  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:39.860  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:39.889  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:39.919  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:39.956  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:39.982  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:40.007  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:40.037  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:40.073  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:40.126  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:41.158  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:41.191  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:41.256  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:41.367  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:41.411  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:41.468  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:41.531  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:41.564  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:41.595  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:41.620  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:41.676  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:41.728  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:42.764  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:42.798  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:42.859  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:42.938  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:42.973  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:43.014  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:43.060  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:43.087  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:43.107  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:43.139  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:43.167  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:43.231  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:44.070  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 179 ms
+2026-11-24T12:52:44.165  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 95 ms
+2026-11-24T12:52:46.484  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2318 ms
+2026-11-24T12:52:46.598  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 113 ms
+2026-11-24T12:52:52.816  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 6218 ms
+2026-11-24T12:52:52.817  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 8.93 seconds
+2026-11-24T12:52:52.838  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:52.879  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:52.933  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:53.039  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:53.085  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:53.124  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:53.208  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:53.236  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:53.267  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:53.298  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:53.376  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:53.448  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:54.488  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:54.526  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:54.588  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:54.687  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:54.731  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:54.769  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:54.826  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:54.864  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:54.898  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:54.926  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:54.967  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:55.030  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:56.071  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:56.107  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:56.160  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:56.260  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:56.291  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:56.335  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:56.409  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:56.448  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:56.478  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:56.506  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:56.558  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:56.613  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:57.654  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:57.686  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:57.733  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:57.835  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:52:57.881  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:52:57.915  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:52:57.980  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:52:58.006  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:52:58.026  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:52:58.047  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:52:58.075  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:52:58.122  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:52:59.069  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 178 ms
+2026-11-24T12:52:59.170  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 101 ms
+2026-11-24T12:53:01.089  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1916 ms
+2026-11-24T12:53:01.206  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 117 ms
+2026-11-24T12:53:08.805  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 7598 ms
+2026-11-24T12:53:08.805  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 9.92 seconds
+2026-11-24T12:53:08.823  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:08.862  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:08.930  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:09.046  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:09.088  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:09.121  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:09.171  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:09.224  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:09.253  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:09.282  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:09.322  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:09.393  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:10.425  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:10.455  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:10.504  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:10.613  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:10.649  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:10.686  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:10.731  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:10.773  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:10.816  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:10.844  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:10.888  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:10.967  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:12.046  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:12.084  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:12.158  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:12.275  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:12.333  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:12.380  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:12.438  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:12.480  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:12.512  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:12.541  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:12.591  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:12.638  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:13.671  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:13.690  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:13.731  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:13.836  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:13.886  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:14.107  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 216 ms
+2026-11-24T12:53:14.228  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 121 ms
+2026-11-24T12:53:16.662  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2433 ms
+2026-11-24T12:53:16.778  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 114 ms
+2026-11-24T12:53:23.935  WARN --- [et.reactor-6] l.p.c.p.snapshot.manager   : waiting on snapshot save timed out, this can cause data corruption
+2026-11-24T12:53:24.760  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 7982 ms
+2026-11-24T12:53:24.761  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 10.87 seconds
+2026-11-24T12:53:24.774  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:24.845  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:24.887  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:24.938  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:24.971  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:25.032  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:25.122  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:26.159  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:26.193  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:26.243  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:26.357  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:26.413  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:26.469  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:26.533  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:26.570  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:26.606  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:26.640  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:26.685  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:26.740  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:27.801  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:27.840  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:27.886  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:27.987  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:28.046  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:28.091  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:28.141  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:28.174  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:28.201  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:28.227  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:28.264  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:28.316  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:29.105  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 213 ms
+2026-11-24T12:53:29.240  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 134 ms
+2026-11-24T12:53:31.853  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2612 ms
+2026-11-24T12:53:31.988  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 135 ms
+2026-11-24T12:53:39.381  WARN --- [et.reactor-8] l.p.c.p.snapshot.manager   : waiting on snapshot save timed out, this can cause data corruption
+2026-11-24T12:53:39.589  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 7599 ms
+2026-11-24T12:53:39.589  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 10.70 seconds
+2026-11-24T12:53:39.593  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:39.630  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:39.678  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:39.773  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:39.816  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:39.866  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:39.937  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:39.972  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:40.004  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:40.040  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:40.089  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:40.160  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:41.212  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:41.255  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:41.322  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:41.434  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:41.472  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:41.518  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:41.579  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:41.620  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:41.665  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:41.699  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:41.765  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:41.834  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:42.890  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:42.932  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:42.984  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:43.098  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:43.138  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:43.204  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:43.266  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:43.299  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:43.330  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:43.355  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:43.382  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:43.431  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:44.109  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 218 ms
+2026-11-24T12:53:44.240  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 130 ms
+2026-11-24T12:53:46.750  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2509 ms
+2026-11-24T12:53:46.913  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 162 ms
+2026-11-24T12:53:54.470  WARN --- [et.reactor-7] l.p.c.p.snapshot.manager   : waiting on snapshot save timed out, this can cause data corruption
+2026-11-24T12:53:55.495  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 8581 ms
+2026-11-24T12:53:55.495  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 11.60 seconds
+2026-11-24T12:53:55.498  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:55.524  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:55.571  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:55.670  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:55.707  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:55.750  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:55.810  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:55.845  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:55.872  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:55.906  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T12:53:55.930  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T12:53:55.993  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T12:53:57.060  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:57.120  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:57.193  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:57.333  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T12:53:57.371  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T12:53:57.428  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T12:53:57.489  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T12:53:57.536  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T12:53:57.578  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T12:53:57.631  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.ScheduleKeyDeletion => 200
+2026-11-24T12:53:59.108  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 210 ms
+2026-11-24T12:53:59.220  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 112 ms
+2026-11-24T12:54:01.340  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2120 ms
+2026-11-24T12:54:01.495  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 154 ms
+2026-11-24T12:54:08.959  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 7464 ms
+2026-11-24T12:54:08.959  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 10.07 seconds
+2026-11-24T12:54:30.892  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 2001 ms
+2026-11-24T12:54:30.892  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 2.00 seconds
+2026-11-24T12:55:30.217  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1326 ms
+2026-11-24T12:55:30.217  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.33 seconds
+2026-11-24T12:56:30.488  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1597 ms
+2026-11-24T12:56:30.488  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.60 seconds
+2026-11-24T12:57:30.348  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1458 ms
+2026-11-24T12:57:30.348  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.46 seconds
+2026-11-24T12:58:30.574  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1684 ms
+2026-11-24T12:58:30.575  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.68 seconds
+2026-11-24T12:59:30.221  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1330 ms
+2026-11-24T12:59:30.221  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.33 seconds
+2026-11-24T13:00:30.199  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1309 ms
+2026-11-24T13:00:30.200  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.31 seconds
+2026-11-24T13:01:30.700  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1810 ms
+2026-11-24T13:01:30.701  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.81 seconds
+2026-11-24T13:02:30.244  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1354 ms
+2026-11-24T13:02:30.244  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 1.35 seconds
+2026-11-24T13:03:27.098  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.CreateKey => 200
+2026-11-24T13:03:27.129  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:27.170  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:27.221  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:28.251  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:28.273  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:28.306  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:28.369  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:28.394  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:28.420  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:28.456  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:28.479  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:28.499  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:28.517  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:28.540  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:28.578  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:29.014  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 124 ms
+2026-11-24T13:03:29.088  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 74 ms
+2026-11-24T13:03:30.705  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1616 ms
+2026-11-24T13:03:30.799  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 94 ms
+2026-11-24T13:03:36.233  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 5433 ms
+2026-11-24T13:03:36.234  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 7.34 seconds
+2026-11-24T13:03:36.253  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:36.289  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:36.333  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:36.425  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:36.462  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:36.488  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:36.524  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:36.559  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:36.581  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:36.603  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:36.637  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:36.682  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:37.708  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:37.728  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:37.763  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:37.830  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:37.856  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:37.880  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:37.914  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:37.938  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:37.964  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:37.984  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:38.009  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:38.040  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:39.070  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:39.094  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:39.134  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:39.225  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:39.260  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:39.305  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:39.354  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:39.380  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:39.408  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:39.430  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:39.461  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:39.522  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:40.564  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:40.602  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:40.652  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:40.754  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:40.800  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:40.835  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:40.887  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:40.910  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:40.929  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:40.947  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:40.976  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:41.017  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:42.072  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:42.113  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:42.162  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:42.267  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:42.300  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:42.330  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:42.377  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:42.403  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:42.422  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:42.458  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:42.499  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:42.556  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:43.597  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:43.620  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:43.654  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:43.718  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:43.744  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:43.773  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:43.815  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:43.844  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:43.863  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:43.881  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:44.036  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 131 ms
+2026-11-24T13:03:44.120  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 83 ms
+2026-11-24T13:03:45.797  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1676 ms
+2026-11-24T13:03:45.927  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 129 ms
+2026-11-24T13:03:51.948  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 6021 ms
+2026-11-24T13:03:51.948  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 8.06 seconds
+2026-11-24T13:03:51.957  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:51.994  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:53.050  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:53.070  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:53.091  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:53.174  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:53.208  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:53.233  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:53.286  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:53.315  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:53.350  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:53.377  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:53.413  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:53.469  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:54.504  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:54.527  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:54.569  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:54.643  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:54.670  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:54.699  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:54.736  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:54.763  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:54.788  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:54.813  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:54.841  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:54.911  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:55.944  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:55.967  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:56.004  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:56.071  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:56.097  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:56.123  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:56.169  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:56.191  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:56.210  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:56.228  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:56.252  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:56.293  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:57.332  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:57.369  INFO --- [t.reactor-10] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:57.408  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:57.487  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:03:57.512  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:57.536  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:57.571  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:03:57.598  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:03:57.617  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:03:57.636  INFO --- [et.reactor-8] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:03:57.668  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:03:57.734  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:03:58.769  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:58.792  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:03:58.829  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:03:59.052  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 157 ms
+2026-11-24T13:03:59.122  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 69 ms
+2026-11-24T13:04:00.793  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1670 ms
+2026-11-24T13:04:00.907  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 113 ms
+2026-11-24T13:04:06.231  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 5324 ms
+2026-11-24T13:04:06.231  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 7.34 seconds
+2026-11-24T13:04:06.234  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:06.261  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:06.326  INFO --- [et.reactor-3] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:06.352  INFO --- [t.reactor-14] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:06.383  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:06.405  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:06.423  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:06.453  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:06.499  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:07.527  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:07.551  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:07.595  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:07.677  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:07.710  INFO --- [et.reactor-6] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:07.742  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:07.792  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:07.815  INFO --- [et.reactor-6] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:07.839  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:07.873  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:07.915  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:07.974  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:09.002  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:09.022  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:09.058  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:09.135  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:09.161  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:09.188  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:09.218  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:09.251  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:09.275  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:09.297  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:09.337  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:09.390  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:10.424  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:10.445  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:10.483  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:10.566  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:10.595  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:10.626  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:10.666  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:10.693  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:10.713  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:10.733  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:10.766  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:10.821  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:11.853  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:11.878  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:11.926  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:12.020  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:12.050  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:12.081  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:12.116  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:12.141  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:12.160  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:12.183  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:12.209  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:12.254  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:13.283  INFO --- [t.reactor-14] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:13.305  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:13.346  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:13.416  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:13.453  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:13.486  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:13.522  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:13.549  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:13.572  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:13.598  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:13.623  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:13.664  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:14.015  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for events took 124 ms
+2026-11-24T13:04:14.101  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for kms took 86 ms
+2026-11-24T13:04:15.806  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for cloudwatch took 1704 ms
+2026-11-24T13:04:15.952  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for sqs took 146 ms
+2026-11-24T13:04:21.812  INFO --- [read-4 (run)] l.persistence.manager      : Saving state for iam took 5859 ms
+2026-11-24T13:04:21.812  INFO --- [read-4 (run)] l.p.c.p.snapshot.manager   : Saving snapshot to disk took 7.92 seconds
+2026-11-24T13:04:21.835  INFO --- [et.reactor-8] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:21.857  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:21.906  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:21.992  INFO --- [et.reactor-3] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:22.041  INFO --- [et.reactor-7] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:22.083  INFO --- [et.reactor-5] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:22.151  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:22.192  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:22.229  INFO --- [et.reactor-5] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:22.260  INFO --- [t.reactor-10] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:22.299  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:22.358  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:23.393  INFO --- [t.reactor-13] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:23.415  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:23.449  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:23.513  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:23.539  INFO --- [et.reactor-9] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:23.568  INFO --- [et.reactor-2] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:23.602  INFO --- [et.reactor-4] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:23.624  INFO --- [et.reactor-9] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:23.644  INFO --- [et.reactor-2] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:23.667  INFO --- [t.reactor-13] localstack.request.aws     : AWS iam.CreateUser => 200
+2026-11-24T13:04:23.691  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.PutUserPolicy => 200
+2026-11-24T13:04:23.735  INFO --- [et.reactor-7] localstack.request.aws     : AWS iam.CreateAccessKey => 200
+2026-11-24T13:04:24.763  INFO --- [et.reactor-4] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:24.784  INFO --- [et.reactor-0] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:24.841  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:24.916  INFO --- [t.reactor-12] localstack.request.aws     : AWS iam.ListUsers => 200
+2026-11-24T13:04:24.946  INFO --- [t.reactor-11] localstack.request.aws     : AWS kms.EnableKeyRotation => 200
+2026-11-24T13:04:24.993  INFO --- [et.reactor-1] localstack.request.aws     : AWS kms.DisableKeyRotation => 200
+2026-11-24T13:04:25.045  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.DeleteUserPolicy => 200
+2026-11-24T13:04:25.081  INFO --- [t.reactor-11] localstack.request.aws     : AWS iam.DeleteAccessKey => 200
+2026-11-24T13:04:25.108  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.DeleteUser => 200
+2026-11-24T13:04:25.137  INFO --- [t.reactor-12] localstack.request.aws     : AWS kms.ScheduleKeyDeletion => 200

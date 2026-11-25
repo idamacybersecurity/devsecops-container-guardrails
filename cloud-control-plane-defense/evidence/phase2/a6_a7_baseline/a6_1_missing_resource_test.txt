@@ -1,0 +1,2 @@
+MISSING INFRASTRUCTURE: Required security group sg-25097a9a8de3143e7 is missing.
+SAFE STOP: No remediation was attempted. Restore required infrastructure through Terraform first.

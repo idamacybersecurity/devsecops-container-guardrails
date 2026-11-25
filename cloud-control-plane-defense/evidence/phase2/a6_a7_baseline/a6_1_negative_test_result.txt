@@ -1,0 +1,13 @@
+A6.1 NEGATIVE TEST
+
+Scenario:
+Simulated AWS UnauthorizedOperation response from DescribeSecurityGroups.
+
+Expected:
+The error must remain a ClientError and must not be classified as missing infrastructure.
+
+Actual:
+PASS: Unrelated API error remains a ClientError.
+
+Result:
+PASS

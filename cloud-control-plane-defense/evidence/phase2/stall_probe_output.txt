@@ -1,0 +1,22 @@
+1 {'admin_kms': 0.042, 'user_iam': 0.115, 'user_kms': 0.059}
+2 {'admin_kms': 0.026, 'user_iam': 0.088, 'user_kms': 0.032}
+3 {'admin_kms': 0.021, 'user_iam': 0.1, 'user_kms': 0.032}
+4 {'admin_kms': 0.034, 'user_iam': 0.129, 'user_kms': 0.059}
+5 {'admin_kms': 0.033, 'user_iam': 0.091, 'user_kms': 0.043}
+6 {'admin_kms': 0.047, 'user_iam': 0.122, 'user_kms': 0.042}
+7 {'admin_kms': 0.041, 'user_iam': 0.113, 'user_kms': 0.042}
+8 {'admin_kms': 0.033, 'user_iam': 0.111, 'user_kms': 0.056}
+9 {'admin_kms': 0.031, 'user_iam': 0.117, 'user_kms': 0.037}
+10 {'admin_kms': 0.046, 'user_iam': 0.133, 'user_kms': 0.035}
+11 {'admin_kms': 0.028, 'user_iam': 0.114, 'user_kms': 0.039}
+12 {'admin_kms': 0.04, 'user_iam': 0.131, 'user_kms': 0.049}
+13 {'admin_kms': 0.023, 'user_iam': 0.127, 'user_kms': 10.887}
+14 {'admin_kms': 0.039, 'user_iam': 0.128, 'user_kms': 0.056}
+15 {'admin_kms': 0.041, 'user_iam': 0.115, 'user_kms': 0.044}
+16 {'admin_kms': 0.038, 'user_iam': 0.109, 'user_kms': 0.047}
+17 {'admin_kms': 0.044, 'user_iam': 0.126, 'user_kms': 0.048}
+18 {'admin_kms': 0.045, 'user_iam': 0.128, 'user_kms': 0.067}
+19 {'admin_kms': 0.027, 'user_iam': 0.11, 'user_kms': 0.043}
+20 {'admin_kms': 0.064, 'user_iam': 0.146, 'user_kms': 0.058}
+
+rounds with a call >3s: 1/20

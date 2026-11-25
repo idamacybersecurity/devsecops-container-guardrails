@@ -1,0 +1,89 @@
+{
+  "scenario": "2 defense evasion (KMS rotation, S3 policy delete), quarantine only, autonomous",
+  "operator_actions": [],
+  "restoration": "NOT performed by this run (S3: drift reconciler; KMS: manual)",
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/scripts/auto_soar_watcher.py",
+    "cloud-control-plane-defense/scripts/run_scenario1_autonomous.py",
+    "cloud-control-plane-defense/scripts/run_scenario2_autonomous.py",
+    "cloud-control-plane-defense/soar/cloud_soar_responder.py"
+  ],
+  "attacks": [
+    {
+      "attack": "kms:DisableKeyRotation",
+      "user": "arn:aws:iam::000000000000:user/ccpd-sc2-kms-1fc75361",
+      "attack_call_s": 0.074,
+      "watcher_action": {
+        "alert_event_time": "2026-11-24T21:10:34.745000+00:00",
+        "attempts": 1,
+        "detection_type": "defense_evasion",
+        "error_code": null,
+        "error_type": null,
+        "errors": [],
+        "event_id": "1fe0cae7-add3-4d46-9e94-05b3eafe7b43",
+        "event_to_verified_seconds": 0.510383,
+        "execution_duration_seconds": 0.37745474200346507,
+        "logged_utc": "2026-11-24T21:10:35.255440+00:00",
+        "mode": "EXECUTE",
+        "status": "QUARANTINE_VERIFIED",
+        "target": "arn:aws:iam::000000000000:user/ccpd-sc2-kms-1fc75361",
+        "verified_controls": [
+          "explicit_deny_all",
+          "session_revocation_policy",
+          "all_access_keys_inactive"
+        ],
+        "watcher_seen_utc": "2026-11-24T21:10:34.877591+00:00"
+      },
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "verified": true,
+      "event_to_verified_s": 0.635,
+      "call_to_verified_s": 0.694,
+      "watcher_attempts": 1,
+      "call_to_blocked_s": 5.108,
+      "original_key": "blocked"
+    },
+    {
+      "attack": "s3:DeleteBucketPolicy",
+      "user": "arn:aws:iam::000000000000:user/ccpd-sc2-s3-1fc75361",
+      "attack_call_s": 0.064,
+      "watcher_action": {
+        "alert_event_time": "2026-11-24T21:10:41.035000+00:00",
+        "attempts": 1,
+        "detection_type": "defense_evasion",
+        "error_code": null,
+        "error_type": null,
+        "errors": [],
+        "event_id": "3c869025-a722-4f49-8049-444f0d36fdb5",
+        "event_to_verified_seconds": 0.571817,
+        "execution_duration_seconds": 0.4135471679910552,
+        "logged_utc": "2026-11-24T21:10:41.606873+00:00",
+        "mode": "EXECUTE",
+        "status": "QUARANTINE_VERIFIED",
+        "target": "arn:aws:iam::000000000000:user/ccpd-sc2-s3-1fc75361",
+        "verified_controls": [
+          "explicit_deny_all",
+          "session_revocation_policy",
+          "all_access_keys_inactive"
+        ],
+        "watcher_seen_utc": "2026-11-24T21:10:41.192751+00:00"
+      },
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "verified": true,
+      "event_to_verified_s": 0.676,
+      "call_to_verified_s": 0.724,
+      "watcher_attempts": 1,
+      "call_to_blocked_s": 25.129,
+      "original_key": "blocked"
+    }
+  ],
+  "cleanup_problems": []
+}

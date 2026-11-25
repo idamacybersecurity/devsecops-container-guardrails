@@ -1,0 +1,24 @@
+{
+  "scenario": "CloudTrail DeleteTrail tampering",
+  "attack": "cloudtrail:DeleteTrail",
+  "attacker": "arn:aws:iam::000000000000:user/ccpd-ct-delete-779ce9b3c1",
+  "disposable_trail": "ccpd-disposable-trail-779ce9b3c1",
+  "disposable_trail_arn": "arn:aws:cloudtrail:eu-north-1:000000000000:trail/ccpd-disposable-trail-779ce9b3c1",
+  "disposable_bucket": "ccpd-cloudtrail-test-779ce9b3c1",
+  "operator_actions": [],
+  "watcher_action": null,
+  "verified": false,
+  "cleanup_problems": [
+    "bucket cleanup: ClientError: An error occurred (BucketNotEmpty) when calling the DeleteBucket operation: The bucket you tried to delete is not empty"
+  ],
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "created_trail_arn": "arn:aws:cloudtrail:eu-north-1:000000000000:trail/ccpd-disposable-trail-779ce9b3c1",
+  "attack_call": "SUCCEEDED",
+  "attack_call_duration_s": 0.075,
+  "trail_absence_verified": true,
+  "evidence_directory": "/tmp/ccpd-cloudtrail-delete-1b3b8xm3",
+  "attacker_cleanup_verified": true,
+  "disposable_trail_cleanup": "PASS",
+  "original_trails_preserved": true,
+  "disposable_trail_absent_after_cleanup": true
+}

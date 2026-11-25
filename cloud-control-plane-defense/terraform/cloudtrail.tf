@@ -20,5 +20,5 @@ resource "aws_cloudtrail" "main" {
 
 output "cloudtrail_arn" {
   description = "ARN of the multi-Region CloudTrail audit trail"
-  value       = aws_cloudtrail.main.arn
+  value       = aws_cloudtrail.main.id
 }

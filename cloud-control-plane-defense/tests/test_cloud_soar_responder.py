@@ -52,6 +52,7 @@ class FakeIAM:
             {"AccessKeyId": "AKIATEST000000000002", "Status": "Inactive"},
         ]
         self.fail_policy_name = None
+        self.fail_once_policy_name = None
         self.corrupt_readback = False
 
     def get_role(self, RoleName):
@@ -83,6 +84,9 @@ class FakeIAM:
         self.mutations.append(("put_role_policy", RoleName, PolicyName))
         if PolicyName == self.fail_policy_name:
             raise RuntimeError("simulated policy write failure")
+        if PolicyName == self.fail_once_policy_name:
+            self.fail_once_policy_name = None
+            raise RuntimeError("simulated one-time policy write failure")
         import json
         self.policies[("role", RoleName, PolicyName)] = json.loads(
             PolicyDocument
@@ -92,6 +96,9 @@ class FakeIAM:
         self.mutations.append(("put_user_policy", UserName, PolicyName))
         if PolicyName == self.fail_policy_name:
             raise RuntimeError("simulated policy write failure")
+        if PolicyName == self.fail_once_policy_name:
+            self.fail_once_policy_name = None
+            raise RuntimeError("simulated one-time policy write failure")
         import json
         self.policies[("user", UserName, PolicyName)] = json.loads(
             PolicyDocument
@@ -108,6 +115,15 @@ class FakeIAM:
         if self.corrupt_readback:
             value = {"Version": "2012-10-17", "Statement": []}
         return {"PolicyDocument": value}
+
+
+    def delete_role_policy(self, RoleName, PolicyName):
+        self.mutations.append(("delete_role_policy", RoleName, PolicyName))
+        self.policies.pop(("role", RoleName, PolicyName), None)
+
+    def delete_user_policy(self, UserName, PolicyName):
+        self.mutations.append(("delete_user_policy", UserName, PolicyName))
+        self.policies.pop(("user", UserName, PolicyName), None)
 
 
 def make_responder(iam=None, break_glass=None):
@@ -246,6 +262,53 @@ def test_role_execution_verifies_both_policies():
         "2026-11-17T16:00:30Z"
     )
 
+
+
+def test_execution_uses_supplied_containment_time_for_session_cutoff():
+    responder, iam = make_responder()
+    containment_time = datetime(
+        2026, 11, 18, 17, 45, tzinfo=timezone.utc
+    )
+
+    result = responder.execute(
+        make_alert(),
+        containment_time=containment_time,
+    )
+
+    assert result["status"] == "QUARANTINE_VERIFIED"
+    session = iam.policies[
+        ("role", "cloud-control-plane-defense-developer",
+         "AWSRevokeOlderSessions")
+    ]
+    condition = session["Statement"][0]["Condition"]
+    assert condition["DateLessThan"]["aws:TokenIssueTime"] == (
+        "2026-11-18T17:45:30Z"
+    )
+
+
+def test_execution_rejects_naive_containment_time_before_mutation():
+    responder, iam = make_responder()
+    naive_time = datetime(2026, 11, 18, 17, 45)
+
+    with pytest.raises(
+        ResponderError,
+        match="containment_time_timezone_required",
+    ):
+        responder.execute(make_alert(), containment_time=naive_time)
+
+    assert iam.mutations == []
+
+
+def test_execution_rejects_invalid_containment_time_before_mutation():
+    responder, iam = make_responder()
+
+    with pytest.raises(
+        ResponderError,
+        match="containment_time_invalid",
+    ):
+        responder.execute(make_alert(), containment_time="2026-11-18T17:45:00Z")
+
+    assert iam.mutations == []
 
 def test_user_execution_deactivates_and_verifies_active_key():
     responder, iam = make_responder()
@@ -393,3 +456,307 @@ def test_privileged_role_chain_alert_targets_originating_user():
     assert result["detection_type"] == "privileged_role_chain"
     assert result["target"]["type"] == "user"
     assert iam.mutations == []
+
+
+def test_partial_policy_execution_can_be_replayed_with_same_cutoff():
+    iam = FakeIAM()
+    iam.fail_once_policy_name = "AWSRevokeOlderSessions"
+    responder, _ = make_responder(iam)
+
+    containment_time = datetime(
+        2026, 11, 24, 20, 0, tzinfo=timezone.utc
+    )
+
+    first = responder.execute(
+        make_alert(),
+        containment_time=containment_time,
+    )
+
+    assert first["status"] == "QUARANTINE_UNCONFIRMED"
+    assert (
+        "role",
+        "cloud-control-plane-defense-developer",
+        "CCPDQuarantineDenyAll",
+    ) in iam.policies
+    assert (
+        "role",
+        "cloud-control-plane-defense-developer",
+        "AWSRevokeOlderSessions",
+    ) not in iam.policies
+
+    replay = responder.execute(
+        make_alert(),
+        containment_time=containment_time,
+    )
+
+    assert replay["status"] == "QUARANTINE_VERIFIED"
+    assert replay["verified_controls"] == [
+        "explicit_deny_all",
+        "session_revocation_policy",
+    ]
+
+    deny = iam.policies[
+        (
+            "role",
+            "cloud-control-plane-defense-developer",
+            "CCPDQuarantineDenyAll",
+        )
+    ]
+    session = iam.policies[
+        (
+            "role",
+            "cloud-control-plane-defense-developer",
+            "AWSRevokeOlderSessions",
+        )
+    ]
+
+    assert deny == DENY_ALL_DOCUMENT
+    assert (
+        session["Statement"][0]["Condition"]["DateLessThan"]
+        ["aws:TokenIssueTime"]
+        == "2026-11-24T20:00:30Z"
+    )
+
+    assert [
+        item[2]
+        for item in iam.mutations
+        if item[0] == "put_role_policy"
+    ] == [
+        "CCPDQuarantineDenyAll",
+        "AWSRevokeOlderSessions",
+        "CCPDQuarantineDenyAll",
+        "AWSRevokeOlderSessions",
+    ]
+
+
+def test_user_rollback_dry_run_plans_only_originally_active_key():
+    responder, iam = make_responder()
+    quarantine = responder.execute(make_alert(USER_ARN))
+    state = quarantine["rollback_state"]
+
+    result = responder.rollback(
+        state,
+        requested_by="security-operator",
+        reason="Incident contained; restore for validation",
+    )
+
+    assert result["status"] == "ROLLBACK_DRY_RUN"
+    assert result["mutations_performed"] is False
+    assert len(result["planned_actions"]) == 1
+    actions = result["planned_actions"][0]
+    assert len(actions["policies"]) == 2
+    assert actions["access_keys"] == [{
+        "access_key_id": "AKIATEST000000000001",
+        "operation": "reactivate_originally_active_key",
+    }]
+    assert iam.keys[0]["Status"] == "Inactive"
+    assert iam.keys[1]["Status"] == "Inactive"
+
+
+def test_user_rollback_restores_only_captured_state_and_verifies():
+    responder, iam = make_responder()
+    quarantine = responder.execute(make_alert(USER_ARN))
+
+    result = responder.rollback(
+        quarantine["rollback_state"],
+        requested_by="security-operator",
+        reason="Approved incident recovery",
+        execute=True,
+    )
+
+    assert result["status"] == "ROLLBACK_VERIFIED"
+    assert result["errors"] == []
+    assert iam.keys[0]["Status"] == "Active"
+    assert iam.keys[1]["Status"] == "Inactive"
+    assert ("user", "ccpd-compromised-user", "CCPDQuarantineDenyAll") not in iam.policies
+    assert ("user", "ccpd-compromised-user", "AWSRevokeOlderSessions") not in iam.policies
+    assert len(result["verified_restorations"]) == 3
+
+
+def test_rollback_refuses_to_overwrite_policy_changed_after_quarantine():
+    responder, iam = make_responder()
+    quarantine = responder.execute(make_alert())
+    iam.policies[(
+        "role", "cloud-control-plane-defense-developer",
+        "CCPDQuarantineDenyAll",
+    )] = {
+        "Version": "2012-10-17",
+        "Statement": [{"Effect": "Deny", "Action": "s3:*", "Resource": "*"}],
+    }
+    mutation_count = len(iam.mutations)
+
+    result = responder.rollback(
+        quarantine["rollback_state"],
+        requested_by="security-operator",
+        reason="Test concurrent policy modification guard",
+        execute=True,
+    )
+
+    assert result["status"] == "ROLLBACK_BLOCKED"
+    assert result["mutations_performed"] is False
+    assert any("policy_changed_or_missing" in item for item in result["conflicts"])
+    assert len(iam.mutations) == mutation_count
+
+
+def test_rollback_requires_requester_and_reason():
+    responder, iam = make_responder()
+    quarantine = responder.execute(make_alert())
+
+    with pytest.raises(ResponderError, match="rollback_requester_required"):
+        responder.rollback(
+            quarantine["rollback_state"], requested_by="", reason="approved"
+        )
+
+    with pytest.raises(ResponderError, match="rollback_reason_required"):
+        responder.rollback(
+            quarantine["rollback_state"], requested_by="operator", reason=""
+        )
+
+    assert len(iam.mutations) == 2
+
+
+def test_chain_role_rollback_restores_original_session_policy():
+    iam = FakeIAM()
+
+    chain_role_name = "ccpd-chain-role"
+    chain_role_arn = (
+        f"arn:aws:iam::{ACCOUNT}:role/{chain_role_name}"
+    )
+    original_session_policy = {
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Sid": "OriginalChainRoleSessionRule",
+            "Effect": "Deny",
+            "Action": "iam:DeleteRole",
+            "Resource": "*",
+        }],
+    }
+
+    iam.get_role = lambda RoleName: {
+        "Role": {
+            "RoleName": RoleName,
+            "Arn": (
+                ROLE_ARN if RoleName == "cloud-control-plane-defense-developer"
+                else f"arn:aws:iam::{ACCOUNT}:role/{RoleName}"
+            ),
+            "Path": "/",
+        }
+    }
+
+    iam.policies[
+        ("role", chain_role_name, "AWSRevokeOlderSessions")
+    ] = original_session_policy
+
+    responder, _ = make_responder(iam)
+    alert = make_alert(
+        metadata={"role_chain": [chain_role_name]}
+    )
+
+    quarantine = responder.execute(alert)
+
+    assert quarantine["status"] == "QUARANTINE_VERIFIED"
+    assert chain_role_name in quarantine["chain_roles_revoked"]
+
+    snapshot = next(
+        item for item in quarantine["rollback_state"]["principals"]
+        if item["principal"]["arn"] == chain_role_arn
+    )
+    assert snapshot["policies"]["AWSRevokeOlderSessions"] == {
+        "existed": True,
+        "document": original_session_policy,
+    }
+    assert snapshot["applied_policies"]["AWSRevokeOlderSessions"]
+
+    quarantined_policy = iam.policies[
+        ("role", chain_role_name, "AWSRevokeOlderSessions")
+    ]
+    assert quarantined_policy != original_session_policy
+
+    rollback = responder.rollback(
+        quarantine["rollback_state"],
+        requested_by="test-operator",
+        reason="Verify chain-role restoration",
+        execute=True,
+    )
+
+    assert rollback["status"] == "ROLLBACK_VERIFIED"
+    assert iam.policies[
+        ("role", chain_role_name, "AWSRevokeOlderSessions")
+    ] == original_session_policy
+    assert f"policy:{chain_role_name}:AWSRevokeOlderSessions" in (
+        rollback["verified_restorations"]
+    )
+
+
+def test_partial_rollback_can_be_retried_without_conflicting_with_restored_policy():
+    iam = FakeIAM()
+    responder, _ = make_responder(iam)
+
+    original_deny_policy = {
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Sid": "OriginalDenyRule",
+            "Effect": "Deny",
+            "Action": "iam:DeleteUser",
+            "Resource": "*",
+        }],
+    }
+    original_session_policy = {
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Sid": "OriginalSessionRule",
+            "Effect": "Deny",
+            "Action": "iam:DeleteRole",
+            "Resource": "*",
+        }],
+    }
+
+    iam.policies[(
+        "role", "cloud-control-plane-defense-developer",
+        "CCPDQuarantineDenyAll"
+    )] = original_deny_policy
+    iam.policies[(
+        "role", "cloud-control-plane-defense-developer",
+        "AWSRevokeOlderSessions"
+    )] = original_session_policy
+
+    quarantine = responder.execute(make_alert())
+    assert quarantine["status"] == "QUARANTINE_VERIFIED"
+
+    # Fail the second restoration after the first policy has been restored.
+    iam.fail_once_policy_name = "AWSRevokeOlderSessions"
+
+    first_attempt = responder.rollback(
+        quarantine["rollback_state"],
+        requested_by="test-operator",
+        reason="Test interrupted rollback",
+        execute=True,
+    )
+    assert first_attempt["status"] == "ROLLBACK_UNCONFIRMED"
+    assert iam.policies[(
+        "role", "cloud-control-plane-defense-developer",
+        "CCPDQuarantineDenyAll"
+    )] == original_deny_policy
+
+    retry = responder.rollback(
+        quarantine["rollback_state"],
+        requested_by="test-operator",
+        reason="Retry interrupted rollback",
+        execute=True,
+    )
+
+    assert retry["status"] == "ROLLBACK_VERIFIED"
+    assert iam.policies[(
+        "role", "cloud-control-plane-defense-developer",
+        "CCPDQuarantineDenyAll"
+    )] == original_deny_policy
+    assert iam.policies[(
+        "role", "cloud-control-plane-defense-developer",
+        "AWSRevokeOlderSessions"
+    )] == original_session_policy
+    assert "policy:cloud-control-plane-defense-developer:CCPDQuarantineDenyAll" in (
+        retry["verified_restorations"]
+    )
+    assert "policy:cloud-control-plane-defense-developer:AWSRevokeOlderSessions" in (
+        retry["verified_restorations"]
+    )

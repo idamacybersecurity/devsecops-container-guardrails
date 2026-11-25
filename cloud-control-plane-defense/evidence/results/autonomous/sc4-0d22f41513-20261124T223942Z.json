@@ -1,0 +1,107 @@
+{
+  "scenario": "4 IAM PutUserPolicy privilege escalation",
+  "attack": "iam:PutUserPolicy",
+  "attacker": "arn:aws:iam::000000000000:user/ccpd-sc3-attacker-0d22f41513",
+  "target_user": "ccpd-sc3-attacker-0d22f41513",
+  "operator_actions": [],
+  "watcher_action": {
+    "alert_event_time": "2026-11-24T22:39:36.954000+00:00",
+    "attempts": 1,
+    "detection_type": "iam_privilege_escalation",
+    "error_code": null,
+    "error_type": null,
+    "errors": [],
+    "event_id": "fba2182c-444f-43d5-bfb6-77e1a55a5518",
+    "event_to_verified_seconds": 1.19145,
+    "execution_duration_seconds": 0.7014508930005832,
+    "logged_utc": "2026-11-24T22:39:38.145490+00:00",
+    "mode": "EXECUTE",
+    "rollback_state": {
+      "account_id": "000000000000",
+      "captured_at": "2026-11-24T22:39:37.541988+00:00",
+      "event_id": "fba2182c-444f-43d5-bfb6-77e1a55a5518",
+      "principals": [
+        {
+          "access_keys": [
+            {
+              "access_key_id": "LKIAQAAAAAAAECBIO57C",
+              "status": "Active"
+            }
+          ],
+          "applied_policies": {
+            "AWSRevokeOlderSessions": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Condition": {
+                    "DateLessThan": {
+                      "aws:TokenIssueTime": "2026-11-24T22:40:07Z"
+                    }
+                  },
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "RevokeOlderTemporarySessions"
+                }
+              ],
+              "Version": "2012-10-17"
+            },
+            "CCPDQuarantineDenyAll": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "CCPDExplicitDenyAll"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          },
+          "policies": {
+            "AWSRevokeOlderSessions": {
+              "document": null,
+              "existed": false
+            },
+            "CCPDQuarantineDenyAll": {
+              "document": null,
+              "existed": false
+            }
+          },
+          "principal": {
+            "arn": "arn:aws:iam::000000000000:user/ccpd-sc3-attacker-0d22f41513",
+            "name": "ccpd-sc3-attacker-0d22f41513",
+            "partition": "aws",
+            "type": "user"
+          }
+        }
+      ],
+      "version": 1
+    },
+    "status": "QUARANTINE_VERIFIED",
+    "target": "arn:aws:iam::000000000000:user/ccpd-sc3-attacker-0d22f41513",
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive"
+    ],
+    "watcher_seen_utc": "2026-11-24T22:39:37.443717+00:00"
+  },
+  "verified": true,
+  "cleanup_problems": [],
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "attack_call": "SUCCEEDED",
+  "attack_call_duration_s": 0.174,
+  "malicious_policy_verified": true,
+  "readback": {
+    "explicit_deny_policy": true,
+    "session_revocation_policy": true,
+    "all_access_keys_inactive": true
+  },
+  "event_to_verified_s": 1.432,
+  "call_to_verified_s": 1.52,
+  "watcher_attempts": 1,
+  "original_key_blocked": true,
+  "original_key_error_code": "AccessDenied",
+  "key_rejection_wait_seconds": 4.24,
+  "evidence_directory": "/tmp/ccpd-sc4-cezs_qo0"
+}

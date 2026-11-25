@@ -1,0 +1,13 @@
+name: ccpd-free
+
+services:
+  localstack:
+    image: localstack/localstack:2026.10.7
+    container_name: ccpd-free-localstack
+    env_file:
+      - .env
+    environment:
+      DEBUG: "0"
+    ports:
+      - "127.0.0.1:4567:4566"
+    restart: unless-stopped

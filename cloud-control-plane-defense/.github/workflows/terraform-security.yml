@@ -1,0 +1,186 @@
+name: Terraform OPA Security Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+      - "policies/**"
+      - "scripts/validate_opa.sh"
+      - ".github/workflows/terraform-security.yml"
+  pull_request:
+    paths:
+      - "terraform/**"
+      - "policies/**"
+      - "scripts/validate_opa.sh"
+      - ".github/workflows/terraform-security.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-opa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-policy-checks:
+    name: Static Terraform and OPA checks
+    runs-on: ubuntu-latest
+    outputs:
+      localstack_token_available: ${{ steps.token-check.outputs.available }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+
+      - name: Set up Conftest
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="0.71.1"
+          ARCHIVE="conftest_${VERSION}_Linux_x86_64.tar.gz"
+          curl -fsSLo "/tmp/${ARCHIVE}" \
+            "https://github.com/open-policy-agent/conftest/releases/download/v${VERSION}/${ARCHIVE}"
+          tar -xzf "/tmp/${ARCHIVE}" -C /tmp conftest
+          sudo install /tmp/conftest /usr/local/bin/conftest
+          conftest --version
+
+      - name: Terraform formatting
+        run: terraform fmt -check -recursive terraform
+
+      - name: Initialize Terraform without a backend
+        run: terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
+
+      - name: Terraform validation
+        run: terraform -chdir=terraform validate
+
+      - name: Validate compliant policy fixture
+        run: |
+          conftest test \
+            --policy policies \
+            policies/fixtures/valid-plan.json
+
+      - name: Validate adversarial policy fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$(mktemp)"
+          trap 'rm -f "$output"' EXIT
+
+          if conftest test \
+            --policy policies \
+            policies/fixtures/invalid-plan.json >"$output" 2>&1; then
+            cat "$output"
+            echo "ERROR: Adversarial fixture unexpectedly passed."
+            exit 1
+          else
+            status=$?
+          fi
+
+          cat "$output"
+          failures="$(grep -cE 'FAIL[[:space:]]+-' "$output" || true)"
+
+          if [[ "$status" -eq 0 || "$failures" -ne 8 ]]; then
+            echo "ERROR: Expected exactly 8 rejected violations; found $failures."
+            exit 1
+          fi
+
+          echo "PASS: All 8 adversarial violations were rejected."
+
+      - name: Check LocalStack CI secret availability
+        id: token-check
+        shell: bash
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+        run: |
+          if [[ -n "${LOCALSTACK_AUTH_TOKEN:-}" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "LocalStack integration credentials are available."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::LocalStack integration gate skipped: LOCALSTACK_AUTH_TOKEN is not configured or unavailable to this event."
+            echo "### LocalStack integration not run" >> "$GITHUB_STEP_SUMMARY"
+            echo "Configure the repository secret LOCALSTACK_AUTH_TOKEN to enable the fresh LocalStack Terraform plan gate." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  localstack-terraform-plan:
+    name: Fresh LocalStack Terraform plan and OPA gate
+    runs-on: ubuntu-latest
+    needs: static-policy-checks
+    if: needs.static-policy-checks.outputs.localstack_token_available == 'true'
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+
+      - name: Set up Conftest
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="0.71.1"
+          ARCHIVE="conftest_${VERSION}_Linux_x86_64.tar.gz"
+          curl -fsSLo "/tmp/${ARCHIVE}" \
+            "https://github.com/open-policy-agent/conftest/releases/download/v${VERSION}/${ARCHIVE}"
+          tar -xzf "/tmp/${ARCHIVE}" -C /tmp conftest
+          sudo install /tmp/conftest /usr/local/bin/conftest
+          conftest --version
+
+      - name: Start isolated LocalStack
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d \
+            --name ccpd-ci-localstack \
+            -p 4566:4566 \
+            -e LOCALSTACK_AUTH_TOKEN \
+            -e DEBUG=0 \
+            localstack/localstack:2026.10.7
+
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4566/_localstack/health >/dev/null; then
+              echo "LocalStack health endpoint is responding."
+              exit 0
+            fi
+
+            if [[ "$(docker inspect -f '{{.State.Running}}' ccpd-ci-localstack 2>/dev/null || true)" != "true" ]]; then
+              docker logs ccpd-ci-localstack
+              echo "ERROR: LocalStack container stopped before becoming healthy."
+              exit 1
+            fi
+
+            sleep 5
+          done
+
+          docker logs ccpd-ci-localstack
+          echo "ERROR: LocalStack did not become healthy within 5 minutes."
+          exit 1
+
+      - name: Initialize isolated Terraform state
+        run: terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
+
+      - name: Run complete OPA security gate
+        run: bash scripts/validate_opa.sh
+
+      - name: Collect LocalStack logs on failure
+        if: failure()
+        run: docker logs ccpd-ci-localstack
+
+      - name: Stop LocalStack
+        if: always()
+        run: docker rm -f ccpd-ci-localstack || true

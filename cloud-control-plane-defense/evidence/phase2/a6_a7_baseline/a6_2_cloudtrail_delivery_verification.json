@@ -1,0 +1,40 @@
+{
+  "verification": "A6.2 CloudTrail and audit bucket live verification",
+  "trail_name": "cloud-control-plane-defense-trail",
+  "bucket": "cloud-control-plane-defense-audit",
+  "is_logging": true,
+  "start_logging_time": "2026-11-24 14:50:45.496000+00:00",
+  "multi_region": true,
+  "global_service_events": true,
+  "log_file_validation": true,
+  "total_bucket_objects": 3069,
+  "november_24_object_count": 16,
+  "newest_five_objects": [
+    {
+      "key": "AWSLogs/000000000000/CloudTrail/eu-north-1/2026/11/24/000000000000_CloudTrail_eu-north-1_20261124T1534Z_435ef282.json.gz",
+      "size": 878,
+      "last_modified": "2026-11-24T15:34:52+00:00"
+    },
+    {
+      "key": "AWSLogs/000000000000/CloudTrail/eu-north-1/2026/11/24/000000000000_CloudTrail_eu-north-1_20261124T1533Z_fc1186ce.json.gz",
+      "size": 559,
+      "last_modified": "2026-11-24T15:33:07+00:00"
+    },
+    {
+      "key": "AWSLogs/000000000000/CloudTrail/eu-north-1/2026/11/24/000000000000_CloudTrail_eu-north-1_20261124T1531Z_0cb21f47.json.gz",
+      "size": 944,
+      "last_modified": "2026-11-24T15:31:16+00:00"
+    },
+    {
+      "key": "AWSLogs/000000000000/CloudTrail/eu-north-1/2026/11/24/000000000000_CloudTrail_eu-north-1_20261124T1525Z_ee45e984.json.gz",
+      "size": 561,
+      "last_modified": "2026-11-24T15:25:06+00:00"
+    },
+    {
+      "key": "AWSLogs/000000000000/CloudTrail/eu-north-1/2026/11/24/000000000000_CloudTrail_eu-north-1_20261124T1524Z_6b7dfb70.json.gz",
+      "size": 510,
+      "last_modified": "2026-11-24T15:24:00+00:00"
+    }
+  ],
+  "delivery_evidence": true
+}

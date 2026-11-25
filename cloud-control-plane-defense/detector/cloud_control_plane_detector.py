@@ -146,15 +146,82 @@ def parse_event(payload: Any) -> ParsedEvent:
 
     caller_arn = identity.get("arn")
     caller_type = identity.get("type", "Unknown")
-    account_id = detail.get(
-        "recipientAccountId",
-        detail.get("userIdentity", {}).get("accountId", ""),
-    )
-
     if not isinstance(caller_arn, str) or not caller_arn.strip():
         raise ValueError("userIdentity.arn is missing")
     if not isinstance(caller_type, str):
         raise ValueError("userIdentity.type is invalid")
+
+    arn_parts = caller_arn.split(":", 5)
+
+    if (
+        len(arn_parts) != 6
+        or arn_parts[0] != "arn"
+        or not re.fullmatch(r"\d{12}", arn_parts[4])
+    ):
+        raise ValueError("userIdentity.arn has an invalid account identifier")
+
+    principal_account_id = str(identity.get("accountId") or "")
+    account_id = str(
+        detail.get("recipientAccountId") or principal_account_id
+    )
+
+    if not re.fullmatch(r"\d{12}", principal_account_id):
+        raise ValueError("userIdentity.accountId is missing or invalid")
+
+    if not re.fullmatch(r"\d{12}", account_id):
+        raise ValueError("event recipient account ID is missing or invalid")
+
+    if arn_parts[4] != principal_account_id:
+        raise ValueError("userIdentity.arn account does not match principal account")
+
+    if caller_type == "Root" and (
+        arn_parts[1] != "aws"
+        or arn_parts[2] != "iam"
+        or arn_parts[3] != ""
+        or arn_parts[5] != "root"
+    ):
+        raise ValueError("Root identity has an invalid root ARN")
+
+    if caller_type == "IAMUser" and arn_parts[1] != "aws":
+        raise ValueError("IAMUser identity has an unsupported ARN partition")
+
+    if caller_type == "IAMUser" and (
+        arn_parts[2] != "iam"
+        or arn_parts[3] != ""
+        or not arn_parts[5].startswith("user/")
+        or len(arn_parts[5]) <= len("user/")
+        or any(not segment for segment in arn_parts[5][len("user/"):].split("/"))
+    ):
+        raise ValueError("IAMUser identity has an invalid principal ARN or region")
+
+    if caller_type == "FederatedUser":
+        resource_parts = arn_parts[5].split("/")
+        if (
+            arn_parts[1] != "aws"
+            or arn_parts[2] != "sts"
+            or arn_parts[3] != ""
+            or len(resource_parts) != 2
+            or resource_parts[0] != "federated-user"
+            or not resource_parts[1]
+        ):
+            raise ValueError(
+                "FederatedUser identity has an invalid federated-user ARN"
+            )
+
+    if caller_type in {"AssumedRole", "AWSService"}:
+        resource_parts = arn_parts[5].split("/")
+        if (
+            arn_parts[1] != "aws"
+            or arn_parts[2] != "sts"
+            or arn_parts[3] != ""
+            or len(resource_parts) != 3
+            or resource_parts[0] != "assumed-role"
+            or not resource_parts[1]
+            or not resource_parts[2]
+        ):
+            raise ValueError(
+                f"{caller_type} identity has an invalid assumed-role ARN"
+            )
 
     return ParsedEvent(
         event_id=event_id,

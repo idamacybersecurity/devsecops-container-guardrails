@@ -45,9 +45,19 @@ def main():
     if others:
         sys.exit("REFUSED: consumer/watcher already running:\n" + others)
     iam, kms, s3, sqs = c("iam"), c("kms"), c("s3"), c("sqs")
-    queue = os.environ.get("SECURITY_EVENT_QUEUE_URL") or next(
-        u for u in sqs.list_queues().get("QueueUrls", []) if "security-events" in u and "dlq" not in u)
-    sqs.purge_queue(QueueUrl=queue)
+    queue = os.environ.get("SECURITY_EVENT_QUEUE_URL")
+    if not queue or "/ccpd-autonomous-test-" not in queue:
+        sys.exit(
+            "REFUSED: set SECURITY_EVENT_QUEUE_URL to an isolated "
+            "ccpd-autonomous-test-* queue. Main security queues are prohibited."
+        )
+    attrs = sqs.get_queue_attributes(
+        QueueUrl=queue,
+        AttributeNames=["QueueArn"],
+    )["Attributes"]
+    if "ccpd-autonomous-test-" not in attrs.get("QueueArn", ""):
+        sys.exit("REFUSED: queue ARN is not an approved isolated test queue.")
+    # Never purge: preserve queued evidence and prevent destructive fallback.
     time.sleep(2)
 
     tag = uuid.uuid4().hex[:8]
@@ -61,12 +71,36 @@ def main():
 
     work = Path(tempfile.mkdtemp(prefix="ccpd-sc2-"))
     log = work / "log.jsonl"
+    watcher_out = work / "watcher.out"
     watcher = subprocess.Popen(
-        [sys.executable, "scripts/auto_soar_watcher.py", "--queue-url", queue, "--config", "config/soar.json",
-         "--alerts", str(work / "alerts.jsonl"), "--state", str(work / "state.json"), "--log", str(log),
+        [sys.executable, "-u", "scripts/auto_soar_watcher.py",
+         "--queue-url", queue, "--config", "config/soar.json",
+         "--alerts", str(work / "alerts.jsonl"),
+         "--state", str(work / "state.json"),
+         "--log", str(log),
+         "--checkpoint", str(work / "checkpoint.json"),
          "--duration", "300", "--execute"],
-        cwd=ROOT, stdout=open(work / "watcher.out", "w"), stderr=subprocess.STDOUT, start_new_session=True)
-    time.sleep(3)
+        cwd=ROOT, stdout=open(watcher_out, "w"),
+        stderr=subprocess.STDOUT, start_new_session=True)
+
+    # Do not launch attacks until this run's watcher is initialized.
+    ready_deadline = time.time() + 15
+    while time.time() < ready_deadline:
+        if watcher.poll() is not None:
+            raise RuntimeError(
+                "watcher_exited_before_ready: " +
+                watcher_out.read_text(errors="replace")
+            )
+        if watcher_out.exists() and "WATCHER_READY" in watcher_out.read_text(errors="replace"):
+            break
+        time.sleep(0.1)
+    else:
+        watcher.terminate()
+        watcher.wait(timeout=10)
+        raise RuntimeError(
+            "watcher_ready_timeout: " +
+            watcher_out.read_text(errors="replace")
+        )
 
     res = {"scenario": "2 defense evasion (KMS rotation, S3 policy delete), quarantine only, autonomous",
            "operator_actions": [], "restoration": "NOT performed by this run (S3: drift reconciler; KMS: manual)",

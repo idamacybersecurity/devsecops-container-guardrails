@@ -1,0 +1,22 @@
+1 {'reset_admin_kms': 0.045, 'admin_kms': 0.011, 'reset_user_iam': 0.012, 'user_iam': 0.091, 'reset_user_kms': 0.011, 'user_kms': 0.021}
+2 {'reset_admin_kms': 0.012, 'admin_kms': 0.01, 'reset_user_iam': 0.01, 'user_iam': 0.063, 'reset_user_kms': 0.01, 'user_kms': 0.021}
+3 {'reset_admin_kms': 0.023, 'admin_kms': 0.022, 'reset_user_iam': 0.02, 'user_iam': 0.147, 'reset_user_kms': 0.017, 'user_kms': 0.022}
+4 {'reset_admin_kms': 0.013, 'admin_kms': 0.013, 'reset_user_iam': 0.014, 'user_iam': 0.088, 'reset_user_kms': 0.013, 'user_kms': 0.022}
+5 {'reset_admin_kms': 0.011, 'admin_kms': 0.009, 'reset_user_iam': 0.009, 'user_iam': 0.066, 'reset_user_kms': 0.01, 'user_kms': 0.017}
+6 {'reset_admin_kms': 0.01, 'admin_kms': 0.01, 'reset_user_iam': 0.01, 'user_iam': 0.064, 'reset_user_kms': 0.013, 'user_kms': 0.018}
+7 {'reset_admin_kms': 0.01, 'admin_kms': 0.01, 'reset_user_iam': 0.011, 'user_iam': 0.085, 'reset_user_kms': 0.012, 'user_kms': 0.017}
+8 {'reset_admin_kms': 0.012, 'admin_kms': 0.01, 'reset_user_iam': 0.012, 'user_iam': 0.083, 'reset_user_kms': 0.011, 'user_kms': 0.018}
+9 {'reset_admin_kms': 0.012, 'admin_kms': 0.014, 'reset_user_iam': 0.014, 'user_iam': 0.071, 'reset_user_kms': 0.013, 'user_kms': 0.023}
+10 {'reset_admin_kms': 4.404, 'admin_kms': 0.009, 'reset_user_iam': 0.009, 'user_iam': 0.059, 'reset_user_kms': 0.01, 'user_kms': 0.015}
+11 {'reset_admin_kms': 0.012, 'admin_kms': 0.011, 'reset_user_iam': 0.016, 'user_iam': 0.072, 'reset_user_kms': 0.011, 'user_kms': 0.022}
+12 {'reset_admin_kms': 0.013, 'admin_kms': 0.014, 'reset_user_iam': 0.011, 'user_iam': 0.078, 'reset_user_kms': 0.021, 'user_kms': 0.018}
+13 {'reset_admin_kms': 0.01, 'admin_kms': 0.01, 'reset_user_iam': 0.015, 'user_iam': 0.104, 'reset_user_kms': 0.013, 'user_kms': 0.021}
+14 {'reset_admin_kms': 0.012, 'admin_kms': 0.013, 'reset_user_iam': 0.013, 'user_iam': 0.064, 'reset_user_kms': 0.012, 'user_kms': 0.021}
+15 {'reset_admin_kms': 0.01, 'admin_kms': 0.011, 'reset_user_iam': 0.01, 'user_iam': 0.06, 'reset_user_kms': 0.01, 'user_kms': 0.019}
+16 {'reset_admin_kms': 0.023, 'admin_kms': 0.012, 'reset_user_iam': 0.013, 'user_iam': 0.094, 'reset_user_kms': 0.013, 'user_kms': 0.022}
+17 {'reset_admin_kms': 0.012, 'admin_kms': 0.01, 'reset_user_iam': 0.01, 'user_iam': 0.082, 'reset_user_kms': 0.011, 'user_kms': 0.017}
+18 {'reset_admin_kms': 5.137, 'admin_kms': 0.01, 'reset_user_iam': 0.01, 'user_iam': 0.063, 'reset_user_kms': 0.01, 'user_kms': 0.015}
+19 {'reset_admin_kms': 0.013, 'admin_kms': 0.011, 'reset_user_iam': 0.009, 'user_iam': 0.077, 'reset_user_kms': 0.01, 'user_kms': 0.016}
+20 {'reset_admin_kms': 0.013, 'admin_kms': 0.011, 'reset_user_iam': 0.01, 'user_iam': 0.064, 'reset_user_kms': 0.011, 'user_kms': 0.023}
+
+rounds with a call >3s: 2/20

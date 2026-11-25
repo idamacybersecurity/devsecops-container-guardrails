@@ -1,0 +1,63 @@
+{
+  "scenario": "1 multi-hop IAM privilege escalation, autonomous",
+  "operator_actions": [],
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/scripts/auto_soar_watcher.py",
+    "cloud-control-plane-defense/scripts/run_scenario1_autonomous.py",
+    "cloud-control-plane-defense/scripts/run_scenario2_autonomous.py",
+    "cloud-control-plane-defense/soar/cloud_soar_responder.py"
+  ],
+  "temporary_permission": "cicd may iam:AttachRolePolicy on arn:aws:iam::000000000000:role/ccpd-sc1-target-327c753c only (removed at end)",
+  "attack_call_s": 0.21,
+  "watcher_action": {
+    "alert_event_time": "2026-11-24T20:51:08.968000+00:00",
+    "attempts": 1,
+    "detection_type": "iam_privilege_escalation",
+    "errors": [],
+    "event_id": "75abcefd-2a88-4496-a397-6a39c67ea8d2",
+    "event_to_verified_seconds": 0.743662,
+    "execution_duration_seconds": 0.6109143359935842,
+    "logged_utc": "2026-11-24T20:51:09.711720+00:00",
+    "mode": "EXECUTE",
+    "status": "QUARANTINE_VERIFIED",
+    "target": "arn:aws:iam::000000000000:user/ccpd-sc1-auto-327c753c",
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive",
+      "chain_role_session_revocation:cloud-control-plane-defense-developer",
+      "chain_role_session_revocation:cloud-control-plane-defense-cicd"
+    ],
+    "watcher_seen_utc": "2026-11-24T20:51:09.094450+00:00"
+  },
+  "readback": {
+    "deny_policy": true,
+    "session_policy": true,
+    "keys_inactive": true
+  },
+  "verified": true,
+  "event_to_verified_s": 0.906,
+  "call_to_verified_s": 1.097,
+  "watcher_attempts": 1,
+  "reuse_original_key": "blocked: AccessDenied",
+  "call_to_blocked_s": 4.862,
+  "event_to_blocked_s": 4.671,
+  "issued_session_after_quarantine": "STILL WORKS (revocation policy not enforced on this emulator)",
+  "policies_added_to_shared_roles": {
+    "cloud-control-plane-defense-developer": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    },
+    "cloud-control-plane-defense-cicd": {
+      "inline": [
+        "AWSRevokeOlderSessions"
+      ],
+      "attached": []
+    }
+  },
+  "cleanup_problems": [],
+  "roles_restored_to_original": true
+}

@@ -55,9 +55,19 @@ def main():
     if others:
         sys.exit("REFUSED: consumer/watcher already running:\n" + others)
     iam, sqs = c("iam"), c("sqs")
-    queue = os.environ.get("SECURITY_EVENT_QUEUE_URL") or next(
-        u for u in sqs.list_queues().get("QueueUrls", []) if "security-events" in u and "dlq" not in u)
-    sqs.purge_queue(QueueUrl=queue)
+    queue = os.environ.get("SECURITY_EVENT_QUEUE_URL")
+    if not queue or "/ccpd-autonomous-test-" not in queue:
+        sys.exit(
+            "REFUSED: set SECURITY_EVENT_QUEUE_URL to an isolated "
+            "ccpd-autonomous-test-* queue. Main security queues are prohibited."
+        )
+    attrs = sqs.get_queue_attributes(
+        QueueUrl=queue,
+        AttributeNames=["QueueArn"],
+    )["Attributes"]
+    if "ccpd-autonomous-test-" not in attrs.get("QueueArn", ""):
+        sys.exit("REFUSED: queue ARN is not an approved isolated test queue.")
+    # Never purge: preserve queued evidence and prevent destructive fallback.
     time.sleep(2)
 
     tag = uuid.uuid4().hex[:8]

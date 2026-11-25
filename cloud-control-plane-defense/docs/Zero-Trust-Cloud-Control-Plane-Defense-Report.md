@@ -278,3 +278,132 @@ independent polling, but native StopLogging event capture and SOAR containment
 for that alert remain unverified. Live AWS STS revocation semantics and full
 end-to-end latency also remain unverified and are not presented as completed
 proof.
+
+---
+
+## 9. Phase 2 — Harden, Prove and Extend
+
+### 9.1 Scope and execution boundary
+
+Phase 2 extends the existing zero-cost LocalStack-based cloud control-plane
+defense implementation. Experiments use the existing host, open-source
+components, and the free LocalStack tier. No paid AWS services or paid APIs
+are required by the intended test workflow.
+
+Previously submitted Phase 2 items 1–5 remain part of the project evidence.
+This section records the additional hardening, adversarial validation,
+performance investigation, and evidence gathered during the subsequent work.
+
+### 9.2 Autonomous attack and containment validation
+
+The Phase 2 evidence includes autonomous scenario executions covering
+cross-principal IAM activity, CloudTrail defense evasion, unauthorized IAM
+changes, secrets enumeration, and slow-and-low enumeration.
+
+Scenario results are retained as machine-readable JSON under
+`evidence/results/autonomous/`. These records are the source of truth for
+individual execution outcomes. A scenario is not considered fully proven
+merely because its runner or detection rule exists.
+
+The cross-user access-key containment exercise demonstrated that the
+attacker identity could be quarantined without quarantining the victim.
+Independent cleanup verification confirmed that disposable test identities
+were removed, the isolated queue was empty, and original/test EventBridge
+targets were preserved.
+
+Additional evidence covers CloudTrail deletion attempts, SSM parameter
+enumeration, and slow-and-low secrets enumeration. Synthetic event tests and
+native service-event delivery are distinguished in the underlying evidence;
+they must not be treated as equivalent.
+
+### 9.3 Session-aware containment and recovery
+
+The Phase 2 implementation extends IAM containment and recovery handling
+with session-aware quarantine and rollback support.
+
+Containment and rollback claims must be interpreted against the recorded
+LocalStack tests and independent readbacks. LocalStack acceptance or
+readback of an IAM policy does not establish that an already-issued STS
+session token would be invalidated in live AWS.
+
+### 9.4 Drift detection and integrity protection
+
+Phase 2 extends drift coverage beyond the original public-ingress and IAM
+trust-policy demonstrations. The evidence set includes additional IAM,
+KMS, CloudTrail, and alternate-path drift work, together with baseline
+integrity artifacts.
+
+The HMAC integrity mechanism and its validation evidence are retained under
+`evidence/phase2/`. Integrity verification on the test host must not be
+described as independent protection against an attacker who can also access
+the HMAC secret. The report must preserve the documented trust-boundary
+limitation wherever the key remains accessible to the host being protected.
+
+### 9.5 Terraform and policy-as-code validation
+
+Terraform plans, policy validation artifacts, and regression outputs are
+retained with the Phase 2 evidence. The policy gate is intended to reject
+unsafe infrastructure changes before deployment.
+
+A configured CI workflow or a policy file alone is not proof that every
+required negative case has passed. Claims about individual Rego rules,
+Terraform plan rejection, and pull-request execution must be supported by
+the corresponding recorded test output.
+
+### 9.6 Native event-to-containment performance
+
+The isolated native-event benchmark is reported separately from the earlier
+SOAR-only execution benchmark.
+
+| Measurement | Result |
+|---|---:|
+| Benchmark runs | 10 |
+| Independently verified quarantines | 10/10 |
+| End-to-end results under 1 second | 9/10 |
+| Median event-time-to-verified | 0.467 seconds |
+| P90 event-time-to-verified | 0.553 seconds |
+| Maximum event-time-to-verified | 18.167 seconds |
+| Responder execution in the outlier | Approximately 0.274 seconds |
+
+The 18.167-second outlier indicates that most of the delay occurred before
+responder completion. The precise upstream cause has not been established.
+
+The scheduled-versus-manual snapshot experiment identified an association
+between scheduled snapshot activity and long calls. This is an experimental
+observation, not proof that snapshot activity caused the delay.
+
+The earlier ten-run SOAR-only benchmark, with mean execution latency of
+approximately 0.254 seconds, measures a different portion of the workflow.
+It must not be presented as the end-to-end event-to-verified-quarantine
+latency.
+
+Detailed methodology, measurements, integrity records, and qualifications
+are documented in
+`evidence/phase2/SECTION_B_FINAL_REPORT.md`.
+
+### 9.7 Evidence and remaining limitations
+
+Phase 2 evidence is retained in `evidence/phase2/` and
+`evidence/results/autonomous/`, including benchmark records, autonomous
+scenario results, bypass and regression artifacts, Terraform evidence,
+integrity artifacts, and supporting probe output.
+
+The following limitations remain material:
+
+- The 18.167-second end-to-end outlier has not been conclusively explained.
+- The snapshot experiment does not establish causation.
+- LocalStack behavior does not establish all live AWS service semantics.
+- LocalStack policy readback does not prove invalidation of an already-issued
+  STS token in live AWS.
+- Native CloudTrail StopLogging event delivery and automated SOAR containment
+  for that native event remain unverified. Independent state-transition
+  polling demonstrated detection, but does not establish native event
+  attribution or SOAR containment.
+- Synthetic event injection is not proof of native CloudTrail event delivery.
+- Any HMAC trust-boundary limitation must remain explicit until the key is
+  demonstrably inaccessible to the host under test.
+
+The detailed Phase 2 performance report and evidence records take precedence
+for the measurements and individual experiment outcomes. Test totals and
+scenario completion claims must be taken from the corresponding captured
+test outputs, not inferred from the existence of test files or scripts.

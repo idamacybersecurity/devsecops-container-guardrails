@@ -3,7 +3,6 @@
 
 import argparse
 import hashlib
-import hmac
 import json
 import os
 import stat
@@ -22,13 +21,16 @@ PROJECT = Path(__file__).resolve().parents[1]
 TF_DIR = PROJECT / "terraform"
 RUNTIME = PROJECT / "evidence" / "runtime"
 BASELINE = RUNTIME / "approved-drift-baseline.json"
-SIGNATURE = RUNTIME / "approved-drift-baseline.hmac"
-KEY_FILE = RUNTIME / "drift-hmac.key"
+SIGNATURE = RUNTIME / "approved-drift-baseline.sig"
+ALLOWED_SIGNERS = RUNTIME / "ccpd-allowed-signers"
+SIGNING_IDENTITY = "ccpd-drift-baseline"
+SIGNING_NAMESPACE = "ccpd-drift-baseline"
 
 ENDPOINT = "http://127.0.0.1:4566"
 REGION = "eu-north-1"
 
-SG_ID = "sg-25097a9a8de3143e7"
+SG_ID = "sg-ba54daaa7eeaecdec"
+KMS_KEY_ID = "c1e8e63b-2066-4702-a17e-6821de528415"
 
 BUCKETS = {
     "audit": "cloud-control-plane-defense-audit",
@@ -200,6 +202,154 @@ def normalize_live_encryption(configuration):
     }
 
 
+def iam_identity_inventory(iam):
+    """Return stable IAM user and access-key identity state."""
+    inventory = {}
+    paginator = iam.get_paginator("list_users")
+
+    for page in paginator.paginate():
+        for user in page.get("Users", []):
+            username = user["UserName"]
+            keys = iam.list_access_keys(UserName=username).get(
+                "AccessKeyMetadata", []
+            )
+            inventory[username] = {
+                "arn": user["Arn"],
+                "user_id": user["UserId"],
+                "keys": sorted(
+                    [
+                        {
+                            "id": key["AccessKeyId"],
+                            "status": key["Status"],
+                        }
+                        for key in keys
+                    ],
+                    key=lambda item: item["id"],
+                ),
+            }
+
+    return {"users": {name: inventory[name] for name in sorted(inventory)}}
+
+
+def normalize_event_selectors(response):
+    """Normalize CloudTrail selectors and ignore API response metadata."""
+    selectors = response.get("EventSelectors") or []
+    advanced = response.get("AdvancedEventSelectors") or []
+
+    if not selectors and not advanced:
+        selectors = [{
+            "ReadWriteType": "All",
+            "IncludeManagementEvents": True,
+            "DataResources": [],
+            "ExcludeManagementEventSources": [],
+        }]
+
+    def canonical(value):
+        if isinstance(value, dict):
+            return {
+                key: canonical(value[key])
+                for key in sorted(value)
+            }
+        if isinstance(value, list):
+            items = [canonical(item) for item in value]
+            return sorted(
+                items,
+                key=lambda item: json.dumps(item, sort_keys=True),
+            )
+        return value
+
+    return {
+        "event_selectors": canonical(selectors),
+        "advanced_event_selectors": canonical(advanced),
+    }
+
+
+def cloudtrail_live_configuration(cloudtrail, trail_name):
+    """Read the managed CloudTrail destination, settings, and status."""
+    trails = cloudtrail.describe_trails(
+        includeShadowTrails=True
+    ).get("trailList", [])
+
+    matches = [
+        trail for trail in trails
+        if trail.get("Name") == trail_name
+    ]
+    if len(matches) != 1:
+        raise RuntimeError(
+            f"Expected exactly one CloudTrail named {trail_name}; "
+            f"found {len(matches)}."
+        )
+
+    trail = matches[0]
+    arn = trail["TrailARN"]
+    status = cloudtrail.get_trail_status(Name=arn)
+    selectors = cloudtrail.get_event_selectors(TrailName=arn)
+
+    return {
+        "name": trail_name,
+        "s3_bucket_name": trail.get("S3BucketName"),
+        "s3_key_prefix": trail.get("S3KeyPrefix"),
+        "sns_topic_name": trail.get("SnsTopicName"),
+        "cloud_watch_logs_group_arn": trail.get(
+            "CloudWatchLogsLogGroupArn"
+        ),
+        "cloud_watch_logs_role_arn": trail.get(
+            "CloudWatchLogsRoleArn"
+        ),
+        "kms_key_id": trail.get("KmsKeyId"),
+        "is_multi_region_trail": trail.get(
+            "IsMultiRegionTrail", False
+        ),
+        "include_global_service_events": trail.get(
+            "IncludeGlobalServiceEvents", False
+        ),
+        "enable_log_file_validation": trail.get(
+            "LogFileValidationEnabled", False
+        ),
+        "is_organization_trail": trail.get(
+            "IsOrganizationTrail", False
+        ),
+        "is_logging": status.get("IsLogging", False),
+        **normalize_event_selectors(selectors),
+    }
+
+
+def cloudtrail_expected_configuration(state_resource):
+    """Build approved CloudTrail settings from Terraform state."""
+    return {
+        "name": state_resource["name"],
+        "s3_bucket_name": state_resource.get("s3_bucket_name"),
+        "s3_key_prefix": state_resource.get("s3_key_prefix"),
+        "sns_topic_name": state_resource.get("sns_topic_name"),
+        "cloud_watch_logs_group_arn": state_resource.get(
+            "cloud_watch_logs_group_arn"
+        ),
+        "cloud_watch_logs_role_arn": state_resource.get(
+            "cloud_watch_logs_role_arn"
+        ),
+        "kms_key_id": state_resource.get("kms_key_id"),
+        "is_multi_region_trail": state_resource.get(
+            "is_multi_region_trail", False
+        ),
+        "include_global_service_events": state_resource.get(
+            "include_global_service_events", False
+        ),
+        "enable_log_file_validation": state_resource.get(
+            "enable_log_file_validation", False
+        ),
+        "is_organization_trail": state_resource.get(
+            "is_organization_trail", False
+        ),
+        "is_logging": state_resource.get("enable_logging", True),
+        **normalize_event_selectors({
+            "EventSelectors": state_resource.get("event_selector") or [],
+            "AdvancedEventSelectors": (
+                state_resource.get("advanced_event_selector") or []
+            ),
+        }),
+    }
+
+
 def approved_resources():
     resources = resources_from_state(terraform_state())
 
@@ -211,6 +361,8 @@ def approved_resources():
         "aws_iam_role.developer",
         "aws_iam_role.cicd",
         "aws_iam_role.production",
+        "aws_kms_key_policy.audit_cloudtrail",
+        "aws_cloudtrail.main",
     ]
 
     missing = [address for address in required if address not in resources]
@@ -223,6 +375,7 @@ def approved_resources():
     sg = resources["aws_security_group.application"]
 
     expected = {
+        "access_points": {},
         "security_group": {
             "id": sg["id"],
             "vpc_id": sg["vpc_id"],
@@ -231,6 +384,15 @@ def approved_resources():
         },
         "buckets": {},
         "roles": {},
+        "kms_key": {
+            "id": resources["aws_kms_key_policy.audit_cloudtrail"]["key_id"],
+            "policy": normalize_policy(parse_policy(
+                resources["aws_kms_key_policy.audit_cloudtrail"]["policy"]
+            )),
+        },
+        "cloudtrail": cloudtrail_expected_configuration(
+            resources["aws_cloudtrail.main"]
+        ),
     }
 
     audit_policy = normalize_policy(parse_policy(
@@ -261,101 +423,61 @@ def approved_resources():
     return expected
 
 
-def load_or_create_key():
-    RUNTIME.mkdir(mode=0o700, parents=True, exist_ok=True)
-
-    if KEY_FILE.exists():
-        mode = stat.S_IMODE(KEY_FILE.stat().st_mode)
-        if mode != 0o600:
-            raise RuntimeError("HMAC key permissions must be 0600.")
-
-        key = KEY_FILE.read_bytes()
-        if len(key) != 32:
-            raise RuntimeError("HMAC key has an invalid length.")
-        return key
-
-    key = os.urandom(32)
-    fd = os.open(
-        KEY_FILE,
-        os.O_WRONLY | os.O_CREAT | os.O_EXCL,
-        0o600,
-    )
-    with os.fdopen(fd, "wb") as handle:
-        handle.write(key)
-        handle.flush()
-        os.fsync(handle.fileno())
-
-    return key
-
-
-def sign_baseline(document, key):
-    payload = canonical(document).encode()
-    return hmac.new(key, payload, hashlib.sha256).hexdigest()
-
-
 def write_baseline(replace=False):
-    if BASELINE.exists() or SIGNATURE.exists():
-        if not replace:
-            raise RuntimeError(
-                "Baseline already exists. Refusing to overwrite it."
-            )
-        if not BASELINE.exists() or not SIGNATURE.exists():
-            raise RuntimeError(
-                "Incomplete baseline pair. Investigate before replacing."
-            )
-
-    key = load_or_create_key()
-
-    document = {
-        "schema_version": 1,
-        "terraform_config_sha256": config_digest(),
-        "approved_resources": approved_resources(),
-    }
-
-    signature = sign_baseline(document, key)
-
-    for path, content in (
-        (BASELINE, canonical(document) + "\n"),
-        (SIGNATURE, signature + "\n"),
-    ):
-        fd = os.open(
-            path,
-            os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
-            0o600,
-        )
-        with os.fdopen(fd, "w") as handle:
-            handle.write(content)
-            handle.flush()
-            os.fsync(handle.fileno())
-
-    print("PASS: Approved baseline created from Terraform state.")
-    print("Baseline SHA256:", digest(document))
-    print("HMAC-SHA256 signature:", signature)
-    print("Terraform configuration SHA256:", document["terraform_config_sha256"])
-    print("Baseline permissions: 0600")
-    print("HMAC key permissions: 0600")
+    raise RuntimeError(
+        "Local baseline signing is disabled. Generate or update the baseline "
+        "on the approved workflow, sign it on the Windows signing workstation "
+        "with the Ed25519 private key, then transfer the detached .sig file "
+        "to this host. EC2 has verification authority only."
+    )
 
 
 def read_verified_baseline():
-    if not BASELINE.exists() or not SIGNATURE.exists() or not KEY_FILE.exists():
-        raise RuntimeError("Protected baseline files are incomplete or missing.")
+    required = (BASELINE, SIGNATURE, ALLOWED_SIGNERS)
+    missing = [str(path) for path in required if not path.is_file()]
+    if missing:
+        raise RuntimeError(
+            "Ed25519 baseline verification files are missing: "
+            + ", ".join(missing)
+        )
 
     if stat.S_IMODE(BASELINE.stat().st_mode) != 0o600:
         raise RuntimeError("Baseline permissions must be 0600.")
 
     if stat.S_IMODE(SIGNATURE.stat().st_mode) != 0o600:
-        raise RuntimeError("Signature permissions must be 0600.")
+        raise RuntimeError("Ed25519 signature permissions must be 0600.")
 
-    key = KEY_FILE.read_bytes()
-    if len(key) != 32:
-        raise RuntimeError("HMAC key has an invalid length.")
+    if stat.S_IMODE(ALLOWED_SIGNERS.stat().st_mode) != 0o600:
+        raise RuntimeError("Allowed-signers permissions must be 0600.")
 
-    document = json.loads(BASELINE.read_text())
-    expected = sign_baseline(document, key)
-    supplied = SIGNATURE.read_text().strip()
+    payload = BASELINE.read_bytes()
+    command = [
+        "ssh-keygen",
+        "-Y", "verify",
+        "-f", str(ALLOWED_SIGNERS),
+        "-I", SIGNING_IDENTITY,
+        "-n", SIGNING_NAMESPACE,
+        "-s", str(SIGNATURE),
+    ]
 
-    if not hmac.compare_digest(expected, supplied):
-        raise RuntimeError("Baseline HMAC verification failed.")
+    result = subprocess.run(
+        command,
+        input=payload,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.decode(errors="replace").strip()
+        raise RuntimeError(
+            "Baseline Ed25519 signature verification failed"
+            + (": " + detail if detail else ".")
+        )
+
+    try:
+        document = json.loads(payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("Signed baseline is not valid JSON.") from exc
 
     if document.get("schema_version") != 1:
         raise RuntimeError("Unsupported baseline schema.")
@@ -369,23 +491,82 @@ def client(service):
         aws_secret_access_key="test",
         region_name=REGION,
     )
+    endpoint = (
+        "http://localhost.localstack.cloud:4566"
+        if service == "s3control"
+        else ENDPOINT
+    )
     return session.client(
         service,
-        endpoint_url=ENDPOINT,
+        endpoint_url=endpoint,
         config=Config(
             retries={"max_attempts": 2, "mode": "standard"}
         ),
     )
 
 
+def s3_access_point_inventory(s3control, account_id):
+    """Return normalized S3 Access Point configuration and policy inventory."""
+    inventory = {}
+    request = {"AccountId": account_id}
+
+    while True:
+        page = s3control.list_access_points(**request)
+
+        for item in page.get("AccessPointList", []):
+            name = item["Name"]
+            policy = None
+
+            try:
+                response = s3control.get_access_point_policy(
+                    AccountId=account_id,
+                    Name=name,
+                )
+                policy = parse_policy(response["Policy"])
+            except ClientError as exc:
+                code = exc.response.get("Error", {}).get("Code", "")
+                if code != "NoSuchAccessPointPolicy":
+                    raise
+
+            inventory[name] = {
+                "arn": item.get("AccessPointArn"),
+                "bucket": item.get("Bucket"),
+                "network_origin": item.get("NetworkOrigin"),
+                "policy": normalize_policy(policy),
+            }
+
+        next_token = page.get("NextToken")
+        if not next_token:
+            break
+        request["NextToken"] = next_token
+
+    return inventory
+
+
+class MissingInfrastructureError(RuntimeError):
+    """A required infrastructure resource does not exist."""
+
+
 def live_resources():
     ec2 = client("ec2")
     s3 = client("s3")
     iam = client("iam")
+    kms = client("kms")
+    cloudtrail = client("cloudtrail")
+    s3control = client("s3control")
+    sts = client("sts")
 
-    groups = ec2.describe_security_groups(
-        GroupIds=[SG_ID]
-    )["SecurityGroups"]
+    try:
+        groups = ec2.describe_security_groups(
+            GroupIds=[SG_ID]
+        )["SecurityGroups"]
+    except ClientError as exc:
+        code = exc.response.get("Error", {}).get("Code", "")
+        if code in {"InvalidGroup.NotFound", "InvalidGroupId.Malformed"}:
+            raise MissingInfrastructureError(
+                f"Required security group {SG_ID} is missing."
+            ) from exc
+        raise
 
     if len(groups) != 1:
         raise RuntimeError("Security group lookup was not unique.")
@@ -405,7 +586,21 @@ def live_resources():
         },
         "buckets": {},
         "roles": {},
+        "kms_key": {
+            "id": KMS_KEY_ID,
+            "policy": normalize_policy(parse_policy(
+                kms.get_key_policy(KeyId=KMS_KEY_ID, PolicyName="default")["Policy"]
+            )),
+        },
     }
+
+    actual["access_points"] = s3_access_point_inventory(
+        s3control, sts.get_caller_identity()["Account"]
+    )
+    actual["iam_identities"] = iam_identity_inventory(iam)
+    actual["cloudtrail"] = cloudtrail_live_configuration(
+        cloudtrail, "cloud-control-plane-defense-trail"
+    )
 
     for bucket in BUCKETS.values():
         try:
@@ -461,6 +656,20 @@ def compare(expected, actual):
         if observed != approved:
             findings.append(f"{role_name}: IAM trust policy or ARN drift")
 
+    if expected.get("access_points", {}) != actual.get("access_points", {}):
+        findings.append("S3 access-point inventory or policy drift")
+
+    if expected.get("kms_key") != actual.get("kms_key"):
+        findings.append("KMS key policy drift")
+
+    if expected.get("iam_identities") != actual.get("iam_identities"):
+        findings.append("IAM user or access-key inventory drift")
+
+    if expected.get("cloudtrail") != actual.get("cloudtrail"):
+        findings.append(
+            "CloudTrail destination, logging, or event-selector drift"
+        )
+
     return findings
 
 
@@ -471,8 +680,23 @@ def read_live_raw():
     ec2 = client("ec2")
     s3 = client("s3")
     iam = client("iam")
+    kms = client("kms")
+    cloudtrail = client("cloudtrail")
+    s3control = client("s3control")
+    sts = client("sts")
 
-    groups = ec2.describe_security_groups(GroupIds=[SG_ID])["SecurityGroups"]
+    try:
+        groups = ec2.describe_security_groups(
+            GroupIds=[SG_ID]
+        )["SecurityGroups"]
+    except ClientError as exc:
+        code = exc.response.get("Error", {}).get("Code", "")
+        if code in {"InvalidGroup.NotFound", "InvalidGroupId.Malformed"}:
+            raise MissingInfrastructureError(
+                f"Required security group {SG_ID} is missing."
+            ) from exc
+        raise
+
     if len(groups) != 1:
         raise RuntimeError("Security group lookup was not unique.")
 
@@ -486,7 +710,21 @@ def read_live_raw():
         },
         "buckets": {},
         "roles": {},
+        "kms_key": {
+            "id": KMS_KEY_ID,
+            "policy": kms.get_key_policy(
+                KeyId=KMS_KEY_ID, PolicyName="default"
+            )["Policy"],
+        },
     }
+
+    raw["access_points"] = s3_access_point_inventory(
+        s3control, sts.get_caller_identity()["Account"]
+    )
+    raw["iam_identities"] = iam_identity_inventory(iam)
+    raw["cloudtrail"] = cloudtrail_live_configuration(
+        cloudtrail, "cloud-control-plane-defense-trail"
+    )
 
     for bucket in BUCKETS.values():
         try:
@@ -530,7 +768,15 @@ def normalize_live_raw(raw):
         },
         "buckets": {},
         "roles": {},
+        "kms_key": {
+            "id": raw["kms_key"]["id"],
+            "policy": normalize_policy(parse_policy(raw["kms_key"]["policy"])),
+        },
     }
+
+    actual["access_points"] = raw["access_points"]
+    actual["iam_identities"] = raw["iam_identities"]
+    actual["cloudtrail"] = raw["cloudtrail"]
 
     for bucket, item in raw["buckets"].items():
         actual["buckets"][bucket] = {
@@ -721,6 +967,30 @@ def restore_role(iam, role_name, approved):
 
 def remediate_drift(baseline, raw, actual, findings):
     """Snapshot first, then restore only controls that differ."""
+    approved = baseline["approved_resources"]
+    if approved.get("access_points", {}) != actual.get("access_points", {}):
+        raise RuntimeError(
+            "S3 access-point inventory or policy drift detected. "
+            "Automatic access-point remediation is not implemented; "
+            "no remediation attempted."
+        )
+    if approved.get("kms_key") != actual.get("kms_key"):
+        raise RuntimeError(
+            "KMS key policy drift detected. Automatic restoration is not "
+            "implemented; no remediation attempted."
+        )
+    if approved.get("iam_identities") != actual.get("iam_identities"):
+        raise RuntimeError(
+            "IAM user or access-key inventory drift detected. Automatic "
+            "identity deletion or key changes are not implemented; "
+            "no remediation attempted."
+        )
+    if approved.get("cloudtrail") != actual.get("cloudtrail"):
+        raise RuntimeError(
+            "CloudTrail destination, logging, or event-selector drift "
+            "detected. Automatic CloudTrail restoration is not implemented; "
+            "no remediation attempted."
+        )
     snapshot_path = write_forensic_snapshot(raw, baseline, findings)
 
     if stat.S_IMODE(snapshot_path.stat().st_mode) != 0o600:
@@ -729,7 +999,6 @@ def remediate_drift(baseline, raw, actual, findings):
     print(f"\nForensic snapshot saved: {snapshot_path}")
     print("Snapshot permissions: 0600")
 
-    approved = baseline["approved_resources"]
     ec2 = client("ec2")
     s3 = client("s3")
     iam = client("iam")
@@ -802,9 +1071,9 @@ def main():
     observed = normalize_live_raw(raw)
     findings = compare(baseline["approved_resources"], observed)
 
-    print("Baseline HMAC: VALID")
+    print("Baseline Ed25519 signature: VALID")
     print("Terraform configuration hash: MATCH")
-    print("Live resources checked: 7 security resources")
+    print(f"Live control groups checked: {len(observed)}")
 
     if not findings:
         print("\nPASS: No drift detected in monitored security controls.")
@@ -825,6 +1094,14 @@ def main():
 if __name__ == "__main__":
     try:
         sys.exit(main())
+    except MissingInfrastructureError as exc:
+        print(f"MISSING INFRASTRUCTURE: {exc}", file=sys.stderr)
+        print(
+            "SAFE STOP: No remediation was attempted. "
+            "Restore required infrastructure through Terraform first.",
+            file=sys.stderr,
+        )
+        sys.exit(4)
     except Exception as exc:
         print(f"ERROR: {type(exc).__name__}: {exc}", file=sys.stderr)
         sys.exit(1)

@@ -1,0 +1,2 @@
+83340413f392b69e381bc96f1074dcf5ebebf41dfc03384d27b13ba1dad2e839  /home/ubuntu/devsecops-container-guardrails/cloud-control-plane-defense/terraform/terraform.tfstate
+1f5bec3b63875f7011107aac759a698a8e2ecd3637a4ebf44a061698b7b6c990  /home/ubuntu/devsecops-container-guardrails/cloud-control-plane-defense/terraform/terraform.tfstate.backup

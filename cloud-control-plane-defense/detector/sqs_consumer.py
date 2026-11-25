@@ -151,7 +151,14 @@ def run_consumer(
     validate_queue_url(queue_url)
 
     sqs = build_sqs_client()
-    detector = CloudControlPlaneDetector()
+    detector = CloudControlPlaneDetector(
+        enumeration_window_seconds=int(
+            os.environ.get("CCPD_ENUMERATION_WINDOW_SECONDS", "30")
+        ),
+        enumeration_threshold=int(
+            os.environ.get("CCPD_ENUMERATION_THRESHOLD", "3")
+        ),
+    )
 
     if state_path.exists():
         detector.restore_state(state_path)

@@ -1,0 +1,23 @@
+run  1 status=QUARANTINE_VERIFIED event_to_verified=0.695 call_to_verified=0.826 in_window=True
+run  2 status=QUARANTINE_VERIFIED event_to_verified=23.933 call_to_verified=24.064 in_window=True
+run  3 status=QUARANTINE_VERIFIED event_to_verified=0.811 call_to_verified=0.933 in_window=True
+run  4 status=QUARANTINE_VERIFIED event_to_verified=0.906 call_to_verified=1.002 in_window=True
+run  5 status=QUARANTINE_VERIFIED event_to_verified=12.665 call_to_verified=12.757 in_window=True
+run  6 status=QUARANTINE_VERIFIED event_to_verified=0.732 call_to_verified=0.847 in_window=True
+run  7 status=QUARANTINE_VERIFIED event_to_verified=13.864 call_to_verified=24.353 in_window=True
+run  8 status=QUARANTINE_VERIFIED event_to_verified=0.798 call_to_verified=0.904 in_window=True
+run  9 status=QUARANTINE_VERIFIED event_to_verified=0.677 call_to_verified=0.8 in_window=True
+run 10 status=QUARANTINE_VERIFIED event_to_verified=26.581 call_to_verified=37.079 in_window=True
+{
+  "runs": 10,
+  "verified": 10,
+  "timed_out": 0,
+  "under_1s": 6,
+  "under_1s_of_total": "6/10",
+  "verified_of_total": "10/10",
+  "attack_call_over_5s": 3,
+  "median_s": 0.8585,
+  "p90_s": 23.933,
+  "max_s": 26.581
+}
+written: /home/ubuntu/devsecops-container-guardrails/cloud-control-plane-defense/evidence/phase2/run_baseline/results/cad3d66-baseline-20261124T124508Z.json

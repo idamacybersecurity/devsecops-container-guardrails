@@ -75,7 +75,11 @@ def assume_role_event(
         event_source="sts.amazonaws.com",
         event_time=event_time,
         caller_arn=caller_arn,
-        caller_type="Root",
+        caller_type=(
+            "Root" if caller_arn == ROOT_ARN
+            else "IAMUser" if ":user/" in caller_arn
+            else "AssumedRole"
+        ),
         request={"roleArn": requested_role},
         response={
             "assumedRoleUser": {"arn": assumed_role_arn}
@@ -190,7 +194,9 @@ def test_defense_evasion_requires_matching_event_source(event_name, event_source
             event_name=event_name,
             event_source=event_source,
             caller_arn=attacker_arn,
-            caller_type="Root",
+            caller_type=(
+                "IAMUser" if ":user/" in attacker_arn else "Root"
+            ),
         )
     )
 
@@ -203,7 +209,7 @@ def test_defense_evasion_requires_matching_event_source(event_name, event_source
 
     if event_name == "DisableKeyRotation":
         assert defense_alerts[0]["caller_arn"] == attacker_arn
-        assert defense_alerts[0]["caller_type_reported"] == "Root"
+        assert defense_alerts[0]["caller_type_reported"] == "IAMUser"
 
 
 @pytest.mark.parametrize(
@@ -278,7 +284,7 @@ def test_attribute_developer_cicd_production_chain():
         "cloud-control-plane-defense-production",
     ]
     # Preserve LocalStack's reported identity type; ARN carries attribution.
-    assert chain_alerts[0]["caller_type_reported"] == "Root"
+    assert chain_alerts[0]["caller_type_reported"] == "AssumedRole"
 
 
 def test_duplicate_cloudtrail_event_is_ignored():
@@ -457,6 +463,10 @@ def test_duplicate_suppression_survives_detector_restart(tmp_path):
 def test_secret_enumeration_history_survives_detector_restart(tmp_path):
     state_path = tmp_path / "detector-state.json"
     first = CloudControlPlaneDetector()
+    developer_session = (
+        "arn:aws:sts::000000000000:assumed-role/"
+        "cloud-control-plane-defense-developer/secret-enum-session"
+    )
 
     for index, secret_id in enumerate(("persist-a", "persist-b"), start=1):
         first.process_event(make_event(
@@ -464,7 +474,8 @@ def test_secret_enumeration_history_survives_detector_restart(tmp_path):
             event_name="GetSecretValue",
             event_source="secretsmanager.amazonaws.com",
             event_time=f"2026-11-17T14:00:0{index}Z",
-            caller_arn=DEVELOPER_ROLE,
+            caller_arn=developer_session,
+            caller_type="AssumedRole",
             request={"secretId": secret_id},
         ))
 
@@ -478,7 +489,8 @@ def test_secret_enumeration_history_survives_detector_restart(tmp_path):
         event_name="GetSecretValue",
         event_source="secretsmanager.amazonaws.com",
         event_time="2026-11-17T14:00:03Z",
-        caller_arn=DEVELOPER_ROLE,
+        caller_arn=developer_session,
+        caller_type="AssumedRole",
         request={"secretId": "persist-c"},
     ))
 
@@ -666,3 +678,385 @@ def test_privileged_role_chain_from_root_keeps_root_as_origin():
 
     assert len(chain) == 1
     assert chain[0]["quarantine_principal_arn"] == ROOT_ARN
+
+@pytest.mark.parametrize(
+    "event_name",
+    ["PutUserPolicy", "UpdateAssumeRolePolicy"],
+)
+def test_detect_additional_iam_privilege_escalation_events(event_name):
+    detector = CloudControlPlaneDetector()
+
+    alerts = detector.process_event(
+        make_event(
+            event_id=f"iam-escalation-{event_name}",
+            event_name=event_name,
+            event_source="iam.amazonaws.com",
+        )
+    )
+
+    matches = [
+        alert for alert in alerts
+        if alert["detection_type"] == "iam_privilege_escalation"
+    ]
+    assert len(matches) == 1
+    assert matches[0]["severity"] == "HIGH"
+
+def test_ssm_parameter_enumeration_across_read_apis():
+    detector = CloudControlPlaneDetector()
+    alerts = []
+
+    events = [
+        make_event(
+            event_id="ssm-read-one",
+            event_name="GetParameters",
+            event_source="ssm.amazonaws.com",
+            event_time="2026-11-17T14:00:01Z",
+            request={"Names": ["/app/db-user", "/app/db-password"]},
+        ),
+        make_event(
+            event_id="ssm-read-two",
+            event_name="GetParametersByPath",
+            event_source="ssm.amazonaws.com",
+            event_time="2026-11-17T14:00:02Z",
+            request={"path": "/production/api-key"},
+        ),
+    ]
+
+    for event in events:
+        alerts.extend(detector.process_event(event))
+
+    matches = [
+        alert for alert in alerts
+        if alert["detection_type"] == "secret_enumeration_burst"
+    ]
+    assert len(matches) == 1
+    assert matches[0]["metadata"]["distinct_resource_count"] == 3
+
+def test_slow_and_low_secret_enumeration_within_ten_minutes():
+    detector = CloudControlPlaneDetector(
+        enumeration_window_seconds=600,
+        enumeration_threshold=3,
+    )
+    alerts = []
+
+    events = [
+        make_event(
+            event_id="slow-low-one",
+            event_name="GetSecretValue",
+            event_source="secretsmanager.amazonaws.com",
+            event_time="2026-11-17T14:00:00Z",
+            request={"secretId": "secret-a"},
+        ),
+        make_event(
+            event_id="slow-low-two",
+            event_name="GetParameters",
+            event_source="ssm.amazonaws.com",
+            event_time="2026-11-17T14:04:00Z",
+            request={"Names": ["/production/credential-b"]},
+        ),
+        make_event(
+            event_id="slow-low-three",
+            event_name="GetSecretValue",
+            event_source="secretsmanager.amazonaws.com",
+            event_time="2026-11-17T14:09:59Z",
+            request={"secretId": "secret-c"},
+        ),
+    ]
+
+    for event in events:
+        alerts.extend(detector.process_event(event))
+
+    matches = [
+        alert for alert in alerts
+        if alert["detection_type"] == "secret_enumeration_burst"
+    ]
+    assert len(matches) == 1
+    assert matches[0]["metadata"]["distinct_resource_count"] == 3
+    assert matches[0]["metadata"]["window_seconds"] == 600
+
+def test_slow_and_low_secret_reads_outside_ten_minute_window_do_not_alert():
+    detector = CloudControlPlaneDetector(
+        enumeration_window_seconds=600,
+        enumeration_threshold=3,
+    )
+    alerts = []
+
+    events = [
+        make_event(
+            event_id="slow-outside-one",
+            event_name="GetSecretValue",
+            event_source="secretsmanager.amazonaws.com",
+            event_time="2026-11-17T14:00:00Z",
+            request={"secretId": "secret-a"},
+        ),
+        make_event(
+            event_id="slow-outside-two",
+            event_name="GetParameters",
+            event_source="ssm.amazonaws.com",
+            event_time="2026-11-17T14:05:00Z",
+            request={"Names": ["/production/credential-b"]},
+        ),
+        make_event(
+            event_id="slow-outside-three",
+            event_name="GetSecretValue",
+            event_source="secretsmanager.amazonaws.com",
+            event_time="2026-11-17T14:10:01Z",
+            request={"secretId": "secret-c"},
+        ),
+    ]
+
+    for event in events:
+        alerts.extend(detector.process_event(event))
+
+    assert not any(
+        alert["detection_type"] == "secret_enumeration_burst"
+        for alert in alerts
+    )
+
+def test_single_ssm_parameter_read_is_benign():
+    detector = CloudControlPlaneDetector()
+
+    alerts = detector.process_event(
+        make_event(
+            event_id="benign-single-ssm-read",
+            event_name="GetParameters",
+            event_source="ssm.amazonaws.com",
+            request={"Names": ["/app/authorized-setting"]},
+        )
+    )
+
+    assert alerts == []
+
+
+@pytest.mark.parametrize(
+    "sequence",
+    [
+        [
+            ("GetRole", "iam.amazonaws.com", {}),
+            ("ListUsers", "iam.amazonaws.com", {}),
+            ("GetUser", "iam.amazonaws.com", {"userName": "developer"}),
+        ],
+        [
+            ("DescribeKey", "kms.amazonaws.com", {}),
+            ("GetKeyRotationStatus", "kms.amazonaws.com", {}),
+            ("ListAliases", "kms.amazonaws.com", {}),
+        ],
+        [
+            ("ListBuckets", "s3.amazonaws.com", {}),
+            ("GetBucketLocation", "s3.amazonaws.com", {"bucketName": "app-data"}),
+            ("GetBucketVersioning", "s3.amazonaws.com", {"bucketName": "app-data"}),
+        ],
+        [
+            ("DescribeTrails", "cloudtrail.amazonaws.com", {}),
+            ("GetTrailStatus", "cloudtrail.amazonaws.com", {"name": "management-trail"}),
+            ("GetEventSelectors", "cloudtrail.amazonaws.com", {"trailName": "management-trail"}),
+        ],
+        [
+            ("GetParameters", "ssm.amazonaws.com", {"Names": ["/app/region"]}),
+            ("GetParameters", "ssm.amazonaws.com", {"Names": ["/app/region"]}),
+            ("GetSecretValue", "secretsmanager.amazonaws.com", {"secretId": "app-config"}),
+        ],
+    ],
+    ids=[
+        "iam-read-only-sequence",
+        "kms-read-only-sequence",
+        "s3-read-only-sequence",
+        "cloudtrail-read-only-sequence",
+        "parameter-and-secret-read-sequence",
+    ],
+)
+def test_benign_multi_event_sequences_do_not_alert(sequence):
+    detector = CloudControlPlaneDetector()
+    alerts = []
+
+    for index, (event_name, event_source, request) in enumerate(sequence):
+        alerts.extend(
+            detector.process_event(
+                make_event(
+                    event_id=f"benign-sequence-{index}-{event_name}",
+                    event_name=event_name,
+                    event_source=event_source,
+                    event_time=f"2026-11-17T14:00:0{index}Z",
+                    caller_arn=(
+                        "arn:aws:sts::000000000000:assumed-role/"
+                        "cloud-control-plane-defense-developer/benign-test-session"
+                    ),
+                    caller_type="AssumedRole",
+                    request=request,
+                )
+            )
+        )
+
+    assert alerts == []
+
+
+def test_reject_caller_arn_from_different_account():
+    event = make_event(
+        event_id="bypass-account-mismatch",
+        caller_arn="arn:aws:iam::999999999999:user/attacker",
+        caller_type="IAMUser",
+    )
+    with pytest.raises(ValueError, match="account"):
+        parse_event(event)
+
+
+def test_reject_iam_user_type_with_non_user_arn():
+    event = make_event(
+        event_id="bypass-invalid-principal-arn",
+        caller_arn="arn:aws:iam::000000000000:service/forged-principal",
+        caller_type="IAMUser",
+    )
+    with pytest.raises(ValueError, match="principal|ARN|identity"):
+        parse_event(event)
+
+
+def test_accept_legitimate_cross_account_cloudtrail_event():
+    event = make_event(
+        event_id="valid-cross-account-event",
+        caller_arn="arn:aws:iam::999999999999:user/external-user",
+        caller_type="IAMUser",
+    )
+    event["detail"]["recipientAccountId"] = "000000000000"
+    event["detail"]["userIdentity"]["accountId"] = "999999999999"
+
+    parsed = parse_event(event)
+
+    assert parsed.account_id == "000000000000"
+    assert parsed.caller_arn == "arn:aws:iam::999999999999:user/external-user"
+
+
+def test_reject_iam_user_identity_missing_account_id():
+    event = make_event(
+        event_id="bypass-missing-principal-account",
+        caller_arn="arn:aws:iam::000000000000:user/attacker",
+        caller_type="IAMUser",
+    )
+    del event["detail"]["userIdentity"]["accountId"]
+
+    with pytest.raises(ValueError, match="userIdentity.accountId"):
+        parse_event(event)
+
+
+def test_reject_iam_user_arn_from_unsupported_partition():
+    event = make_event(
+        event_id="bypass-invalid-arn-partition",
+        caller_arn="arn:example:iam::000000000000:user/attacker",
+        caller_type="IAMUser",
+    )
+
+    with pytest.raises(ValueError, match="partition"):
+        parse_event(event)
+
+def test_reject_iam_user_arn_with_empty_path_segment():
+    event = make_event(
+        event_id="bypass-empty-iam-path-segment",
+        caller_arn="arn:aws:iam::000000000000:user//attacker",
+        caller_type="IAMUser",
+    )
+    with pytest.raises(ValueError, match="principal ARN"):
+        parse_event(event)
+
+
+def test_reject_iam_user_arn_with_nonempty_region():
+    event = make_event(
+        event_id="bypass-iam-arn-region",
+        caller_arn="arn:aws:iam:us-east-1:000000000000:user/attacker",
+        caller_type="IAMUser",
+    )
+    with pytest.raises(ValueError, match="principal ARN|region"):
+        parse_event(event)
+
+def test_reject_assumed_role_identity_with_iam_user_arn():
+    event = make_event(
+        event_id="bypass-assumed-role-user-arn",
+        caller_arn="arn:aws:iam::000000000000:user/attacker",
+        caller_type="AssumedRole",
+    )
+    with pytest.raises(ValueError, match="AssumedRole.*assumed-role ARN"):
+        parse_event(event)
+
+
+def test_reject_aws_service_identity_with_iam_user_arn():
+    event = make_event(
+        event_id="bypass-aws-service-user-arn",
+        caller_arn="arn:aws:iam::000000000000:user/attacker",
+        caller_type="AWSService",
+    )
+    with pytest.raises(ValueError, match="AWSService.*assumed-role ARN"):
+        parse_event(event)
+
+
+def test_accept_valid_assumed_role_identity_arn():
+    event = make_event(
+        event_id="valid-assumed-role-arn",
+        caller_arn="arn:aws:sts::000000000000:assumed-role/Admin/session-1",
+        caller_type="AssumedRole",
+    )
+    parsed = parse_event(event)
+    assert parsed.caller_arn == event["detail"]["userIdentity"]["arn"]
+
+
+def test_accept_valid_aws_service_identity_arn():
+    event = make_event(
+        event_id="valid-aws-service-arn",
+        caller_arn="arn:aws:sts::000000000000:assumed-role/AWSServiceRole/session-1",
+        caller_type="AWSService",
+    )
+    parsed = parse_event(event)
+    assert parsed.caller_arn == event["detail"]["userIdentity"]["arn"]
+
+@pytest.mark.parametrize("caller_type", ["AssumedRole", "AWSService"])
+def test_reject_assumed_role_identity_from_unsupported_partition(caller_type):
+    event = make_event(
+        event_id=f"bypass-unsupported-partition-{caller_type}",
+        caller_arn=(
+            "arn:aws-us-gov:sts::000000000000:"
+            "assumed-role/Admin/session-1"
+        ),
+        caller_type=caller_type,
+    )
+
+    with pytest.raises(ValueError, match="assumed-role ARN"):
+        parse_event(event)
+
+def test_reject_federated_user_identity_with_iam_user_arn():
+    event = make_event(
+        event_id="bypass-federated-user-arn-confusion",
+        caller_arn="arn:aws:iam::000000000000:user/attacker",
+        caller_type="FederatedUser",
+    )
+
+    with pytest.raises(ValueError, match="FederatedUser.*federated-user ARN"):
+        parse_event(event)
+
+
+def test_accept_valid_federated_user_identity_arn():
+    event = make_event(
+        event_id="valid-federated-user-arn",
+        caller_arn="arn:aws:sts::000000000000:federated-user/session-1",
+        caller_type="FederatedUser",
+    )
+
+    parsed = parse_event(event)
+    assert parsed.caller_arn == event["detail"]["userIdentity"]["arn"]
+
+def test_reject_root_identity_with_iam_user_arn():
+    event = make_event(
+        event_id="bypass-root-arn-confusion",
+        caller_arn="arn:aws:iam::000000000000:user/attacker",
+        caller_type="Root",
+    )
+
+    with pytest.raises(ValueError, match="Root identity.*root ARN"):
+        parse_event(event)
+
+
+def test_accept_valid_root_identity_arn():
+    event = make_event(
+        event_id="valid-root-arn",
+        caller_arn="arn:aws:iam::000000000000:root",
+        caller_type="Root",
+    )
+
+    parsed = parse_event(event)
+    assert parsed.caller_arn == event["detail"]["userIdentity"]["arn"]

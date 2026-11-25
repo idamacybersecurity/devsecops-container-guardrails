@@ -1,0 +1,128 @@
+{
+  "scenario": "SSM GetParameters enumeration burst",
+  "attack": "ssm:GetParameters",
+  "attacker": "arn:aws:iam::000000000000:user/ccpd-ssm-enum-361b185e75",
+  "parameter_names": [
+    "/ccpd-autonomous-test/361b185e75/credential-a",
+    "/ccpd-autonomous-test/361b185e75/credential-b",
+    "/ccpd-autonomous-test/361b185e75/credential-c"
+  ],
+  "expected_detection_type": "secret_enumeration_burst",
+  "expected_quarantine_principal": "arn:aws:iam::000000000000:user/ccpd-ssm-enum-361b185e75",
+  "operator_actions": [],
+  "read_calls": [
+    {
+      "parameter": "/ccpd-autonomous-test/361b185e75/credential-a",
+      "status": "SUCCEEDED",
+      "returned_count": 1,
+      "duration_seconds": 0.188
+    },
+    {
+      "parameter": "/ccpd-autonomous-test/361b185e75/credential-b",
+      "status": "SUCCEEDED",
+      "returned_count": 1,
+      "duration_seconds": 0.028
+    },
+    {
+      "parameter": "/ccpd-autonomous-test/361b185e75/credential-c",
+      "status": "SUCCEEDED",
+      "returned_count": 1,
+      "duration_seconds": 0.02
+    }
+  ],
+  "watcher_action": {
+    "alert_event_time": "2026-11-24T23:04:34.372000+00:00",
+    "attempts": 1,
+    "detection_type": "secret_enumeration_burst",
+    "error_code": null,
+    "error_type": null,
+    "errors": [],
+    "event_id": "6279a21b-7a91-41c5-b14c-c2e9ee2c4a68",
+    "event_to_verified_seconds": 0.727229,
+    "execution_duration_seconds": 0.5925830719934311,
+    "logged_utc": "2026-11-24T23:04:35.099272+00:00",
+    "mode": "EXECUTE",
+    "rollback_state": {
+      "account_id": "000000000000",
+      "captured_at": "2026-11-24T23:04:34.613851+00:00",
+      "event_id": "6279a21b-7a91-41c5-b14c-c2e9ee2c4a68",
+      "principals": [
+        {
+          "access_keys": [
+            {
+              "access_key_id": "LKIAQAAAAAAAMH3DRUSV",
+              "status": "Active"
+            }
+          ],
+          "applied_policies": {
+            "AWSRevokeOlderSessions": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Condition": {
+                    "DateLessThan": {
+                      "aws:TokenIssueTime": "2026-11-24T23:05:04Z"
+                    }
+                  },
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "RevokeOlderTemporarySessions"
+                }
+              ],
+              "Version": "2012-10-17"
+            },
+            "CCPDQuarantineDenyAll": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "CCPDExplicitDenyAll"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          },
+          "policies": {
+            "AWSRevokeOlderSessions": {
+              "document": null,
+              "existed": false
+            },
+            "CCPDQuarantineDenyAll": {
+              "document": null,
+              "existed": false
+            }
+          },
+          "principal": {
+            "arn": "arn:aws:iam::000000000000:user/ccpd-ssm-enum-361b185e75",
+            "name": "ccpd-ssm-enum-361b185e75",
+            "partition": "aws",
+            "type": "user"
+          }
+        }
+      ],
+      "version": 1
+    },
+    "status": "QUARANTINE_VERIFIED",
+    "target": "arn:aws:iam::000000000000:user/ccpd-ssm-enum-361b185e75",
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive"
+    ],
+    "watcher_seen_utc": "2026-11-24T23:04:34.506337+00:00"
+  },
+  "cleanup_problems": [],
+  "verified": false,
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "attack_call": "SUCCEEDED",
+  "attacker_quarantine_readback": {
+    "explicit_deny_policy": true,
+    "session_revocation_policy": true,
+    "all_access_keys_inactive": true
+  },
+  "event_to_verified_s": 0.902,
+  "watcher_attempts": 1,
+  "original_key_blocked": false,
+  "evidence_directory": "/tmp/ccpd-ssm-enum-_3vnuble"
+}

@@ -1,0 +1,142 @@
+{
+  "scenario": "SSM slow-and-low enumeration over eight minutes",
+  "attack": "ssm:GetParameters",
+  "attacker": "arn:aws:iam::000000000000:user/ccpd-ssm-slowlow-208cfbef10",
+  "parameter_names": [
+    "/ccpd-autonomous-test/208cfbef10/credential-a",
+    "/ccpd-autonomous-test/208cfbef10/credential-b",
+    "/ccpd-autonomous-test/208cfbef10/credential-c"
+  ],
+  "expected_detection_type": "secret_enumeration_burst",
+  "enumeration_window_seconds": 600,
+  "enumeration_threshold": 3,
+  "planned_read_spacing_seconds": 240,
+  "expected_quarantine_principal": "arn:aws:iam::000000000000:user/ccpd-ssm-slowlow-208cfbef10",
+  "operator_actions": [],
+  "read_calls": [
+    {
+      "parameter": "/ccpd-autonomous-test/208cfbef10/credential-a",
+      "status": "SUCCEEDED",
+      "returned_count": 1,
+      "duration_seconds": 0.101,
+      "wait_after_read_seconds": 240
+    },
+    {
+      "parameter": "/ccpd-autonomous-test/208cfbef10/credential-b",
+      "status": "SUCCEEDED",
+      "returned_count": 1,
+      "duration_seconds": 11.901,
+      "wait_after_read_seconds": 240
+    },
+    {
+      "parameter": "/ccpd-autonomous-test/208cfbef10/credential-c",
+      "status": "SUCCEEDED",
+      "returned_count": 1,
+      "duration_seconds": 0.056
+    }
+  ],
+  "watcher_action": {
+    "alert_event_time": "2026-11-24T23:54:58.480000+00:00",
+    "attempts": 1,
+    "detection_type": "secret_enumeration_burst",
+    "error_code": null,
+    "error_type": null,
+    "errors": [],
+    "event_id": "f8f85e94-1fe2-4b51-9aac-25dace4ff592",
+    "event_to_verified_seconds": 15.000247,
+    "execution_duration_seconds": 14.915047075002803,
+    "logged_utc": "2026-11-24T23:55:13.480291+00:00",
+    "mode": "EXECUTE",
+    "rollback_state": {
+      "account_id": "000000000000",
+      "captured_at": "2026-11-24T23:54:58.652428+00:00",
+      "event_id": "f8f85e94-1fe2-4b51-9aac-25dace4ff592",
+      "principals": [
+        {
+          "access_keys": [
+            {
+              "access_key_id": "LKIAQAAAAAAAKTYU6IGI",
+              "status": "Active"
+            }
+          ],
+          "applied_policies": {
+            "AWSRevokeOlderSessions": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Condition": {
+                    "DateLessThan": {
+                      "aws:TokenIssueTime": "2026-11-24T23:55:28Z"
+                    }
+                  },
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "RevokeOlderTemporarySessions"
+                }
+              ],
+              "Version": "2012-10-17"
+            },
+            "CCPDQuarantineDenyAll": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Effect": "Deny",
+                  "Resource": "*",
+                  "Sid": "CCPDExplicitDenyAll"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          },
+          "policies": {
+            "AWSRevokeOlderSessions": {
+              "document": null,
+              "existed": false
+            },
+            "CCPDQuarantineDenyAll": {
+              "document": null,
+              "existed": false
+            }
+          },
+          "principal": {
+            "arn": "arn:aws:iam::000000000000:user/ccpd-ssm-slowlow-208cfbef10",
+            "name": "ccpd-ssm-slowlow-208cfbef10",
+            "partition": "aws",
+            "type": "user"
+          }
+        }
+      ],
+      "version": 1
+    },
+    "status": "QUARANTINE_VERIFIED",
+    "target": "arn:aws:iam::000000000000:user/ccpd-ssm-slowlow-208cfbef10",
+    "verified_controls": [
+      "explicit_deny_all",
+      "session_revocation_policy",
+      "all_access_keys_inactive"
+    ],
+    "watcher_seen_utc": "2026-11-24T23:54:58.564690+00:00"
+  },
+  "cleanup_problems": [],
+  "verified": true,
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "attack_call": "SUCCEEDED",
+  "attacker_quarantine_readback": {
+    "explicit_deny_policy": true,
+    "session_revocation_policy": true,
+    "all_access_keys_inactive": true
+  },
+  "event_to_verified_s": 15.15,
+  "watcher_attempts": 1,
+  "original_key_blocked": true,
+  "post_quarantine_key_check_attempts": [
+    {
+      "attempt": 1,
+      "result": "DENIED",
+      "error_code": "AccessDeniedException"
+    }
+  ],
+  "post_quarantine_read_error_code": "AccessDeniedException",
+  "post_quarantine_key_check_duration_seconds": 0.07,
+  "evidence_directory": "/tmp/ccpd-ssm-enum-gbws8kd0"
+}

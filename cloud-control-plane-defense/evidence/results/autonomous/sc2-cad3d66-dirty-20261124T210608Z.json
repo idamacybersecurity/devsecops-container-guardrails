@@ -1,0 +1,27 @@
+{
+  "scenario": "2 defense evasion (KMS rotation, S3 policy delete), quarantine only, autonomous",
+  "operator_actions": [],
+  "restoration": "NOT performed by this run (S3: drift reconciler; KMS: manual)",
+  "git_sha": "cad3d6652e4057f7b2f5e293fb684739614b1439",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/scripts/auto_soar_watcher.py",
+    "cloud-control-plane-defense/scripts/run_scenario1_autonomous.py",
+    "cloud-control-plane-defense/scripts/run_scenario2_autonomous.py",
+    "cloud-control-plane-defense/soar/cloud_soar_responder.py"
+  ],
+  "attacks": [
+    {
+      "attack": "kms:DisableKeyRotation",
+      "user": "arn:aws:iam::000000000000:user/ccpd-sc2-kms-3386c588",
+      "attack_call_s": 0.185,
+      "watcher_action": null
+    },
+    {
+      "attack": "s3:DeleteBucketPolicy",
+      "user": "arn:aws:iam::000000000000:user/ccpd-sc2-s3-3386c588",
+      "attack_call_s": 0.058,
+      "watcher_action": null
+    }
+  ],
+  "cleanup_problems": []
+}

@@ -1060,3 +1060,74 @@ def test_accept_valid_root_identity_arn():
 
     parsed = parse_event(event)
     assert parsed.caller_arn == event["detail"]["userIdentity"]["arn"]
+
+
+def test_failed_iam_escalation_is_alerted_as_attempted():
+    detector = CloudControlPlaneDetector()
+    event = make_event(
+        event_id="failed-attach-policy",
+        event_name="AttachRolePolicy",
+        event_source="iam.amazonaws.com",
+    )
+    event["detail"]["errorCode"] = "AccessDenied"
+
+    alerts = detector.process_event(event)
+
+    assert len(alerts) == 1
+    assert alerts[0]["detection_type"] == "iam_privilege_escalation"
+    assert alerts[0]["api_call_outcome"] == "ATTEMPTED"
+    assert alerts[0]["error_code"] == "AccessDenied"
+
+
+def test_successful_iam_escalation_is_classified_as_succeeded():
+    detector = CloudControlPlaneDetector()
+    event = make_event(
+        event_id="successful-attach-policy",
+        event_name="AttachRolePolicy",
+        event_source="iam.amazonaws.com",
+    )
+
+    alerts = detector.process_event(event)
+
+    assert len(alerts) == 1
+    assert alerts[0]["api_call_outcome"] == "SUCCEEDED"
+    assert alerts[0]["error_code"] is None
+
+
+def test_failed_assume_role_does_not_create_role_session():
+    detector = CloudControlPlaneDetector()
+    event = assume_role_event(
+        event_id="failed-assume-role",
+        caller_arn=ROOT_ARN,
+        requested_role=(
+            "arn:aws:iam::000000000000:role/"
+            "cloud-control-plane-defense-production"
+        ),
+        assumed_role_arn=(
+            "arn:aws:sts::000000000000:assumed-role/"
+            "cloud-control-plane-defense-production/session-1"
+        ),
+        event_time="2026-11-25T12:00:00Z",
+    )
+    event["detail"]["errorCode"] = "AccessDenied"
+
+    alerts = detector.process_event(event)
+
+    assert alerts == []
+    assert detector._role_sessions == {}
+
+
+def test_failed_secret_reads_do_not_count_toward_enumeration():
+    detector = CloudControlPlaneDetector(enumeration_threshold=3)
+
+    for index, secret_id in enumerate(("secret-a", "secret-b", "secret-c")):
+        event = make_event(
+            event_id=f"failed-secret-read-{index}",
+            event_name="GetSecretValue",
+            event_source="secretsmanager.amazonaws.com",
+            request={"secretId": secret_id},
+        )
+        event["detail"]["errorCode"] = "AccessDenied"
+        assert detector.process_event(event) == []
+
+    assert detector._secret_reads == {}

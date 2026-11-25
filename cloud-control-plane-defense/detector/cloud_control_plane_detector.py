@@ -92,6 +92,7 @@ class ParsedEvent:
     response_elements: dict[str, Any]
     raw_detail_type: str
     caller_principal_id: str = ""
+    error_code: str | None = None
 
 
 def _parse_time(value: Any) -> datetime:
@@ -129,6 +130,11 @@ def parse_event(payload: Any) -> ParsedEvent:
     identity = detail.get("userIdentity")
     request = detail.get("requestParameters", {})
     response = detail.get("responseElements", {})
+    error_code = detail.get("errorCode")
+
+    if error_code is not None and not isinstance(error_code, str):
+        raise ValueError("errorCode must be a string when present")
+    error_code = error_code.strip() or None if error_code is not None else None
 
     if not isinstance(event_id, str) or not event_id.strip():
         raise ValueError("CloudTrail eventID is missing")
@@ -243,6 +249,7 @@ def parse_event(payload: Any) -> ParsedEvent:
         caller_principal_id=caller_principal_id,
         response_elements=response,
         raw_detail_type=str(detail_type or ""),
+        error_code=error_code,
     )
 
 
@@ -516,12 +523,18 @@ class CloudControlPlaneDetector:
             "detection_type": detection_type,
             "severity": severity,
             "description": description,
+            "api_call_outcome": (
+                "ATTEMPTED" if event.error_code else "SUCCEEDED"
+            ),
+            "error_code": event.error_code,
             "metadata": redact_sensitive(metadata),
         }
 
     def _track_assume_role(
         self, event: ParsedEvent
     ) -> list[dict[str, Any]]:
+        if event.error_code:
+            return []
         if event.event_source != "sts.amazonaws.com":
             return []
         if event.event_name != "AssumeRole":
@@ -588,6 +601,8 @@ class CloudControlPlaneDetector:
     def _track_secret_enumeration(
         self, event: ParsedEvent
     ) -> list[dict[str, Any]]:
+        if event.error_code:
+            return []
         if event.event_name not in SECRET_READ_EVENTS:
             return []
 

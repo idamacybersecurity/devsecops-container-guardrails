@@ -1,9 +1,9 @@
-name: ccpd-free
+name: ccpd-pro
 
 services:
   localstack:
     image: localstack/localstack:2026.10.7
-    container_name: ccpd-free-localstack
+    container_name: ccpd-pro-localstack
     env_file:
       - .env
     environment:

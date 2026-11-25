@@ -1,0 +1,852 @@
+{
+  "benchmark": "10 consecutive simulated SOAR containment attacks",
+  "environment": "LocalStack",
+  "target_user": "ccpd-soar-benchmark-20261117",
+  "target_arn": "arn:aws:iam::000000000000:user/ccpd-soar-benchmark-20261117",
+  "runs_requested": 10,
+  "runs_passed": 10,
+  "runs_failed": 0,
+  "runs_security_verified": 10,
+  "runs_under_one_second": 10,
+  "runs_over_one_second": 0,
+  "timing_statistics_population": "all runs with recorded timing, including failed runs",
+  "success_criteria": {
+    "quarantine_verified": true,
+    "independent_readback_all_three_controls": true,
+    "execution_duration_below_one_second": true,
+    "synthetic_event_to_verified_latency_below_one_second": true
+  },
+  "execution_duration_seconds": {
+    "mean": 0.6926251896016765,
+    "median": 0.7251108284981456,
+    "maximum": 0.7758122700033709
+  },
+  "synthetic_event_to_verified_seconds": {
+    "mean": 0.6926461,
+    "median": 0.7251225,
+    "maximum": 0.775827
+  },
+  "results": [
+    {
+      "run": 1,
+      "event_id": "43d0ec56-e616-4dcc-8973-5aa53717f118",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.03858892901916988,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.06565234801382758,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.046591402002377436,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.0386558840109501,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.0389003110176418,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.04639148199930787,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.09125398000469431,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.08173853199696168,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.12600449798628688,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.06140630698064342,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.08038859299267642,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03378991500358097,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:14.676053+00:00",
+      "execution_duration_seconds": 0.7499165059998631,
+      "synthetic_event_to_verified_seconds": 0.749928,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 2,
+      "event_id": "d62b86d3-0103-47df-85ee-7cb03810fa06",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.042792761989403516,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.034452218998922035,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.038935271004447713,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.04027986200526357,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.04483407302177511,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.07464982802048326,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.1496676990063861,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.056940420996397734,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.08939644999918528,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.07786842199857347,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.033776439988287166,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03994361698278226,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:15.880364+00:00",
+      "execution_duration_seconds": 0.7240027179941535,
+      "synthetic_event_to_verified_seconds": 0.724016,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 3,
+      "event_id": "3f6e3998-694d-412c-816d-c717841a87e2",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.030783822003286332,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03591408301144838,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.06522969400975853,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.03960148399346508,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.030296518991235644,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.033409146999474615,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.09258220202173106,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.061046123009873554,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.10238740599015728,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.059529149992158636,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.032913231989368796,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.06109326099976897,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:16.951956+00:00",
+      "execution_duration_seconds": 0.6454329719999805,
+      "synthetic_event_to_verified_seconds": 0.645387,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 4,
+      "event_id": "d9ccbd7f-5412-4533-9dad-1cf3e6463ee5",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.033038090012269095,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.02902153698960319,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.03420361698954366,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.02255501298350282,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.0217653319996316,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.048594350984785706,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.10437514199293219,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.21420543000567704,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.07102208098513074,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.04288402898237109,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.039121042005717754,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.06505957900662906,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:18.002839+00:00",
+      "execution_duration_seconds": 0.7262189390021376,
+      "synthetic_event_to_verified_seconds": 0.726229,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 5,
+      "event_id": "742f4faa-e1a1-45fa-b9f5-55dae0a5de6b",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.03194961298140697,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.06256516501889564,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.039414126018527895,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.05941662800614722,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.027752199006499723,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.04419289799989201,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.09745494401431642,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.10536322099505924,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.12594083399744704,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.0771139599964954,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.03851608801051043,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.027180140983546153,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:19.143095+00:00",
+      "execution_duration_seconds": 0.7372562329983339,
+      "synthetic_event_to_verified_seconds": 0.737391,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 6,
+      "event_id": "a32adfd3-84e0-49a7-8930-7e05baa7f962",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.041922158998204395,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.04319684699294157,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.04324834799626842,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.03800238901749253,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.044518174981931224,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.06803994500660338,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.08940306300064549,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.13980732200434431,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.1705011150042992,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.02840931198443286,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.03250277601182461,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03584950900403783,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:20.311262+00:00",
+      "execution_duration_seconds": 0.7758122700033709,
+      "synthetic_event_to_verified_seconds": 0.775827,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 7,
+      "event_id": "94526d86-0343-41da-9c26-5a2100472032",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.03106035801465623,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03878574198461138,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.024038778006797656,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.03260957001475617,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.05850660501164384,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.026669237995520234,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.06484164000721648,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.04918122899834998,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.057220862014219165,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.04685292500653304,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.037305141013348475,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.025286889023846015,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:21.434204+00:00",
+      "execution_duration_seconds": 0.4927472260023933,
+      "synthetic_event_to_verified_seconds": 0.492772,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 8,
+      "event_id": "cf5c2517-0e74-4076-b088-94a8afae27ac",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.04045345200574957,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.0505176940059755,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.026010217989096418,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.030533359007677063,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.05454501500935294,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.03462032397510484,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.08131050199153833,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.0903392109903507,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.10959836302208714,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.10327403401606716,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.043045633006840944,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03144135698676109,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:22.301205+00:00",
+      "execution_duration_seconds": 0.6961256350041367,
+      "synthetic_event_to_verified_seconds": 0.696139,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 9,
+      "event_id": "a45124c1-9891-478b-b698-ee5b263029e9",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.05140920000849292,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.04079140900284983,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.041988325014244765,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.026284994004527107,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03029428399167955,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.1217433949932456,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.07537598299677484,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.04671269599930383,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.11213547599618323,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.07386379898525774,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.06949128699488938,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.03938784799538553,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:23.407659+00:00",
+      "execution_duration_seconds": 0.7300987680209801,
+      "synthetic_event_to_verified_seconds": 0.730113,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    },
+    {
+      "run": 10,
+      "event_id": "edfb0e14-e061-4d77-9685-9f219db6924f",
+      "status": "PASS",
+      "iam_api_timings": [
+        {
+          "operation": "get_user",
+          "duration_seconds": 0.027825722005218267,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.07370338501641527,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.02488032399560325,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.027240791998337954,
+          "error": "NoSuchEntityException"
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.031367440009489655,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.040154652000637725,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.08899848800501786,
+          "error": null
+        },
+        {
+          "operation": "put_user_policy",
+          "duration_seconds": 0.08835784500115551,
+          "error": null
+        },
+        {
+          "operation": "get_user_policy",
+          "duration_seconds": 0.08181598197552375,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.06613784699584357,
+          "error": null
+        },
+        {
+          "operation": "update_access_key",
+          "duration_seconds": 0.0604227329895366,
+          "error": null
+        },
+        {
+          "operation": "list_access_keys",
+          "duration_seconds": 0.037303397024516016,
+          "error": null
+        }
+      ],
+      "synthetic_event_time": "2026-11-25T13:19:24.513381+00:00",
+      "execution_duration_seconds": 0.6486406289914157,
+      "synthetic_event_to_verified_seconds": 0.648659,
+      "clock_anomaly": false,
+      "responder_verified_controls": [
+        "explicit_deny_all",
+        "session_revocation_policy",
+        "all_access_keys_inactive"
+      ],
+      "errors": [],
+      "independent_verification": {
+        "explicit_deny_all": true,
+        "session_revocation_policy": true,
+        "all_access_keys_inactive": true
+      }
+    }
+  ],
+  "completed_at": "2026-11-25T13:19:25.303057+00:00"
+}

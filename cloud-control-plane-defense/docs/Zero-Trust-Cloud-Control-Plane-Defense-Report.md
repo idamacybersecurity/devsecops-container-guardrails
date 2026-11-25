@@ -128,24 +128,64 @@ integration test could.
 
 ## 6. Ten-run SOAR benchmark
 
-The recorded benchmark completed ten consecutive SOAR executions:
+A new ten-run LocalStack benchmark was executed with independent verification
+of the responder's containment controls. All ten runs passed the benchmark
+criteria, and all ten completed in under one second.
 
-| Metric | Recorded result |
+| Metric | Latest recorded result |
 |---|---:|
 | Successful runs | 10 / 10 |
 | Failed runs | 0 |
-| Mean execution latency | 0.253783868 s |
-| Maximum execution latency | 0.317171893 s |
-| Mean event-to-verified latency | 0.253797100 s |
-| Maximum event-to-verified latency | 0.317188000 s |
+| Independently verified runs | 10 / 10 |
+| Runs under one second | 10 / 10 |
+| Mean responder execution latency | 0.692625 s |
+| Maximum responder execution latency | 0.775812 s |
+| Mean synthetic event-to-verified latency | 0.692646 s |
+| Maximum synthetic event-to-verified latency | 0.775827 s |
 | Independently verified controls per run | 3 / 3 |
 
-Evidence file: `evidence/runtime/soar-ten-run-benchmark.json`.
+Evidence file:
+`evidence/runtime/soar-ten-run-benchmark-20261125-10of10.json`
 
-**Measurement qualification:** This benchmark measures the implemented
-simulated-alert-to-SOAR execution and verification path. It is not evidence of
-a complete native CloudTrail event timestamp-to-quarantine measurement across
-the entire AWS control-plane pipeline.
+SHA-256:
+`668bd6de61d9400677834bfa6b5a0a3f7fec758053779075b62708290159ac3a`
+
+### IAM API timing instrumentation
+
+The benchmark recorded 120 IAM API calls across the ten runs. No API-call
+errors were recorded.
+
+| IAM operation | Calls | Mean duration | Maximum duration |
+|---|---:|---:|---:|
+| put_user_policy | 20 | 0.073608 s | 0.214205 s |
+| get_user_policy | 40 | 0.068025 s | 0.170501 s |
+| list_access_keys | 40 | 0.047276 s | 0.103274 s |
+| update_access_key | 10 | 0.046748 s | 0.080389 s |
+| get_user | 10 | 0.036982 s | 0.051409 s |
+
+Timing analysis:
+`evidence/runtime/soar-iam-api-timing-analysis-20261125.json`
+
+SHA-256:
+`a1723bfcbfa4405ea60808d0d68ae42ceecd66228369d719790ade87ff83d4be`
+
+### Measurement qualification
+
+This benchmark measures the LocalStack simulated-alert-to-SOAR responder
+execution and independent IAM verification path. Its event-to-verified timer
+starts immediately before responder execution; it does not measure native
+CloudTrail event generation, delivery, detection, queueing, or real AWS policy
+propagation.
+
+The results therefore demonstrate that the tested responder workflow
+completed and independently verified its controls in under one second across
+ten consecutive LocalStack runs. They do not establish sub-second
+native-event-to-attacker-denial performance in live AWS.
+
+The earlier benchmark record
+`evidence/runtime/soar-ten-run-benchmark.json` represents a previous run and
+should be treated as historical evidence, not as the source for the latest
+figures.
 
 ## 7. Out-of-band drift and self-healing
 
@@ -372,10 +412,10 @@ The scheduled-versus-manual snapshot experiment identified an association
 between scheduled snapshot activity and long calls. This is an experimental
 observation, not proof that snapshot activity caused the delay.
 
-The earlier ten-run SOAR-only benchmark, with mean execution latency of
-approximately 0.254 seconds, measures a different portion of the workflow.
-It must not be presented as the end-to-end event-to-verified-quarantine
-latency.
+The latest ten-run SOAR-only benchmark in Section 6 recorded a mean
+responder execution latency of 0.692625 seconds. It measures a different
+portion of the workflow and must not be presented as the end-to-end
+event-to-verified-quarantine latency.
 
 Detailed methodology, measurements, integrity records, and qualifications
 are documented in

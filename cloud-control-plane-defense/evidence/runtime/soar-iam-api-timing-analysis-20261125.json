@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-11-25T13:24:49.317993+00:00",
+  "benchmark_evidence": "evidence/runtime/soar-ten-run-benchmark-20261125-10of10.json",
+  "scope": "LocalStack simulated-alert SOAR responder execution",
+  "total_runs": 10,
+  "passed_runs": 10,
+  "security_verified_runs": 10,
+  "under_one_second_runs": 10,
+  "total_iam_api_calls": 120,
+  "operations": {
+    "get_user": {
+      "calls": 10,
+      "mean_seconds": 0.03698241070378572,
+      "max_seconds": 0.05140920000849292
+    },
+    "list_access_keys": {
+      "calls": 40,
+      "mean_seconds": 0.047276392000640044,
+      "max_seconds": 0.10327403401606716
+    },
+    "get_user_policy": {
+      "calls": 40,
+      "mean_seconds": 0.06802516970201396,
+      "max_seconds": 0.1705011150042992
+    },
+    "put_user_policy": {
+      "calls": 20,
+      "mean_seconds": 0.07360786449862644,
+      "max_seconds": 0.21420543000567704
+    },
+    "update_access_key": {
+      "calls": 10,
+      "mean_seconds": 0.04674829650030006,
+      "max_seconds": 0.08038859299267642
+    }
+  },
+  "slowest_calls": [
+    {
+      "run": 4,
+      "operation": "put_user_policy",
+      "duration_seconds": 0.21420543000567704,
+      "error": null
+    },
+    {
+      "run": 6,
+      "operation": "get_user_policy",
+      "duration_seconds": 0.1705011150042992,
+      "error": null
+    },
+    {
+      "run": 2,
+      "operation": "get_user_policy",
+      "duration_seconds": 0.1496676990063861,
+      "error": null
+    },
+    {
+      "run": 6,
+      "operation": "put_user_policy",
+      "duration_seconds": 0.13980732200434431,
+      "error": null
+    },
+    {
+      "run": 1,
+      "operation": "get_user_policy",
+      "duration_seconds": 0.12600449798628688,
+      "error": null
+    },
+    {
+      "run": 5,
+      "operation": "get_user_policy",
+      "duration_seconds": 0.12594083399744704,
+      "error": null
+    },
+    {
+      "run": 9,
+      "operation": "put_user_policy",
+      "duration_seconds": 0.1217433949932456,
+      "error": null
+    },
+    {
+      "run": 9,
+      "operation": "get_user_policy",
+      "duration_seconds": 0.11213547599618323,
+      "error": null
+    },
+    {
+      "run": 8,
+      "operation": "get_user_policy",
+      "duration_seconds": 0.10959836302208714,
+      "error": null
+    },
+    {
+      "run": 5,
+      "operation": "put_user_policy",
+      "duration_seconds": 0.10536322099505924,
+      "error": null
+    }
+  ]
+}

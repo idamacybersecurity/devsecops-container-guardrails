@@ -1,0 +1,16 @@
+FIX 6 — PRO LOCALSTACK IAM ENFORCEMENT TEST
+Wed Nov 25 19:28:29 UTC 2026
+Endpoint: http://127.0.0.1:4566
+Enforcement: ENFORCE_IAM=1
+Identity: ccpd-fix6-iam-enforcement-20261125
+
+TEST 1 — ALLOWED iam:ListUsers
+[
+    "ccpd-fix6-iam-enforcement-20261125"
+]
+Exit code: 0
+
+TEST 2 — DENIED s3:ListBuckets
+
+An error occurred (AccessDenied) when calling the ListBuckets operation: User: arn:aws:iam::000000000000:user/ccpd-fix6-iam-enforcement-20261125 is not authorized to perform: s3:ListAllMyBuckets because no identity-based policy allows the s3:ListAllMyBuckets action
+Exit code: 254

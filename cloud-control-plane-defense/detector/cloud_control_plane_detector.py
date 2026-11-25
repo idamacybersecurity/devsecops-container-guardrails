@@ -91,6 +91,7 @@ class ParsedEvent:
     request_parameters: dict[str, Any]
     response_elements: dict[str, Any]
     raw_detail_type: str
+    caller_principal_id: str = ""
 
 
 def _parse_time(value: Any) -> datetime:
@@ -146,10 +147,17 @@ def parse_event(payload: Any) -> ParsedEvent:
 
     caller_arn = identity.get("arn")
     caller_type = identity.get("type", "Unknown")
+    caller_principal_id = identity.get("principalId")
     if not isinstance(caller_arn, str) or not caller_arn.strip():
         raise ValueError("userIdentity.arn is missing")
     if not isinstance(caller_type, str):
         raise ValueError("userIdentity.type is invalid")
+    if caller_principal_id is not None and (
+        not isinstance(caller_principal_id, str)
+        or not caller_principal_id.strip()
+    ):
+        raise ValueError("userIdentity.principalId is invalid")
+    caller_principal_id = caller_principal_id or ""
 
     arn_parts = caller_arn.split(":", 5)
 
@@ -232,6 +240,7 @@ def parse_event(payload: Any) -> ParsedEvent:
         caller_arn=caller_arn,
         caller_type=caller_type,
         request_parameters=request,
+        caller_principal_id=caller_principal_id,
         response_elements=response,
         raw_detail_type=str(detail_type or ""),
     )
@@ -503,6 +512,7 @@ class CloudControlPlaneDetector:
             "account_id": event.account_id,
             "caller_arn": event.caller_arn,
             "caller_type_reported": event.caller_type,
+            "caller_principal_id": event.caller_principal_id,
             "detection_type": detection_type,
             "severity": severity,
             "description": description,

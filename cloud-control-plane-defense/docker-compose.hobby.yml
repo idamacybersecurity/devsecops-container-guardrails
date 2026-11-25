@@ -1,0 +1,17 @@
+name: cloud-control-plane-defense-hobby
+
+services:
+  localstack-hobby:
+    image: localstack/localstack:2026.11.0
+    container_name: cloud-control-plane-localstack-hobby
+    env_file:
+      - .env.hobby
+    environment:
+      DEBUG: "0"
+      PERSISTENCE: "1"
+      SNAPSHOT_SAVE_STRATEGY: "ON_SHUTDOWN"
+    ports:
+      - "127.0.0.1:4570:4566"
+    volumes:
+      - "./volume-hobby:/var/lib/localstack"
+    restart: unless-stopped

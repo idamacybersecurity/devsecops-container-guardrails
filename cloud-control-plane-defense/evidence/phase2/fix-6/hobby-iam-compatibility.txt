@@ -1,0 +1,39 @@
+FIX 6 — LOCALSTACK HOBBY IAM COMPATIBILITY
+
+Date: 2026-11-25
+Endpoint: http://127.0.0.1:4570
+Container: cloud-control-plane-localstack-hobby
+Image: localstack/localstack:2026.11.0
+
+TEST 1 — IAM API AVAILABILITY
+Command:
+aws --endpoint-url=http://127.0.0.1:4570 iam list-users --output json
+
+Result:
+{
+    "Users": []
+}
+
+Status: PASS
+Interpretation: Hobby successfully handled the IAM ListUsers API request.
+
+TEST 2 — IAM ENFORCEMENT CONFIGURATION
+Running container inspection:
+Neither ENFORCE_IAM nor IAM_SOFT_MODE is configured.
+
+Compose inspection:
+Neither ENFORCE_IAM nor IAM_SOFT_MODE is configured.
+
+Status: CONFIGURATION VERIFIED
+
+COMPATIBILITY LIMITATION
+IAM API availability does not establish IAM policy enforcement.
+This test did not validate IAM policy enforcement on Hobby.
+Neither ENFORCE_IAM nor IAM_SOFT_MODE was configured in the
+Hobby container or Compose configuration inspected.
+Pro was used for the demonstrated IAM allow/deny enforcement test.
+Do not interpret this evidence as proof that Hobby supports or
+does not support IAM policy enforcement.
+
+IMPORTANT:
+This evidence does not claim that Hobby enforces IAM policies.

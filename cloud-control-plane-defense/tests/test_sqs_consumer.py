@@ -284,3 +284,240 @@ def test_consumer_does_not_log_malformed_message_body(tmp_path, monkeypatch, cap
     assert "JSONDecodeError" in caplog.text
     assert "NEVER_PRINT_THIS" not in caplog.text
     assert "secretAccessKey" not in caplog.text
+
+
+def test_localstack_identity_adapter_normalizes_only_mapped_identity(tmp_path):
+    import json
+
+    account = "000000000000"
+    arn = f"arn:aws:iam::{account}:user/ccpd-nat-test"
+    user_id = "AIDATESTUSER123"
+
+    payload = {
+        "detail": {
+            "userIdentity": {
+                "type": "Root",
+                "accountId": account,
+                "principalId": account,
+                "arn": arn,
+            }
+        }
+    }
+
+    mapping = tmp_path / "identity.json"
+    mapping.write_text(json.dumps({
+        "version": 1,
+        "identities": {
+            arn: {"account_id": account, "user_id": user_id}
+        },
+    }))
+    mapping.chmod(0o600)
+
+    normalized, evidence = sqs_consumer.normalize_localstack_identity(
+        payload, mapping
+    )
+
+    assert normalized["detail"]["userIdentity"]["type"] == "IAMUser"
+    assert normalized["detail"]["userIdentity"]["principalId"] == user_id
+    assert evidence["adapter"] == "localstack-identity-compat-v1"
+    assert evidence["matched_iam_user_arn"] == arn
+    assert payload["detail"]["userIdentity"]["type"] == "Root"
+
+
+def test_localstack_identity_adapter_normalizes_malformed_iamuser(tmp_path):
+    import json
+
+    account = "000000000000"
+    arn = f"arn:aws:iam::{account}:user/ccpd-nat-iamuser-test"
+    user_id = "AIDATESTIAMUSER456"
+
+    payload = {
+        "account": account,
+        "detail": {
+            "recipientAccountId": account,
+            "userIdentity": {
+                "type": "IAMUser",
+                "accountId": account,
+                "principalId": account,
+                "arn": arn,
+            },
+        },
+    }
+
+    mapping = tmp_path / "identity.json"
+    mapping.write_text(json.dumps({
+        "version": 1,
+        "identities": {
+            arn: {"account_id": account, "user_id": user_id}
+        },
+    }))
+    mapping.chmod(0o600)
+
+    normalized, evidence = sqs_consumer.normalize_localstack_identity(
+        payload, mapping
+    )
+
+    identity = normalized["detail"]["userIdentity"]
+
+    assert identity["type"] == "IAMUser"
+    assert identity["principalId"] == user_id
+    assert evidence["reported_type"] == "IAMUser"
+    assert evidence["reported_principal_id"] == account
+    assert evidence["normalized_principal_id"] == user_id
+    assert evidence["matched_iam_user_arn"] == arn
+
+    # The adapter must not mutate the original CloudTrail payload.
+    assert payload["detail"]["userIdentity"]["principalId"] == account
+
+
+def test_localstack_identity_adapter_rejects_unmapped_identity(tmp_path):
+    import json
+
+    account = "000000000000"
+    arn = f"arn:aws:iam::{account}:user/unmapped"
+
+    payload = {
+        "detail": {
+            "userIdentity": {
+                "type": "Root",
+                "accountId": account,
+                "principalId": account,
+                "arn": arn,
+            }
+        }
+    }
+
+    mapping = tmp_path / "identity.json"
+    mapping.write_text(json.dumps({
+        "version": 1,
+        "identities": {},
+    }))
+    mapping.chmod(0o600)
+
+    normalized, evidence = sqs_consumer.normalize_localstack_identity(
+        payload, mapping
+    )
+
+    assert normalized == payload
+    assert evidence is None
+
+
+def test_localstack_identity_adapter_rejects_account_mismatch(tmp_path):
+    import json
+
+    account = "000000000000"
+    other_account = "111111111111"
+    arn = f"arn:aws:iam::{account}:user/ccpd-nat-test"
+
+    payload = {
+        "detail": {
+            "userIdentity": {
+                "type": "Root",
+                "accountId": account,
+                "principalId": account,
+                "arn": arn,
+            }
+        }
+    }
+
+    mapping = tmp_path / "identity.json"
+    mapping.write_text(json.dumps({
+        "version": 1,
+        "identities": {
+            arn: {
+                "account_id": other_account,
+                "user_id": "AIDATESTUSER123",
+            }
+        },
+    }))
+    mapping.chmod(0o600)
+
+    normalized, evidence = sqs_consumer.normalize_localstack_identity(
+        payload, mapping
+    )
+
+    assert normalized == payload
+    assert evidence is None
+
+
+def test_localstack_identity_adapter_rejects_insecure_mapping_permissions(
+    tmp_path,
+):
+    import json
+
+    account = "000000000000"
+    arn = f"arn:aws:iam::{account}:user/ccpd-nat-test"
+
+    payload = {
+        "detail": {
+            "userIdentity": {
+                "type": "Root",
+                "accountId": account,
+                "principalId": account,
+                "arn": arn,
+            }
+        }
+    }
+
+    mapping = tmp_path / "identity.json"
+    mapping.write_text(json.dumps({
+        "version": 1,
+        "identities": {
+            arn: {
+                "account_id": account,
+                "user_id": "AIDATESTUSER123",
+            }
+        },
+    }))
+    mapping.chmod(0o644)
+
+    with pytest.raises(ValueError):
+        sqs_consumer.normalize_localstack_identity(payload, mapping)
+
+
+@pytest.mark.parametrize("mismatch_field", ["account", "recipientAccountId"])
+def test_localstack_identity_adapter_rejects_event_account_mismatch(
+    tmp_path, mismatch_field
+):
+    import json
+
+    account = "000000000000"
+    other_account = "111111111111"
+    arn = f"arn:aws:iam::{account}:user/ccpd-nat-test"
+
+    payload = {
+        "account": account,
+        "detail": {
+            "recipientAccountId": account,
+            "userIdentity": {
+                "type": "Root",
+                "accountId": account,
+                "principalId": account,
+                "arn": arn,
+            },
+        },
+    }
+
+    if mismatch_field == "account":
+        payload["account"] = other_account
+    else:
+        payload["detail"]["recipientAccountId"] = other_account
+
+    mapping = tmp_path / "identity.json"
+    mapping.write_text(json.dumps({
+        "version": 1,
+        "identities": {
+            arn: {
+                "account_id": account,
+                "user_id": "AIDATESTUSER123",
+            }
+        },
+    }))
+    mapping.chmod(0o600)
+
+    normalized, evidence = sqs_consumer.normalize_localstack_identity(
+        payload, mapping
+    )
+
+    assert normalized == payload
+    assert evidence is None

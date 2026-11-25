@@ -42,6 +42,102 @@ def validate_queue_url(queue_url: str) -> None:
         raise ValueError("Queue URL must point to the LocalStack endpoint")
 
 
+def normalize_localstack_identity(
+    payload: dict[str, Any],
+    mapping_path: str | Path,
+) -> tuple[dict[str, Any], dict[str, str] | None]:
+    """Normalize one specifically mapped LocalStack IAM identity.
+
+    This is a benchmark-only compatibility adapter. It does not modify the
+    original payload and never relaxes the detector's global parser.
+    """
+    if not isinstance(payload, dict):
+        return payload, None
+
+    detail = payload.get("detail")
+    if not isinstance(detail, dict):
+        return payload, None
+
+    identity = detail.get("userIdentity")
+    if not isinstance(identity, dict):
+        return payload, None
+
+    # Handle the two observed LocalStack malformed identity variants.
+    # Both require account ID as principalId and an exact mapped IAM user ARN.
+    reported_type = identity.get("type")
+    if reported_type not in {"Root", "IAMUser"}:
+        return payload, None
+
+    account_id = identity.get("accountId")
+    # Fail closed if the event envelope or CloudTrail recipient
+    # account conflicts with the identity being normalized.
+    envelope_account = payload.get("account")
+    recipient_account = detail.get("recipientAccountId")
+
+    if envelope_account not in (None, "", account_id):
+        return payload, None
+
+    if recipient_account not in (None, "", account_id):
+        return payload, None
+
+    principal_id = identity.get("principalId")
+    arn = identity.get("arn")
+
+    if not all(isinstance(v, str) and v for v in
+               (account_id, principal_id, arn)):
+        return payload, None
+
+    if principal_id != account_id:
+        return payload, None
+
+    path = Path(mapping_path)
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("LocalStack identity map must be a regular file")
+
+    mode = path.stat().st_mode
+    if mode & 0o077:
+        raise ValueError("LocalStack identity map permissions must be 0600")
+
+    mapping = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(mapping, dict) or mapping.get("version") != 1:
+        raise ValueError("Unsupported LocalStack identity map")
+
+    identities = mapping.get("identities")
+    if not isinstance(identities, dict):
+        raise ValueError("Invalid LocalStack identity map")
+
+    expected = identities.get(arn)
+    if not isinstance(expected, dict):
+        return payload, None
+
+    expected_account = expected.get("account_id")
+    expected_user_id = expected.get("user_id")
+
+    if (
+        expected_account != account_id
+        or not isinstance(expected_user_id, str)
+        or not expected_user_id
+        or not arn.startswith(f"arn:aws:iam::{account_id}:user/")
+    ):
+        return payload, None
+
+    normalized = copy.deepcopy(payload)
+    normalized_identity = normalized["detail"]["userIdentity"]
+    normalized_identity["type"] = "IAMUser"
+    normalized_identity["principalId"] = expected_user_id
+
+    evidence = {
+        "adapter": "localstack-identity-compat-v1",
+        "source": "LocalStack-only",
+        "reported_type": reported_type,
+        "reported_principal_id": principal_id,
+        "normalized_type": "IAMUser",
+        "normalized_principal_id": expected_user_id,
+        "matched_iam_user_arn": arn,
+    }
+    return normalized, evidence
+
+
 def append_alerts(alert_path: str | Path, alerts: list[dict[str, Any]]) -> None:
     """Append sanitized alerts and fsync them before message acknowledgement."""
     if not alerts:
@@ -86,8 +182,9 @@ def process_sqs_message(
     detector: CloudControlPlaneDetector,
     state_path: str | Path,
     alert_path: str | Path,
+    alert_queue_url: str | None = None,
 ) -> dict[str, Any]:
-    """Process one message; delete it only after durable writes succeed."""
+    """Process one message; publish alerts before acknowledging its input."""
     receipt_handle = message.get("ReceiptHandle")
     message_id = message.get("MessageId", "unknown")
 
@@ -104,10 +201,41 @@ def process_sqs_message(
             raise ValueError("SQS message body is not text")
 
         payload = json.loads(body)
+
+        identity_map_path = os.environ.get(
+            "CCPD_LOCALSTACK_IDENTITY_MAP_PATH"
+        )
+        identity_evidence = None
+
+        if identity_map_path:
+            validate_queue_url(queue_url)
+            payload, identity_evidence = normalize_localstack_identity(
+                payload, identity_map_path
+            )
+
         alerts = detector.process_event(payload)
+
+        if identity_evidence:
+            for alert in alerts:
+                alert["identity_normalization"] = identity_evidence
 
         # Required ordering: durable alert -> durable detector state -> ACK.
         append_alerts(alert_path, alerts)
+
+        # Publish normalized detector alerts to an optional downstream
+        # queue. Publish before state persistence and input ACK so a
+        # failed publish cannot silently lose an alert. Delivery can be
+        # duplicated after a crash; downstream event_id checkpointing
+        # must therefore remain enabled.
+        if alert_queue_url:
+            for alert in alerts:
+                sqs_client.send_message(
+                    QueueUrl=alert_queue_url,
+                    MessageBody=json.dumps(
+                        alert, sort_keys=True, separators=(",", ":")
+                    ),
+                )
+
         detector.save_state(state_path)
         state_persisted = True
 
@@ -147,6 +275,7 @@ def run_consumer(
     alert_path: Path,
     *,
     once: bool = False,
+    alert_queue_url: str | None = None,
 ) -> None:
     validate_queue_url(queue_url)
 
@@ -199,6 +328,7 @@ def run_consumer(
                     detector,
                     state_path,
                     alert_path,
+                    alert_queue_url=alert_queue_url,
                 )
                 LOGGER.info(
                     "Message processed: message_id=%s alerts=%d acknowledged=%s",
@@ -226,6 +356,11 @@ def main() -> None:
         "--queue-url",
         default=os.environ.get("SECURITY_EVENT_QUEUE_URL"),
         help="LocalStack SQS queue URL; defaults to SECURITY_EVENT_QUEUE_URL.",
+    )
+    parser.add_argument(
+        "--alert-queue-url",
+        default=os.environ.get("CCPD_ALERT_QUEUE_URL"),
+        help="Optional LocalStack SQS queue for normalized detector alerts.",
     )
     parser.add_argument(
         "--state-path",
@@ -259,6 +394,7 @@ def main() -> None:
         args.state_path,
         args.alert_path,
         once=args.once,
+        alert_queue_url=args.alert_queue_url,
     )
 
 

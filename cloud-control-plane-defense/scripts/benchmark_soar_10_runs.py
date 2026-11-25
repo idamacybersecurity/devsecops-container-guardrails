@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
+import time
 
 import boto3
 
@@ -43,8 +44,41 @@ if len(keys) != 1:
     )
 key_id = keys[0]["AccessKeyId"]
 
+class TimedIAMClient:
+    """Measure complete IAM client calls, including SDK retries."""
+
+    def __init__(self, client):
+        self._client = client
+        self.timings = []
+
+    def __getattr__(self, name):
+        operation = getattr(self._client, name)
+
+        if not callable(operation):
+            return operation
+
+        def measured_call(*args, **kwargs):
+            started = time.perf_counter()
+            error = None
+            try:
+                return operation(*args, **kwargs)
+            except Exception as exc:
+                error = type(exc).__name__
+                raise
+            finally:
+                self.timings.append({
+                    "operation": name,
+                    "duration_seconds": time.perf_counter() - started,
+                    "error": error,
+                })
+
+        return measured_call
+
+
+timed_iam = TimedIAMClient(iam)
+
 responder = CloudSOARResponder(
-    iam_client=iam,
+    iam_client=timed_iam,
     expected_account_id=ACCOUNT,
     break_glass_principals=config["break_glass_principals"],
     deny_policy_name=DENY_NAME,
@@ -151,7 +185,9 @@ for run_number in range(1, 11):
             "quarantine_principal_arn": EXPECTED_ARN,
         }
 
+        timed_iam.timings.clear()
         response = responder.execute(alert)
+        result['iam_api_timings'] = list(timed_iam.timings)
         result.update({
             "synthetic_event_time": alert["event_time"],
             "status": response["status"],
@@ -198,16 +234,26 @@ for run_number in range(1, 11):
     results.append(result)
 
 passed = sum(item["status"] == "PASS" for item in results)
+
+# Include every observed run in latency statistics, including performance
+# failures. Excluding slow failures would understate the measured latency.
+verified = sum(
+    bool(item.get("independent_verification"))
+    and all(item["independent_verification"].values())
+    for item in results
+)
+
 durations = [
     item["execution_duration_seconds"]
     for item in results
-    if item["status"] == "PASS"
+    if isinstance(item.get("execution_duration_seconds"), (int, float))
 ]
 latencies = [
     item["synthetic_event_to_verified_seconds"]
     for item in results
-    if item["status"] == "PASS"
+    if isinstance(item.get("synthetic_event_to_verified_seconds"), (int, float))
 ]
+under_one_second = sum(value < 1.0 for value in durations)
 
 report = {
     "benchmark": "10 consecutive simulated SOAR containment attacks",
@@ -217,6 +263,10 @@ report = {
     "runs_requested": 10,
     "runs_passed": passed,
     "runs_failed": 10 - passed,
+    "runs_security_verified": verified,
+    "runs_under_one_second": under_one_second,
+    "runs_over_one_second": len(durations) - under_one_second,
+    "timing_statistics_population": "all runs with recorded timing, including failed runs",
     "success_criteria": {
         "quarantine_verified": True,
         "independent_readback_all_three_controls": True,
@@ -243,8 +293,10 @@ os.chmod(REPORT, 0o600)
 
 print()
 print("=== BENCHMARK SUMMARY ===")
-print(f"Passed: {passed}/10")
-print(f"Failed: {10 - passed}/10")
+print(f"Passed all benchmark criteria: {passed}/10")
+print(f"Failed benchmark criteria: {10 - passed}/10")
+print(f"Security independently verified: {verified}/10")
+print(f"Under one second: {under_one_second}/10")
 print("Mean execution:", report["execution_duration_seconds"]["mean"])
 print("Maximum execution:", report["execution_duration_seconds"]["maximum"])
 print("Mean synthetic event-to-verified:", report["synthetic_event_to_verified_seconds"]["mean"])

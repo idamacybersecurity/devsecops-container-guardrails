@@ -380,6 +380,11 @@ def main():
         "--queue-url",
         default=os.environ.get("SECURITY_EVENT_QUEUE_URL"),
     )
+    ap.add_argument(
+        "--no-consumer",
+        action="store_true",
+        help="Read the alerts file without starting another SQS consumer.",
+    )
     ap.add_argument("--config", default="config/soar.json")
     ap.add_argument("--alerts", default="evidence/runtime/auto-alerts.jsonl")
     ap.add_argument("--state", default="evidence/runtime/auto-state.json")
@@ -402,7 +407,7 @@ def main():
     )
     a = ap.parse_args()
 
-    if not a.queue_url:
+    if not a.no_consumer and not a.queue_url:
         sys.exit("REFUSED: --queue-url or SECURITY_EVENT_QUEUE_URL is required")
 
     # Fail closed if configuration or endpoint validation fails.
@@ -430,23 +435,25 @@ def main():
 
     print(f"WATCHER_READY mode={mode}", flush=True)
 
-    consumer = subprocess.Popen(
-        [
-            sys.executable,
-            "-m",
-            "detector.sqs_consumer",
-            "--queue-url",
-            a.queue_url,
-            "--state-path",
-            a.state,
-            "--alert-path",
-            a.alerts,
-        ],
-        cwd=ROOT,
-        env={**os.environ, "PYTHONPATH": str(ROOT)},
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+    consumer = None
+    if not a.no_consumer:
+        consumer = subprocess.Popen(
+            [
+                sys.executable,
+                "-m",
+                "detector.sqs_consumer",
+                "--queue-url",
+                a.queue_url,
+                "--state-path",
+                a.state,
+                "--alert-path",
+                a.alerts,
+            ],
+            cwd=ROOT,
+            env={**os.environ, "PYTHONPATH": str(ROOT)},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
     try:
         # Recover unfinished events from the previous watcher process first.
@@ -471,7 +478,7 @@ def main():
         end = time.monotonic() + a.duration
 
         while time.monotonic() < end:
-            if consumer.poll() is not None:
+            if consumer is not None and consumer.poll() is not None:
                 raise RuntimeError("SQS consumer exited unexpectedly")
 
             if alerts.exists():
@@ -519,12 +526,13 @@ def main():
             time.sleep(0.05)
 
     finally:
-        consumer.terminate()
-        try:
-            consumer.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            consumer.kill()
-            consumer.wait()
+        if consumer is not None:
+            consumer.terminate()
+            try:
+                consumer.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                consumer.kill()
+                consumer.wait()
 
     print("WATCHER_DONE", flush=True)
     return 0

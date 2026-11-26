@@ -1131,3 +1131,72 @@ def test_failed_secret_reads_do_not_count_toward_enumeration():
         assert detector.process_event(event) == []
 
     assert detector._secret_reads == {}
+
+
+# --- Phase 2 false-positive tests (rule-by-rule) ---
+USER_ARN = "arn:aws:iam::000000000000:user/alice"
+
+
+def test_fp_user_rotates_own_access_key_does_not_alert():
+    detector = CloudControlPlaneDetector()
+    alerts = detector.process_event(
+        make_event(
+            event_id="fp-own-key",
+            event_name="CreateAccessKey",
+            event_source="iam.amazonaws.com",
+            caller_arn=USER_ARN,
+            caller_type="IAMUser",
+            request={"userName": "alice"},
+        )
+    )
+    assert alerts == []
+
+
+def test_fp_control_other_users_key_still_alerts():
+    detector = CloudControlPlaneDetector()
+    alerts = detector.process_event(
+        make_event(
+            event_id="fp-control-other-key",
+            event_name="CreateAccessKey",
+            event_source="iam.amazonaws.com",
+            caller_arn=USER_ARN,
+            caller_type="IAMUser",
+            request={"userName": "victim"},
+        )
+    )
+    assert [a["detection_type"] for a in alerts] == ["iam_privilege_escalation"]
+
+
+def test_fp_ci_role_rereads_one_secret_does_not_alert():
+    detector = CloudControlPlaneDetector()
+    alerts = []
+    for i in range(6):
+        alerts.extend(
+            detector.process_event(
+                make_event(
+                    event_id=f"fp-ci-secret-{i}",
+                    event_name="GetSecretValue",
+                    event_source="secretsmanager.amazonaws.com",
+                    event_time=f"2026-11-26T11:00:0{i}Z",
+                    caller_arn="arn:aws:sts::000000000000:assumed-role/ci-deploy/run-1",
+                    caller_type="AssumedRole",
+                    request={"secretId": "ci-token"},
+                )
+            )
+        )
+    assert alerts == []
+
+
+def test_fp_assumed_role_session_named_like_user_still_alerts():
+    detector = CloudControlPlaneDetector()
+    alerts = detector.process_event(
+        make_event(
+            event_id="fp-spoofed-session-name",
+            event_name="CreateAccessKey",
+            event_source="iam.amazonaws.com",
+            caller_arn="arn:aws:sts::000000000000:assumed-role/dev-role/alice",
+            caller_type="AssumedRole",
+            request={"userName": "alice"},
+        )
+    )
+    assert [a["detection_type"] for a in alerts] == ["iam_privilege_escalation"]

@@ -302,6 +302,23 @@ def _resource_identifiers(event: ParsedEvent) -> set[str]:
     return values
 
 
+def _is_self_access_key_creation(event: "ParsedEvent") -> bool:
+    """True only when a real IAM user creates a key for themselves.
+
+    Requires an IAM user ARN, so an assumed-role session named like the
+    target user does not qualify. A missing userName means the caller's own
+    user in IAM semantics.
+    """
+    if event.event_name != "CreateAccessKey":
+        return False
+    arn = event.caller_arn
+    if ":iam::" not in arn or ":user/" not in arn:
+        return False
+    caller_user = arn.split(":user/", 1)[1].rsplit("/", 1)[-1]
+    target = event.request_parameters.get("userName")
+    return target is None or target == caller_user
+
+
 class CloudControlPlaneDetector:
     """Stateful detector for CloudTrail management events."""
 
@@ -668,7 +685,10 @@ class CloudControlPlaneDetector:
 
         alerts: list[dict[str, Any]] = []
 
-        if event.event_name in IAM_ESCALATION_EVENTS:
+        if (
+            event.event_name in IAM_ESCALATION_EVENTS
+            and not _is_self_access_key_creation(event)
+        ):
             origin_arn = self._role_origins.get(
                 event.caller_arn, event.caller_arn
             )

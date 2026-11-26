@@ -1,9 +1,9 @@
-name: ccpd-pro
+name: ccpd-token-no-enforce
 
 services:
   localstack:
     image: localstack/localstack:2026.10.7
-    container_name: ccpd-pro-localstack
+    container_name: ccpd-token-no-enforce-localstack
     env_file:
       - .env
     environment:

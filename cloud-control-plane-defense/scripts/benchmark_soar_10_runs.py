@@ -13,6 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from soar.cloud_soar_responder import CloudSOARResponder
+GATE_SECONDS = float(os.environ.get("SOAR_BENCHMARK_GATE_SECONDS", "1.0"))
 
 ENDPOINT = "http://127.0.0.1:4566"
 REGION = "eu-north-1"
@@ -21,7 +22,7 @@ ACCOUNT = "000000000000"
 EXPECTED_ARN = f"arn:aws:iam::{ACCOUNT}:user/{USER}"
 DENY_NAME = "CCPDQuarantineDenyAll"
 SESSION_NAME = "AWSRevokeOlderSessions"
-REPORT = Path("evidence/runtime/soar-ten-run-benchmark.json")
+REPORT = Path(os.environ.get("SOAR_BENCHMARK_REPORT", "evidence/runtime/soar-ten-run-benchmark.json"))
 
 with open("config/soar.json", encoding="utf-8") as handle:
     config = json.load(handle)
@@ -211,12 +212,12 @@ for run_number in range(1, 11):
         if not all(independent.values()):
             raise RuntimeError("independent containment verification failed")
 
-        if response["execution_duration_seconds"] >= 1.0:
-            raise RuntimeError("SOAR execution duration exceeded one second")
+        if response["execution_duration_seconds"] >= GATE_SECONDS:
+            raise RuntimeError(f"SOAR execution duration met or exceeded the {GATE_SECONDS}s gate")
 
         latency = response["event_to_verified_seconds"]
-        if latency is None or latency < 0 or latency >= 1.0:
-            raise RuntimeError("event-to-verification latency was not sub-second")
+        if latency is None or latency < 0 or latency >= GATE_SECONDS:
+            raise RuntimeError(f"event-to-verification latency was outside the 0 to {GATE_SECONDS}s gate")
 
         result["status"] = "PASS"
         print(

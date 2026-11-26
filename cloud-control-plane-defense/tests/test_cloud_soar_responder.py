@@ -760,3 +760,38 @@ def test_partial_rollback_can_be_retried_without_conflicting_with_restored_polic
     assert "policy:cloud-control-plane-defense-developer:AWSRevokeOlderSessions" in (
         retry["verified_restorations"]
     )
+
+
+# --- Phase 2: ambiguous attribution must fail closed (bypass C4) ---
+def test_ambiguous_attribution_is_refused_without_mutation():
+    responder, iam = make_responder()
+    alert = make_alert(
+        SESSION_ARN,
+        quarantine_principal_arn=None,
+        originating_principal_arn=None,
+    )
+
+    with pytest.raises(ResponderError, match="quarantine_principal_arn_invalid"):
+        responder.plan(alert)
+
+    assert iam.mutations == []
+
+
+def test_ambiguous_attribution_never_falls_back_to_the_caller():
+    responder, iam = make_responder()
+    alert = make_alert(SESSION_ARN, quarantine_principal_arn=None)
+
+    with pytest.raises(ResponderError):
+        responder.plan(alert)
+
+    assert iam.mutations == []
+
+
+def test_missing_quarantine_key_still_uses_caller_for_normal_alerts():
+    responder, _ = make_responder()
+    alert = make_alert(USER_ARN, caller_type_reported="IAMUser")
+    alert.pop("quarantine_principal_arn", None)
+
+    plan = responder.plan(alert)
+
+    assert plan is not None

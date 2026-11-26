@@ -878,6 +878,15 @@ def load_config(path: Path) -> dict[str, Any]:
     return config
 
 
+SUCCESS_STATUSES = frozenset(
+    {"DRY_RUN", "QUARANTINE_VERIFIED", "BLAST_RADIUS_REPORT"}
+)
+
+
+def exit_code_for(result: dict[str, Any]) -> int:
+    return 0 if result.get("status") in SUCCESS_STATUSES else 2
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--alert-file", required=True, type=Path)
@@ -940,9 +949,7 @@ def main() -> int:
                 else responder.plan(alert)
             )
         print(json.dumps(result, indent=2, sort_keys=True))
-        return 0 if result["status"] in {
-            "DRY_RUN", "QUARANTINE_VERIFIED"
-        } else 2
+        return exit_code_for(result)
     except Exception as exc:
         # Never print raw events, credentials, or exception messages.
         print(json.dumps({

@@ -919,3 +919,21 @@ def test_cli_refuses_blast_radius_together_with_execute(monkeypatch):
     with pytest.raises(SystemExit) as exc:
         responder_main()
     assert exc.value.code == 2
+
+
+# --- Phase 2: exit codes ---
+from soar.cloud_soar_responder import exit_code_for  # noqa: E402
+
+
+@pytest.mark.parametrize(
+    "status", ["DRY_RUN", "QUARANTINE_VERIFIED", "BLAST_RADIUS_REPORT"]
+)
+def test_exit_code_zero_for_successful_statuses(status):
+    assert exit_code_for({"status": status}) == 0
+
+
+@pytest.mark.parametrize(
+    "result", [{"status": "REJECTED"}, {"status": "QUARANTINE_FAILED"}, {}]
+)
+def test_exit_code_nonzero_for_anything_else(result):
+    assert exit_code_for(result) == 2

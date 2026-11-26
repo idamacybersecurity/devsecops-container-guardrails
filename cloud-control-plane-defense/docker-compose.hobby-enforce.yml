@@ -1,0 +1,4 @@
+services:
+  localstack-hobby:
+    environment:
+      ENFORCE_IAM: "1"

@@ -142,9 +142,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=int, default=10)
     ap.add_argument("--timeout", type=float, default=60)
+    ap.add_argument("--observation-window", type=float, default=15)
     ap.add_argument("--label", default="native")
     ap.add_argument("--out-dir", default="evidence/results/native-eventtime")
     a = ap.parse_args()
+    if a.observation_window <= 0:
+        ap.error("--observation-window must be greater than zero")
 
     cfg = json.load(open(ROOT / "config/soar.json"))
     deny = cfg.get("deny_policy_name", "CCPDQuarantineDenyAll")
@@ -322,6 +325,10 @@ def main():
                 authorization_probe, "kms", "DescribeKey",
                 "authorization_probe", api_timings, timing_lock,
             )
+            attach_timing_hooks(
+                credential_probe, "sts", "GetCallerIdentity",
+                "credential_probe", api_timings, timing_lock,
+            )
 
             time.sleep(1)  # identity settles; not counted
 
@@ -358,9 +365,13 @@ def main():
             quarantine_readback = None
             quarantine_verified_wall = None
             deadline = t_call_mono + a.timeout
-            next_probe = t_call_mono
+            next_authorization_probe = t_call_mono
+            next_credential_probe = None
+
             probe_samples = 0
             probe_successes = 0
+            credential_probe_samples = 0
+            credential_probe_successes = 0
 
             authorization_denied = False
             authorization_denial_code = None
@@ -373,6 +384,7 @@ def main():
             credential_authentication_denial_wall = None
 
             authorization_probe_error = None
+            credential_authentication_probe_error = None
             watcher_exit_observed = None
 
             authorization_denial_codes = {
@@ -389,13 +401,9 @@ def main():
             while time.monotonic() < deadline:
                 now = time.monotonic()
 
-                # Probe the previously permitted KMS operation approximately
-                # every 100ms. Stop probing after a recognized denial.
-                if (
-                    not authorization_denied
-                    and not credential_authentication_denied
-                    and now >= next_probe
-                ):
+                # Independently test KMS authorization approximately every
+                # 100ms until a recognized authorization denial is observed.
+                if not authorization_denied and now >= next_authorization_probe:
                     probe_samples += 1
                     try:
                         authorization_probe.describe_key(KeyId=key_id)
@@ -410,11 +418,6 @@ def main():
                             authorization_denial_code = code
                             authorization_denial_type = type(exc).__name__
                             authorization_denial_wall = time.time()
-                        elif code in authentication_denial_codes:
-                            credential_authentication_denied = True
-                            credential_authentication_denial_code = code
-                            credential_authentication_denial_type = type(exc).__name__
-                            credential_authentication_denial_wall = time.time()
                         else:
                             authorization_probe_error = {
                                 "type": type(exc).__name__,
@@ -422,38 +425,63 @@ def main():
                                 "message": str(exc),
                             }
 
-                    next_probe = time.monotonic() + 0.1
+                    next_authorization_probe = time.monotonic() + 0.1
 
                 found_action = find_action(log, arn)
                 if found_action is not None and action is None:
                     action = found_action
                     action_observed_mono = time.monotonic()
+                    next_credential_probe = action_observed_mono
 
-                    # Independently verify IAM containment immediately.
-                    # Do not wait for the separate KMS authorization probe.
                     if action.get("status") == "QUARANTINE_VERIFIED":
-                        quarantine_readback = readback(
-                            iam, user, deny, sess
-                        )
+                        quarantine_readback = readback(iam, user, deny, sess)
                         quarantine_verified_wall = time.time()
 
-                # Do not stop watching if a denial happens before the
-                # responder finishes. Once quarantine is verified, continue
-                # probing for up to five seconds if no denial was observed.
-                if action is not None:
-                    denial_observed = (
+                # Independently test whether the attacker's credentials still
+                # authenticate to STS. A KMS denial does not stop this probe.
+                if (
+                    action_observed_mono is not None
+                    and not credential_authentication_denied
+                    and next_credential_probe is not None
+                    and now >= next_credential_probe
+                ):
+                    credential_probe_samples += 1
+                    try:
+                        credential_probe.get_caller_identity()
+                        credential_probe_successes += 1
+                    except Exception as exc:
+                        response = getattr(exc, "response", {})
+                        error = response.get("Error", {}) if isinstance(response, dict) else {}
+                        code = error.get("Code") if isinstance(error, dict) else None
+
+                        if code in authentication_denial_codes:
+                            credential_authentication_denied = True
+                            credential_authentication_denial_code = code
+                            credential_authentication_denial_type = type(exc).__name__
+                            credential_authentication_denial_wall = time.time()
+                        else:
+                            credential_authentication_probe_error = {
+                                "type": type(exc).__name__,
+                                "code": code,
+                                "message": str(exc),
+                            }
+
+                    next_credential_probe = time.monotonic() + 0.1
+
+                # Do not stop after only one type of denial. Wait for both
+                # independent denials or the configured observation window.
+                if action_observed_mono is not None:
+                    both_denials_observed = (
                         authorization_denied
-                        or credential_authentication_denied
+                        and credential_authentication_denied
                     )
                     observation_complete = (
-                        action_observed_mono is not None
-                        and time.monotonic() >= action_observed_mono + 5
+                        time.monotonic()
+                        >= action_observed_mono + a.observation_window
                     )
-                    if denial_observed or observation_complete:
+                    if both_denials_observed or observation_complete:
                         break
 
-                # A watcher exit is an infrastructure observation, not
-                # proof of successful quarantine.
                 watcher_exit_code = watcher.poll()
                 if watcher_exit_code is not None:
                     watcher_exit_observed = watcher_exit_code
@@ -497,6 +525,13 @@ def main():
                     round(credential_authentication_denial_wall - t_call, 6)
                     if credential_authentication_denial_wall is not None else None
                 ),
+                "credential_authentication_probe_operation": "sts:GetCallerIdentity",
+                "credential_authentication_probe_baseline": "SUCCESS",
+                "credential_authentication_probe_interval_seconds": 0.1,
+                "credential_authentication_probe_samples": credential_probe_samples,
+                "credential_authentication_probe_successes": credential_probe_successes,
+                "credential_authentication_probe_other_error": credential_authentication_probe_error,
+                "post_action_observation_window_s": a.observation_window,
                 "authorization_probe_operation": "kms:DescribeKey",
                 "authorization_probe_baseline": "SUCCESS",
                 "authorization_probe_interval_seconds": 0.1,
@@ -643,12 +678,17 @@ def main():
         "metric": "CloudTrail eventTime to independently verified quarantine",
         "attack": "kms:DisableKeyRotation by disposable IAM user",
         "attacker_key_probe": (
-            "KMS DescribeKey using the attacker's credentials, with a "
-            "successful pre-attack baseline and probes approximately every "
-            "100ms until a recognized denial or five seconds after verified "
-            "quarantine. IAM authorization denial and credential "
-            "authentication denial are recorded separately."
+            "Independent attacker-credential probes. KMS DescribeKey tests "
+            "authorization approximately every 100ms from attack time until "
+            "a recognized authorization denial. STS GetCallerIdentity tests "
+            "credential authentication approximately every 100ms from action "
+            "discovery until a recognized authentication denial. Neither "
+            "probe stops merely because the other observes a denial. "
+            "Observation ends when both denials are observed, the configured "
+            "post-action observation window expires, or the overall timeout "
+            "is reached. Outcomes and timestamps are recorded separately."
         ),
+        "post_action_observation_window_s": a.observation_window,
         "cleanup_skipped_users": sorted(unsafe_cleanup_users),
         "endpoint": ENDPOINT,
         "git_sha": sha, "modified_tracked_files": modified,

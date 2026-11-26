@@ -1347,3 +1347,85 @@ def test_bypass_malformed_identity_is_rejected_by_input_validation(
             _event("UpdateAssumeRolePolicy", "iam.amazonaws.com", caller, ctype)
         )
     assert len(d.approved_change_log) == 0
+
+
+# --- Phase 2: bypass regression tests (found by scripts/bypass_probe.py) ---
+_BP_DEV = "cloud-control-plane-defense-developer"
+_BP_CICD = "cloud-control-plane-defense-cicd"
+_BP_PROD = "cloud-control-plane-defense-production"
+_BP_ATTACKER = "arn:aws:iam::000000000000:user/attacker"
+_BP_VICTIM = "arn:aws:iam::000000000000:user/victim"
+
+
+def _bp_assume(d, eid, caller, ctype, role, session):
+    assumed = f"arn:aws:sts::000000000000:assumed-role/{role}/{session}"
+    out = d.process_event(
+        make_event(
+            event_id=eid,
+            event_name="AssumeRole",
+            event_source="sts.amazonaws.com",
+            caller_arn=caller,
+            caller_type=ctype,
+            request={"roleArn": f"arn:aws:iam::000000000000:role/{role}"},
+            response={"assumedRoleUser": {"arn": assumed}},
+        )
+    )
+    return assumed, out
+
+
+def _bp_put_policy(d, eid, caller, ctype):
+    return d.process_event(
+        make_event(
+            event_id=eid,
+            event_name="PutUserPolicy",
+            event_source="iam.amazonaws.com",
+            caller_arn=caller,
+            caller_type=ctype,
+            request={"userName": "victim"},
+        )
+    )
+
+
+def test_bypass_extra_hop_still_flags_privileged_chain():
+    d = CloudControlPlaneDetector()
+    cur, ctype, alerts = _BP_ATTACKER, "IAMUser", []
+    for i, role in enumerate([_BP_DEV, "extra-role", _BP_CICD, _BP_PROD]):
+        cur, out = _bp_assume(d, f"bp-hop-{i}", cur, ctype, role, "s")
+        ctype = "AssumedRole"
+        alerts += out
+    assert "privileged_role_chain" in [a["detection_type"] for a in alerts]
+
+
+def test_cicd_to_production_without_developer_is_not_privileged_chain():
+    d = CloudControlPlaneDetector()
+    cur, out1 = _bp_assume(d, "bp-nd-1", _BP_ATTACKER, "IAMUser", _BP_CICD, "s")
+    _, out2 = _bp_assume(d, "bp-nd-2", cur, "AssumedRole", _BP_PROD, "s")
+    assert "privileged_role_chain" not in [
+        a["detection_type"] for a in out1 + out2
+    ]
+
+
+def test_bypass_shared_session_name_marks_attribution_ambiguous():
+    d = CloudControlPlaneDetector()
+    session, _ = _bp_assume(d, "bp-s-1", _BP_ATTACKER, "IAMUser", _BP_DEV, "shared")
+    _bp_assume(d, "bp-s-2", _BP_VICTIM, "IAMUser", _BP_DEV, "shared")
+    alerts = _bp_put_policy(d, "bp-s-act", session, "AssumedRole")
+    alert = next(a for a in alerts if a["detection_type"] == "iam_privilege_escalation")
+    assert alert["quarantine_principal_arn"] is None
+    assert alert["metadata"]["attribution_ambiguous"] is True
+    assert alert["metadata"]["candidate_principals"] == sorted(
+        [_BP_ATTACKER, _BP_VICTIM]
+    )
+
+
+def test_bypass_event_id_squatting_does_not_suppress_alert():
+    d = CloudControlPlaneDetector()
+    d.process_event(make_event(event_id="squat", event_name="DescribeKey"))
+    alerts = _bp_put_policy(d, "squat", _BP_ATTACKER, "IAMUser")
+    assert "iam_privilege_escalation" in [a["detection_type"] for a in alerts]
+
+
+def test_exact_replay_is_still_suppressed():
+    d = CloudControlPlaneDetector()
+    assert _bp_put_policy(d, "bp-replay", _BP_ATTACKER, "IAMUser")
+    assert _bp_put_policy(d, "bp-replay", _BP_ATTACKER, "IAMUser") == []

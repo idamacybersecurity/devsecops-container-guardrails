@@ -12,6 +12,8 @@ from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
+import hashlib
+import json
 import logging
 import re
 import tempfile
@@ -321,6 +323,30 @@ def _is_self_access_key_creation(event: "ParsedEvent") -> bool:
 
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _privileged_path_present(chain, expected):
+    if not chain or chain[-1] != expected[-1]:
+        return False
+    position = 0
+    for name in chain[:-1]:
+        if position < len(expected) - 1 and name == expected[position]:
+            position += 1
+    return position == len(expected) - 1
+
+
+def _event_fingerprint(event):
+    body = json.dumps(
+        [
+            event.event_name,
+            event.event_source,
+            event.caller_arn,
+            event.request_parameters,
+        ],
+        sort_keys=True,
+        default=str,
+    )
+    return hashlib.sha256(body.encode()).hexdigest()
 _ASSUMED_ROLE_ARN_RE = re.compile(
     r"arn:aws:sts::(\d{12}):assumed-role/([\w+=,.@-]+)/([^/]+)"
 )
@@ -359,6 +385,8 @@ class CloudControlPlaneDetector:
                 )
             self._approved_changes[role_arn] = frozenset(events)
         self.approved_change_log: deque[dict[str, str]] = deque(maxlen=1000)
+        self._ambiguous_sessions: dict[str, set[str]] = {}
+        self._fingerprints: dict[str, str] = {}
 
         self._seen_ids: set[str] = set()
         self._seen_order: deque[str] = deque()
@@ -605,8 +633,14 @@ class CloudControlPlaneDetector:
         origin_arn = self._role_origins.get(
             event.caller_arn, event.caller_arn
         )
-        self._role_sessions[assumed_arn] = chain
-        self._role_origins[assumed_arn] = origin_arn
+        previous_origin = self._role_origins.get(assumed_arn)
+        if previous_origin is not None and previous_origin != origin_arn:
+            self._ambiguous_sessions.setdefault(
+                assumed_arn, {previous_origin}
+            ).add(origin_arn)
+        else:
+            self._role_sessions[assumed_arn] = chain
+            self._role_origins[assumed_arn] = origin_arn
 
         alerts = [
             self._alert(
@@ -628,7 +662,7 @@ class CloudControlPlaneDetector:
             "cloud-control-plane-defense-production",
         ]
 
-        if len(chain) >= 3 and chain[-3:] == expected_suffix:
+        if _privileged_path_present(chain, expected_suffix):
             chain_alert = self._alert(
                 event,
                 "privileged_role_chain",
@@ -710,8 +744,14 @@ class CloudControlPlaneDetector:
         """
         event = parse_event(payload)
 
+        fingerprint = _event_fingerprint(event)
         if not self._remember_event(event.event_id):
-            return []
+            if self._fingerprints.get(event.event_id) in (None, fingerprint):
+                return []
+            _LOGGER.warning("event_id_collision %s", event.event_id)
+        self._fingerprints[event.event_id] = fingerprint
+        if len(self._fingerprints) > self.deduplication_limit:
+            self._fingerprints.pop(next(iter(self._fingerprints)))
 
         if (
             event.event_name in IAM_ESCALATION_EVENTS
@@ -749,6 +789,14 @@ class CloudControlPlaneDetector:
             # fields identify the original principal for SOAR containment.
             escalation_alert["originating_principal_arn"] = origin_arn
             escalation_alert["quarantine_principal_arn"] = origin_arn
+            ambiguous = self._ambiguous_sessions.get(event.caller_arn)
+            if ambiguous:
+                escalation_alert["originating_principal_arn"] = None
+                escalation_alert["quarantine_principal_arn"] = None
+                escalation_alert["metadata"]["attribution_ambiguous"] = True
+                escalation_alert["metadata"]["candidate_principals"] = sorted(
+                    ambiguous
+                )
             alerts.append(escalation_alert)
 
         expected_source = DEFENSE_EVASION_EVENT_SOURCES.get(event.event_name)

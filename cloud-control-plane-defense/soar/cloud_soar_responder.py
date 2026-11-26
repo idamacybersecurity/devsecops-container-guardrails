@@ -231,6 +231,88 @@ class CloudSOARResponder:
             "mutations_performed": False,
         }
 
+    @staticmethod
+    def _trust_principals(document: Any) -> list[str]:
+        if isinstance(document, str):
+            document = json.loads(document)
+        found: list[str] = []
+        for stmt in (document or {}).get("Statement", []):
+            if stmt.get("Effect") != "Allow":
+                continue
+            principal = stmt.get("Principal", {})
+            if isinstance(principal, str):
+                found.append(principal)
+                continue
+            for kind, value in principal.items():
+                values = [value] if isinstance(value, str) else value
+                found.extend(f"{kind}:{item}" for item in values)
+        return sorted(set(found))
+
+    def blast_radius(self, alert: Any) -> dict[str, Any]:
+        """Read-only report of what containment would affect. No mutation."""
+        plan = self.plan(alert)
+        target = plan["target"]
+
+        keys: list[dict[str, str]] = []
+        inline_policies: list[str] = []
+        if target["type"] == "user":
+            response = self.iam.list_access_keys(UserName=target["name"])
+            keys = [
+                {"access_key_id": k["AccessKeyId"], "status": k["Status"]}
+                for k in response.get("AccessKeyMetadata", [])
+            ]
+            inline_policies = list(
+                self.iam.list_user_policies(UserName=target["name"]).get(
+                    "PolicyNames", []
+                )
+            )
+
+        shared_roles: list[dict[str, Any]] = []
+        if self.revoke_chain_roles:
+            chain_roles, _ = self._chain_roles(alert, target)
+            for role in chain_roles:
+                entry: dict[str, Any] = {
+                    "role": role["name"],
+                    "effect": "revoke_all_sessions_issued_before_cutoff",
+                    "includes_legitimate_sessions": True,
+                    "trusted_principals": [],
+                }
+                try:
+                    doc = self.iam.get_role(RoleName=role["name"])["Role"][
+                        "AssumeRolePolicyDocument"
+                    ]
+                    entry["trusted_principals"] = self._trust_principals(doc)
+                except Exception as exc:  # report, never hide
+                    entry["trust_lookup_error"] = type(exc).__name__
+                shared_roles.append(entry)
+
+        return {
+            "status": "BLAST_RADIUS_REPORT",
+            "event_id": plan["event_id"],
+            "target": target,
+            "direct_effects": {
+                "attach_explicit_deny_all": self.deny_policy_name,
+                "access_keys": keys,
+                "keys_to_deactivate": [
+                    k["access_key_id"] for k in keys if k["status"] == "Active"
+                ],
+                "existing_inline_policies_left_untouched": inline_policies,
+            },
+            "shared_roles_affected": shared_roles,
+            "chain_roles_skipped": plan["chain_roles_skipped"],
+            "session_revocation": {
+                "policy_name": self.session_policy_name,
+                "cutoff": "set at execution time, plus buffer",
+                "buffer_seconds": self.session_buffer_seconds,
+                "sessions_enumerable_via_iam": False,
+                "note": (
+                    "IAM cannot list active sessions. Revocation denies every "
+                    "session of the listed roles issued before the cutoff."
+                ),
+            },
+            "mutations_performed": False,
+        }
+
     def _put_policy(self, target: dict[str, str], name: str,
                     document: dict[str, Any]) -> None:
         if target["type"] == "role":
@@ -807,7 +889,13 @@ def main() -> int:
         "--execute", action="store_true",
         help="Perform IAM containment. Without this flag, only dry-run.",
     )
+    parser.add_argument(
+        "--blast-radius", action="store_true",
+        help="Read-only report of principals and roles containment would affect.",
+    )
     args = parser.parse_args()
+    if args.blast_radius and args.execute:
+        parser.error("--blast-radius cannot be combined with --execute")
 
     try:
         alert = json.loads(args.alert_file.read_text(encoding="utf-8"))
@@ -843,11 +931,14 @@ def main() -> int:
                 "session_revocation_buffer_seconds", 30
             ),
         )
-        result = (
-            responder.execute(alert)
-            if args.execute
-            else responder.plan(alert)
-        )
+        if args.blast_radius:
+            result = responder.blast_radius(alert)
+        else:
+            result = (
+                responder.execute(alert)
+                if args.execute
+                else responder.plan(alert)
+            )
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0 if result["status"] in {
             "DRY_RUN", "QUARANTINE_VERIFIED"

@@ -795,3 +795,127 @@ def test_missing_quarantine_key_still_uses_caller_for_normal_alerts():
     plan = responder.plan(alert)
 
     assert plan is not None
+
+
+# --- Phase 2: blast-radius report (read-only) ---
+import sys  # noqa: E402
+
+from soar.cloud_soar_responder import main as responder_main  # noqa: E402
+
+CICD_NAME = "cloud-control-plane-defense-cicd"
+CICD_ARN = f"arn:aws:iam::000000000000:role/{CICD_NAME}"
+DEV_NAME = "cloud-control-plane-defense-developer"
+
+
+class ReportingFakeIAM(FakeIAM):
+    """FakeIAM plus the read-only calls the blast-radius report uses."""
+
+    def __init__(self):
+        super().__init__()
+        self.inline_user_policies = ["CCPDBaselinePolicy"]
+        self.trust = {
+            CICD_NAME: {
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Principal": {"AWS": ROLE_ARN},
+                    "Action": "sts:AssumeRole",
+                }],
+            }
+        }
+
+    def list_user_policies(self, UserName):
+        return {"PolicyNames": list(self.inline_user_policies)}
+
+    def get_role(self, RoleName):
+        result = super().get_role(RoleName)
+        if RoleName in self.trust:
+            result["Role"]["AssumeRolePolicyDocument"] = self.trust[RoleName]
+        return result
+
+
+def _chain_responder(iam, break_glass=None):
+    return CloudSOARResponder(
+        iam_client=iam,
+        expected_account_id=ACCOUNT,
+        break_glass_principals=break_glass or [],
+        session_buffer_seconds=30,
+        clock=lambda: FIXED_NOW,
+        revoke_chain_roles=True,
+    )
+
+
+def _chain_alert():
+    return make_alert(
+        SESSION_ARN,
+        metadata={"role_chain": [CICD_NAME, DEV_NAME]},
+    )
+
+
+def test_blast_radius_user_target_lists_keys_and_mutates_nothing():
+    iam = ReportingFakeIAM()
+    responder = _chain_responder(iam)
+    alert = make_alert(USER_ARN, caller_type_reported="IAMUser")
+
+    report = responder.blast_radius(alert)
+
+    assert report["status"] == "BLAST_RADIUS_REPORT"
+    assert report["mutations_performed"] is False
+    assert iam.mutations == []
+    effects = report["direct_effects"]
+    assert len(effects["access_keys"]) == 2
+    assert effects["keys_to_deactivate"] == ["AKIATEST000000000001"]
+    assert effects["existing_inline_policies_left_untouched"] == [
+        "CCPDBaselinePolicy"
+    ]
+
+
+def test_blast_radius_lists_shared_roles_and_who_can_assume_them():
+    iam = ReportingFakeIAM()
+    report = _chain_responder(iam).blast_radius(_chain_alert())
+
+    affected = report["shared_roles_affected"]
+    assert [r["role"] for r in affected] == [CICD_NAME]
+    assert affected[0]["includes_legitimate_sessions"] is True
+    assert affected[0]["trusted_principals"] == [f"AWS:{ROLE_ARN}"]
+    assert report["session_revocation"]["sessions_enumerable_via_iam"] is False
+    assert iam.mutations == []
+
+
+def test_blast_radius_break_glass_role_is_skipped_not_affected():
+    iam = ReportingFakeIAM()
+    responder = _chain_responder(iam, break_glass=[CICD_ARN])
+
+    report = responder.blast_radius(_chain_alert())
+
+    assert report["shared_roles_affected"] == []
+    assert f"break_glass:{CICD_NAME}" in report["chain_roles_skipped"]
+    assert iam.mutations == []
+
+
+def test_blast_radius_reports_trust_lookup_failure_instead_of_hiding_it():
+    iam = FakeIAM()  # get_role returns no trust policy
+    report = _chain_responder(iam).blast_radius(_chain_alert())
+
+    affected = report["shared_roles_affected"]
+    assert [r["role"] for r in affected] == [CICD_NAME]
+    assert "trust_lookup_error" in affected[0]
+    assert iam.mutations == []
+
+
+def test_blast_radius_still_refuses_invalid_alerts():
+    iam = ReportingFakeIAM()
+    with pytest.raises(ResponderError, match="root_principal"):
+        _chain_responder(iam).blast_radius(make_alert(ROOT_ARN))
+    assert iam.mutations == []
+
+
+def test_cli_refuses_blast_radius_together_with_execute(monkeypatch):
+    monkeypatch.setattr(
+        sys, "argv",
+        ["responder", "--alert-file", "unused.json",
+         "--blast-radius", "--execute"],
+    )
+    with pytest.raises(SystemExit) as exc:
+        responder_main()
+    assert exc.value.code == 2

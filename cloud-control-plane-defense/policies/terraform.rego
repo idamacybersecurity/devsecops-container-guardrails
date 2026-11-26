@@ -2,6 +2,10 @@ package main
 
 import rego.v1
 
+policy_document(policy) := json.unmarshal(policy) if is_string(policy)
+
+policy_document(policy) := policy if is_object(policy)
+
 actions_for(statement) := [statement.Action] if {
     is_string(statement.Action)
 }
@@ -24,7 +28,7 @@ deny contains msg if {
         "aws_iam_user_policy",
         "aws_iam_group_policy",
     }
-    document := resource.change.after.policy
+    document := policy_document(resource.change.after.policy)
     some action in normalized_actions(document)
     contains(action, "*")
     msg := sprintf("%s grants wildcard IAM action %q", [resource.address, action])
@@ -38,7 +42,7 @@ deny contains msg if {
         "aws_iam_user_policy",
         "aws_iam_group_policy",
     }
-    document := resource.change.after.policy
+    document := policy_document(resource.change.after.policy)
     actions := normalized_actions(document)
     "iam:passrole" in actions
     "ec2:runinstances" in actions
@@ -56,7 +60,7 @@ deny contains msg if {
         "aws_iam_user_policy",
         "aws_iam_group_policy",
     }
-    document := resource.change.after.policy
+    document := policy_document(resource.change.after.policy)
     actions := normalized_actions(document)
     "iam:passrole" in actions
     "lambda:createfunction" in actions

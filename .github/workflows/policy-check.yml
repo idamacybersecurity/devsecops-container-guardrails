@@ -84,6 +84,9 @@ jobs:
       - name: Validate Terraform configuration
         run: terraform -chdir=cloud-control-plane-defense/terraform validate
 
+      - name: Run Rego unit tests (every rule has a deny and an allow case)
+        run: conftest verify --policy cloud-control-plane-defense/policies
+
       - name: Validate compliant OPA fixture
         run: |
           conftest test \

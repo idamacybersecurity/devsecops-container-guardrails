@@ -1200,3 +1200,150 @@ def test_fp_assumed_role_session_named_like_user_still_alerts():
         )
     )
     assert [a["detection_type"] for a in alerts] == ["iam_privilege_escalation"]
+
+
+# --- Phase 2: approved-change rule (false positives and bypass attempts) ---
+TF_ROLE = "arn:aws:iam::000000000000:role/cloud-control-plane-defense-terraform"
+TF_SESSION = (
+    "arn:aws:sts::000000000000:assumed-role/"
+    "cloud-control-plane-defense-terraform/tf-run-1"
+)
+
+
+def _approved_detector():
+    return CloudControlPlaneDetector(
+        approved_changes={TF_ROLE: {"UpdateAssumeRolePolicy", "UpdateTrail"}}
+    )
+
+
+def _event(name, source, caller, ctype="AssumedRole", eid="ap-1"):
+    return make_event(
+        event_id=eid,
+        event_name=name,
+        event_source=source,
+        caller_arn=caller,
+        caller_type=ctype,
+        request={"roleName": "app-role"},
+    )
+
+
+def test_fp_terraform_trust_policy_update_is_approved_and_logged():
+    d = _approved_detector()
+    alerts = d.process_event(
+        _event("UpdateAssumeRolePolicy", "iam.amazonaws.com", TF_SESSION)
+    )
+    assert alerts == []
+    assert len(d.approved_change_log) == 1
+
+
+def test_fp_planned_trail_update_is_approved_and_logged():
+    d = _approved_detector()
+    alerts = d.process_event(
+        _event("UpdateTrail", "cloudtrail.amazonaws.com", TF_SESSION)
+    )
+    assert alerts == []
+    assert len(d.approved_change_log) == 1
+
+
+def test_without_approved_config_terraform_trust_update_still_alerts():
+    d = CloudControlPlaneDetector()
+    alerts = d.process_event(
+        _event("UpdateAssumeRolePolicy", "iam.amazonaws.com", TF_SESSION)
+    )
+    assert [a["detection_type"] for a in alerts] == ["iam_privilege_escalation"]
+
+
+def test_delete_trail_is_never_approved_even_for_approved_role():
+    d = _approved_detector()
+    alerts = d.process_event(
+        _event("DeleteTrail", "cloudtrail.amazonaws.com", TF_SESSION)
+    )
+    assert "defense_evasion" in [a["detection_type"] for a in alerts]
+    assert len(d.approved_change_log) == 0
+
+
+@pytest.mark.parametrize(
+    "caller,ctype",
+    [
+        (
+            "arn:aws:sts::000000000000:assumed-role/"
+            "cloud-control-plane-defense-terraform-2/tf-run-1",
+            "AssumedRole",
+        ),
+        (
+            "arn:aws:sts::000000000000:assumed-role/dev-role/"
+            "cloud-control-plane-defense-terraform",
+            "AssumedRole",
+        ),
+        (
+            "arn:aws:iam::000000000000:user/cloud-control-plane-defense-terraform",
+            "IAMUser",
+        ),
+    ],
+    ids=[
+        "lookalike-role-name",
+        "session-name-spoof",
+        "iam-user-same-name",
+    ],
+)
+def test_bypass_approved_change_lookalikes_still_alert(caller, ctype):
+    d = _approved_detector()
+    alerts = d.process_event(
+        _event("UpdateAssumeRolePolicy", "iam.amazonaws.com", caller, ctype)
+    )
+    assert "iam_privilege_escalation" in [a["detection_type"] for a in alerts]
+    assert len(d.approved_change_log) == 0
+
+
+def test_bypass_approved_role_reached_through_chain_still_alerts():
+    d = _approved_detector()
+    d._role_origins[TF_SESSION] = "arn:aws:iam::000000000000:user/attacker"
+    alerts = d.process_event(
+        _event("UpdateAssumeRolePolicy", "iam.amazonaws.com", TF_SESSION)
+    )
+    assert "iam_privilege_escalation" in [a["detection_type"] for a in alerts]
+
+
+def test_approved_changes_config_rejects_wildcards():
+    with pytest.raises(ValueError):
+        CloudControlPlaneDetector(approved_changes={"*": {"UpdateTrail"}})
+    with pytest.raises(ValueError):
+        CloudControlPlaneDetector(
+            approved_changes={"arn:aws:iam::000000000000:role/*": {"UpdateTrail"}}
+        )
+
+
+def test_break_glass_put_user_policy_still_alerts_in_detector():
+    d = _approved_detector()
+    alerts = d.process_event(
+        _event(
+            "PutUserPolicy",
+            "iam.amazonaws.com",
+            "arn:aws:sts::000000000000:assumed-role/"
+            "cloud-control-plane-defense-break-glass/admin",
+        )
+    )
+    assert "iam_privilege_escalation" in [a["detection_type"] for a in alerts]
+
+
+@pytest.mark.parametrize(
+    "caller,ctype",
+    [
+        (
+            "arn:aws:sts::111111111111:assumed-role/"
+            "cloud-control-plane-defense-terraform/tf-run-1",
+            "AssumedRole",
+        ),
+        (TF_SESSION, "IAMUser"),
+    ],
+    ids=["wrong-account", "caller-type-mismatch"],
+)
+def test_bypass_malformed_identity_is_rejected_by_input_validation(
+    caller, ctype
+):
+    d = _approved_detector()
+    with pytest.raises(ValueError):
+        d.process_event(
+            _event("UpdateAssumeRolePolicy", "iam.amazonaws.com", caller, ctype)
+        )
+    assert len(d.approved_change_log) == 0

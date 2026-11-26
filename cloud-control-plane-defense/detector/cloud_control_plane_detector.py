@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
+import logging
 import re
 import tempfile
 from typing import Any
@@ -319,6 +320,13 @@ def _is_self_access_key_creation(event: "ParsedEvent") -> bool:
     return target is None or target == caller_user
 
 
+_LOGGER = logging.getLogger(__name__)
+_ASSUMED_ROLE_ARN_RE = re.compile(
+    r"arn:aws:sts::(\d{12}):assumed-role/([\w+=,.@-]+)/([^/]+)"
+)
+_APPROVED_ROLE_ARN_RE = re.compile(r"arn:aws:iam::\d{12}:role/[\w+=,.@-]+")
+
+
 class CloudControlPlaneDetector:
     """Stateful detector for CloudTrail management events."""
 
@@ -328,6 +336,7 @@ class CloudControlPlaneDetector:
         enumeration_window_seconds: int = 30,
         enumeration_threshold: int = 3,
         deduplication_limit: int = 10000,
+        approved_changes: dict[str, Any] | None = None,
     ) -> None:
         if enumeration_window_seconds <= 0:
             raise ValueError("enumeration window must be positive")
@@ -341,6 +350,15 @@ class CloudControlPlaneDetector:
         )
         self.enumeration_threshold = enumeration_threshold
         self.deduplication_limit = deduplication_limit
+
+        self._approved_changes: dict[str, frozenset[str]] = {}
+        for role_arn, events in (approved_changes or {}).items():
+            if not _APPROVED_ROLE_ARN_RE.fullmatch(role_arn):
+                raise ValueError(
+                    "approved_changes keys must be exact IAM role ARNs"
+                )
+            self._approved_changes[role_arn] = frozenset(events)
+        self.approved_change_log: deque[dict[str, str]] = deque(maxlen=1000)
 
         self._seen_ids: set[str] = set()
         self._seen_order: deque[str] = deque()
@@ -506,6 +524,18 @@ class CloudControlPlaneDetector:
         self._role_origins = role_origins
         self._secret_reads = defaultdict(list, restored_reads)
         self._enumeration_alerted_at = restored_alerted_at
+
+    def _is_approved_change(self, event: "ParsedEvent") -> bool:
+        if not self._approved_changes or event.caller_type != "AssumedRole":
+            return False
+        match = _ASSUMED_ROLE_ARN_RE.fullmatch(event.caller_arn)
+        if not match:
+            return False
+        role_arn = f"arn:aws:iam::{match.group(1)}:role/{match.group(2)}"
+        if event.event_name not in self._approved_changes.get(role_arn, ()):
+            return False
+        origin = self._role_origins.get(event.caller_arn, event.caller_arn)
+        return origin == event.caller_arn
 
     def _remember_event(self, event_id: str) -> bool:
         if event_id in self._seen_ids:
@@ -681,6 +711,20 @@ class CloudControlPlaneDetector:
         event = parse_event(payload)
 
         if not self._remember_event(event.event_id):
+            return []
+
+        if (
+            event.event_name in IAM_ESCALATION_EVENTS
+            or event.event_name in DEFENSE_EVASION_EVENTS
+        ) and self._is_approved_change(event):
+            record = {
+                "event_id": event.event_id,
+                "event_name": event.event_name,
+                "caller_arn": event.caller_arn,
+                "event_time": event.event_time.isoformat(),
+            }
+            self.approved_change_log.append(record)
+            _LOGGER.info("approved_change %s", record)
             return []
 
         alerts: list[dict[str, Any]] = []

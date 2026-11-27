@@ -1,0 +1,163 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "attacker_key_probe": "STS GetCallerIdentity approximately every 100ms, starting at attack time; credential denial counts only recognized authentication failures, not IAM AccessDenied",
+  "cleanup_skipped_users": [],
+  "endpoint": "http://127.0.0.1:4566",
+  "git_sha": "65629feae88cbb77d796a160160aa3fe949a851a",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/detector/cloud_control_plane_detector.py",
+    "cloud-control-plane-defense/detector/sqs_consumer.py",
+    "cloud-control-plane-defense/scripts/auto_soar_watcher.py",
+    "cloud-control-plane-defense/scripts/benchmark_native_eventtime.py",
+    "cloud-control-plane-defense/scripts/benchmark_soar_10_runs.py"
+  ],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "6335814d7fec",
+    "soar/cloud_soar_responder.py": "c0933acc6571",
+    "detector/sqs_consumer.py": "d5df4530ffc4",
+    "scripts/benchmark_native_eventtime.py": "825580bd64f8"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.11.0:51096c66",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.0654296875,
+    0.13525390625,
+    0.1435546875
+  ],
+  "started_utc": "2026-11-25T16:19:05.931417+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-2de5e4a9d3",
+      "user_arn": "arn:aws:iam::000000000000:user/ccpd-nat-2de5e4a9d3",
+      "iam_user_id": "AIDAQAAAAAAAJZKJROAAT",
+      "localstack_identity_compatibility_enabled": true,
+      "t_call": 1795623545.931417,
+      "t_call_end": 1795623546.0152104,
+      "attack_call_result": "SUCCESS",
+      "attack_call_error_type": null,
+      "attack_call_error_code": null,
+      "attack_thread_still_running_after_join": false,
+      "attacker_key_denied": false,
+      "attacker_key_denial_code": null,
+      "attacker_key_denial_type": null,
+      "t_attacker_key_denied": null,
+      "attacker_denial_seconds": null,
+      "attacker_probe_interval_seconds": 0.1,
+      "attacker_probe_samples": 5,
+      "attacker_probe_successes": 5,
+      "attacker_probe_other_error": null,
+      "watcher_exit_code_during_observation": null,
+      "watcher_failed": false,
+      "botocore_api_timings": [
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.013087,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.018472,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "attacker",
+          "service": "kms",
+          "operation": "DisableKeyRotation",
+          "duration_seconds": 0.082024,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.014377,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.017229,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.019122,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.025299,
+          "http_status": 200,
+          "error_code": null
+        }
+      ],
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "infrastructure_error": null,
+      "identity_validation_mode": "localstack-compatibility",
+      "identity_normalization_evidence": {
+        "adapter": "localstack-identity-compat-v1",
+        "matched_iam_user_arn": "arn:aws:iam::000000000000:user/ccpd-nat-2de5e4a9d3",
+        "normalized_principal_id": "AIDAQAAAAAAAJZKJROAAT",
+        "normalized_type": "IAMUser",
+        "reported_principal_id": "000000000000",
+        "reported_type": "IAMUser",
+        "source": "LocalStack-only"
+      },
+      "t_event": 1795623546.0,
+      "t_watcher_seen": 1795623546.158965,
+      "t_logged": 1795623546.518051,
+      "responder_event_to_verified_s": 0.517992,
+      "responder_execution_s": 0.3586012109881267,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795623546.5919154,
+      "event_to_verified_s": 0.592,
+      "event_to_logged_s": 0.518,
+      "call_to_verified_s": 0.66
+    }
+  ],
+  "summary": {
+    "runs": 1,
+    "verified": 1,
+    "timed_out": 0,
+    "watcher_failures": 0,
+    "infrastructure_errors": 0,
+    "under_1s": 1,
+    "under_1s_of_total": "1/1",
+    "attacker_key_denied": 0,
+    "attacker_key_denied_of_total": "0/1",
+    "attacker_denial_mean_s": null,
+    "attacker_denial_max_s": null,
+    "verified_of_total": "1/1",
+    "attack_call_over_5s": 0,
+    "median_s": 0.592,
+    "p90_s": 0.592,
+    "max_s": 0.592
+  }
+}

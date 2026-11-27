@@ -521,3 +521,179 @@ def test_localstack_identity_adapter_rejects_event_account_mismatch(
 
     assert normalized == payload
     assert evidence is None
+
+
+def test_sqs_consumer_suppresses_exact_replay_after_cache_eviction(tmp_path):
+    sqs = FakeSQS()
+    detector = CloudControlPlaneDetector(deduplication_limit=2)
+    state_path = tmp_path / "state.json"
+    alert_path = tmp_path / "alerts.jsonl"
+
+    first = sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, make_message("durable-replay-event"),
+        detector, state_path, alert_path,
+    )
+    sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, make_message("durable-filler-1"),
+        detector, state_path, alert_path,
+    )
+    sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, make_message("durable-filler-2"),
+        detector, state_path, alert_path,
+    )
+
+    assert "durable-replay-event" not in detector._seen_ids
+
+    replay = sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, make_message("durable-replay-event"),
+        detector, state_path, alert_path,
+    )
+
+    assert first["alert_count"] == 1
+    assert replay["alert_count"] == 0
+    assert replay["acknowledged"] is True
+    assert len(alert_path.read_text().splitlines()) == 3
+
+
+def test_sqs_consumer_suppresses_replay_after_restart(tmp_path):
+    sqs = FakeSQS()
+    state_path = tmp_path / "state.json"
+    alert_path = tmp_path / "alerts.jsonl"
+    detector = CloudControlPlaneDetector(deduplication_limit=2)
+
+    sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, make_message("restart-replay-event"),
+        detector, state_path, alert_path,
+    )
+    for event_id in ("restart-filler-1", "restart-filler-2"):
+        sqs_consumer.process_sqs_message(
+            sqs, QUEUE_URL, make_message(event_id),
+            detector, state_path, alert_path,
+        )
+
+    restarted_detector = CloudControlPlaneDetector(deduplication_limit=2)
+    restarted_detector.restore_state(state_path)
+
+    replay = sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, make_message("restart-replay-event"),
+        restarted_detector, state_path, alert_path,
+    )
+
+    assert replay["alert_count"] == 0
+    assert replay["acknowledged"] is True
+    assert len(alert_path.read_text().splitlines()) == 3
+
+
+def test_sqs_consumer_does_not_suppress_different_event_with_same_id(tmp_path):
+    sqs = FakeSQS()
+    detector = CloudControlPlaneDetector()
+    state_path = tmp_path / "state.json"
+    alert_path = tmp_path / "alerts.jsonl"
+
+    original = make_message("collision-event")
+    sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, original, detector, state_path, alert_path,
+    )
+
+    collision = make_message("collision-event")
+    payload = json.loads(collision["Body"])
+    payload["detail"]["requestParameters"]["roleName"] = "different-role"
+    collision["Body"] = json.dumps(payload)
+
+    result = sqs_consumer.process_sqs_message(
+        sqs, QUEUE_URL, collision, detector, state_path, alert_path,
+    )
+
+    assert result["alert_count"] == 1
+    assert result["acknowledged"] is True
+    assert len(alert_path.read_text().splitlines()) == 2
+
+
+def test_event_ledger_expires_records_after_retention_window(tmp_path):
+    import sqlite3
+    import time
+
+    state_path = tmp_path / "state.json"
+    ledger_path = sqs_consumer._event_ledger_path(state_path)
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+
+    identity = ("expired-event", "a" * 64)
+
+    with sqlite3.connect(ledger_path) as connection:
+        connection.execute(
+            "CREATE TABLE processed_events ("
+            "event_id TEXT NOT NULL, "
+            "fingerprint TEXT NOT NULL, "
+            "processed_at INTEGER NOT NULL, "
+            "PRIMARY KEY (event_id, fingerprint))"
+        )
+        connection.execute(
+            "INSERT INTO processed_events VALUES (?, ?, ?)",
+            (*identity, int(time.time()) - (15 * 24 * 60 * 60)),
+        )
+
+    assert sqs_consumer._ledger_contains(state_path, identity) is False
+
+
+def test_event_ledger_migrates_legacy_schema_without_losing_records(tmp_path):
+    import sqlite3
+
+    state_path = tmp_path / "state.json"
+    ledger_path = sqs_consumer._event_ledger_path(state_path)
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+
+    identity = ("legacy-event", "b" * 64)
+
+    with sqlite3.connect(ledger_path) as connection:
+        connection.execute(
+            "CREATE TABLE processed_events ("
+            "event_id TEXT NOT NULL, "
+            "fingerprint TEXT NOT NULL, "
+            "PRIMARY KEY (event_id, fingerprint))"
+        )
+        connection.execute(
+            "INSERT INTO processed_events VALUES (?, ?)",
+            identity,
+        )
+
+    assert sqs_consumer._ledger_contains(state_path, identity) is True
+
+    with sqlite3.connect(ledger_path) as connection:
+        columns = {
+            row[1]
+            for row in connection.execute(
+                "PRAGMA table_info(processed_events)"
+            )
+        }
+
+    assert "processed_at" in columns
+
+
+def test_consumer_process_lock_rejects_second_acquisition(tmp_path, monkeypatch):
+    lock_path = tmp_path / "runtime" / "sqs-consumer.lock"
+    monkeypatch.setattr(sqs_consumer, "CONSUMER_LOCK_PATH", lock_path)
+
+    with sqs_consumer.consumer_process_lock():
+        assert lock_path.exists()
+        assert stat.S_IMODE(lock_path.stat().st_mode) == 0o600
+
+        with pytest.raises(
+            RuntimeError,
+            match="Another SQS consumer already holds the process lock",
+        ):
+            with sqs_consumer.consumer_process_lock():
+                pytest.fail("A second consumer unexpectedly acquired the lock")
+
+
+def test_consumer_process_lock_releases_after_context_exit(
+    tmp_path, monkeypatch
+):
+    lock_path = tmp_path / "runtime" / "sqs-consumer.lock"
+    monkeypatch.setattr(sqs_consumer, "CONSUMER_LOCK_PATH", lock_path)
+
+    with sqs_consumer.consumer_process_lock():
+        assert lock_path.exists()
+
+    # A later consumer can acquire the same lock after release.
+    with sqs_consumer.consumer_process_lock():
+        assert lock_path.exists()

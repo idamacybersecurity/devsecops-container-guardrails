@@ -15,11 +15,14 @@ defense workflow covering infrastructure policy enforcement, stateful IAM
 role-chain attribution, security-event detection, IAM quarantine, and
 out-of-band drift remediation.
 
-The implementation has passed a 67-test automated regression suite. Live
-adversarial exercises demonstrated multi-hop IAM attribution, KMS rotation
-defense-evasion detection, S3 bucket-policy deletion detection, verified IAM
-quarantine, and remediation of unauthorized security-group and IAM trust
-changes.
+The implementation has passed a 240-test automated regression suite
+(59.88 seconds at the recorded validation point). Additional Phase 2
+validation includes Terraform policy tests, Rego mutation testing, live
+LocalStack drift mutations, and a verified quarantine-and-rollback exercise.
+Live adversarial exercises demonstrated multi-hop IAM attribution, KMS
+rotation defense-evasion detection, S3 bucket-policy deletion detection,
+verified IAM quarantine, and remediation of unauthorized security-group and
+IAM trust changes.
 
 StopLogging state-transition detection was demonstrated using a separate
 independent polling monitor. The monitor observed a disposable trail transition
@@ -214,11 +217,26 @@ Forensic snapshot examples:
 
 ### Baseline integrity qualification
 
-The baseline is HMAC-protected and the reconciler checks the Terraform
-configuration digest. The HMAC key is stored on the same host as the baseline;
-a privileged attacker controlling that host could potentially replace both.
-An independently protected signing key or remote immutable baseline would
-strengthen this design.
+The approved drift baseline is protected by a detached Ed25519 signature.
+The reconciler verifies the signature with the trusted public key and signer
+identity in `evidence/runtime/ccpd-allowed-signers` before accepting the
+baseline. It also checks the Terraform configuration digest.
+
+The signing workflow was tested across two machines: the baseline was signed
+on the Windows signing workstation using the passphrase-protected Ed25519
+private key, and the resulting detached signature was independently verified
+on EC2 using the trusted public key. The Windows and EC2 baseline files were
+confirmed identical by SHA-256 before signing. The production baseline and
+existing production signature were not modified during this test.
+
+This demonstrates cross-machine signature verification, not immunity from
+signing-workstation compromise. A compromised Windows account, local
+administrator, or SYSTEM process could access the private key or misuse it.
+The test also does not prove that no duplicate private-key copy exists on EC2;
+searches of selected host locations did not find a matching key, but were not
+an exhaustive proof of absence. The private signing key should remain
+restricted and protected, and any suspected compromise requires key rotation
+and re-signing the approved baseline.
 
 ## 8. Adversarial scenario results
 
@@ -227,7 +245,7 @@ strengthen this design.
 | 1. Multi-hop IAM privilege escalation | Demonstrated | Role-chain attribution, escalation alerting, and quarantine exercised. Native records were replayed through an isolated queue for consumer validation. |
 | 2. CloudTrail defense evasion | Partially demonstrated | Native KMS and S3 policy-deletion events detected and contained. A separate state poller detected StopLogging by observing the trail transition to IsLogging=false and emitted a CRITICAL alert. Native StopLogging event delivery, attacker attribution, and SOAR containment for this alert remain unverified. |
 | 3. Out-of-band drift persistence | Demonstrated | Public ingress and rogue IAM trust injected, snapshotted, remediated, and independently verified. |
-| 4. Unit and regression suite | Passed | 67 tests passed; focused break-glass/malformed-event tests also passed. |
+| 4. Unit and regression suite | Passed | 240 pytest tests passed in 59.88 seconds at the recorded validation point. Separate Terraform/Rego validation is reported in Section 9.5. |
 
 ### StopLogging state-transition detection record
 
@@ -259,21 +277,27 @@ This demonstrates state-transition detection and recovery, not native
 StopLogging event capture, attacker-principal attribution, or automated SOAR
 containment for this alert.
 
-**Screenshot placeholder:** `evidence/screenshots/stoplogging-state-transition-detection.png`
-(Presence of this screenshot has not yet been verified.)
-
 ## 9. Automated testing
 
 Recorded test outcomes:
 
-- Full regression suite: **67 passed in 0.40 seconds**.
-- Focused break-glass and malformed-event tests: **5 passed**.
-- Benign-event false-positive regression tests: **6 passed**.
+- Full pytest regression suite: **240 passed in 59.88 seconds**.
+- Detection and bypass regression module: **100 passed**.
+- Replay-protection focused selection: **4 passed**.
+- IAM drift tests: **7 passed**.
+- KMS drift tests: **5 passed**.
+- Live-collector test module: **3 passed**.
+- Terraform/Rego policy verification: **31 passed**.
+- Rego deny-rule mutation campaign: **14/14 mutants killed; zero survivors**.
+  The harness treats any nonzero Conftest exit as a killed mutant, so this is
+  an observed campaign result rather than proof that every mutant failed
+  specifically on a policy assertion.
 - `git diff --check`: clean at the recorded validation point.
 
-These results establish the recorded pass rate for the executed tests. They
-do not establish exhaustive code coverage or correctness against every AWS
-service behavior.
+The focused pytest results are overlapping subsets or targeted modules and
+must not be added to the full-suite total. Rego verification and mutation
+testing are separate from pytest. These results do not establish exhaustive
+code coverage or correctness against every AWS service behavior.
 
 ## 10. Security boundaries and known limitations
 
@@ -282,7 +306,13 @@ service behavior.
 - Native StopLogging event capture remains unverified; independent state-polling detection was demonstrated, but does not attribute the actor or trigger SOAR containment.
 - STS token invalidation semantics were not proven against live AWS.
 - The SOAR benchmark is not a full native event-to-quarantine benchmark.
-- The HMAC key and baseline share a host.
+- The baseline uses a detached Ed25519 signature created with a
+  passphrase-protected signing key on the Windows workstation and verified
+  on EC2. The signing workflow was tested across both machines. The EC2
+  host stores the baseline, signature, and trusted public-key configuration;
+  a privileged attacker able to modify the trusted signer configuration or
+  verification code could bypass local verification. The searches performed
+  did not establish that no duplicate private-key copy exists on EC2.
 - The explicit DenyAll inline policy is an IAM policy attachment; it is not
   represented as a formal permissions boundary.
 - The LocalStack-only execution boundary must be maintained to preserve the
@@ -298,11 +328,10 @@ StopLogging state-polling alert at
 is `scripts/stoplogging_state_detector.py`.
 
 The StopLogging exercise also verified restoration of the disposable trail and
-confirmed that the main audit trail remained enabled. The screenshot
-`evidence/screenshots/stoplogging-state-transition-detection.png` is a
-placeholder only; its presence has not been verified. Screenshots and terminal
-transcripts must be audited against the actual submission folder before final
-sign-off.
+confirmed that the main audit trail remained enabled. A screenshot for the StopLogging state-transition exercise has not been
+verified in the repository evidence folder. Check the actual submission folder
+before claiming screenshot evidence or completing final sign-off. Screenshots
+and terminal transcripts must be audited against the submitted artifacts.
 
 ## 12. Conclusion
 
@@ -361,10 +390,19 @@ they must not be treated as equivalent.
 The Phase 2 implementation extends IAM containment and recovery handling
 with session-aware quarantine and rollback support.
 
-Containment and rollback claims must be interpreted against the recorded
-LocalStack tests and independent readbacks. LocalStack acceptance or
-readback of an IAM policy does not establish that an already-issued STS
-session token would be invalidated in live AWS.
+A live LocalStack rollback demonstration exercised one uniquely generated,
+disposable IAM user. The 25-check run verified quarantine, a non-mutating
+rollback dry-run, removal of both quarantine policies, restoration of the
+originally active access key and original inline policy, audit recording of
+the operator and reason, rejection of a duplicate rollback, and cleanup of
+the disposable user. The durable result is
+`evidence/phase2/gapfill/rollback-live-20261127T135152Z.json`.
+
+This demonstration did not revoke shared role-chain principals and does not
+validate multi-principal rollback. Containment and rollback claims must be
+interpreted against the recorded LocalStack tests and independent readbacks.
+LocalStack acceptance or readback of an IAM policy does not establish that an
+already-issued STS session token would be invalidated in live AWS.
 
 ### 9.4 Drift detection and integrity protection
 
@@ -373,11 +411,14 @@ trust-policy demonstrations. The evidence set includes additional IAM,
 KMS, CloudTrail, and alternate-path drift work, together with baseline
 integrity artifacts.
 
-The HMAC integrity mechanism and its validation evidence are retained under
-`evidence/phase2/`. Integrity verification on the test host must not be
-described as independent protection against an attacker who can also access
-the HMAC secret. The report must preserve the documented trust-boundary
-limitation wherever the key remains accessible to the host being protected.
+Historical HMAC integrity artifacts and their validation evidence are
+retained under `evidence/phase2/` as records of the earlier implementation.
+They are not the current baseline trust mechanism. The current implementation
+uses a detached Ed25519 signature, with signing performed on the Windows
+workstation and verification on EC2. The cross-machine signing and verification
+workflow was tested. The current trust boundary and its limitations are
+documented in the Baseline integrity qualification and Security boundaries
+sections above.
 
 ### 9.5 Terraform and policy-as-code validation
 
@@ -395,22 +436,36 @@ the corresponding recorded test output.
 The isolated native-event benchmark is reported separately from the earlier
 SOAR-only execution benchmark.
 
-| Measurement | Result |
+The latest boundary-aligned native-event benchmark supersedes the earlier
+ten-run measurement below as the current performance result.
+
+| Measurement | Latest result |
 |---|---:|
 | Benchmark runs | 10 |
 | Independently verified quarantines | 10/10 |
-| End-to-end results under 1 second | 9/10 |
-| Median event-time-to-verified | 0.467 seconds |
-| P90 event-time-to-verified | 0.553 seconds |
-| Maximum event-time-to-verified | 18.167 seconds |
-| Responder execution in the outlier | Approximately 0.274 seconds |
+| End-to-end results under 1 second | 10/10 |
+| Median event-time-to-verified | 0.458 seconds |
+| P90 event-time-to-verified | 0.503 seconds |
+| Maximum event-time-to-verified | 0.564 seconds |
+| Authentication-denial checks | 10/10 |
+| Mean authentication-denial time | 4.650 seconds |
+| Maximum authentication-denial time | 4.770 seconds |
 
-The 18.167-second outlier indicates that most of the delay occurred before
-responder completion. The precise upstream cause has not been established.
+Authentication-denial timing is a separate measurement and is not included
+in event-time-to-verified containment latency. The native benchmark evidence
+is retained at
+`evidence/results/native-eventtime/9e9fc60-dirty-native-boundary-aligned-20261127-20261127T061208Z.json`.
+
+An earlier ten-run native benchmark recorded 9/10 results under one second,
+with a median of 0.467 seconds, P90 of 0.553 seconds, and a maximum of
+18.167 seconds. That historical outlier was not conclusively explained.
+The newer boundary-aligned run achieved 10/10 under one second; it does not
+retroactively establish the cause of the earlier outlier.
 
 The scheduled-versus-manual snapshot experiment identified an association
-between scheduled snapshot activity and long calls. This is an experimental
-observation, not proof that snapshot activity caused the delay.
+between scheduled snapshot activity and long calls in the earlier experiment.
+This is an experimental observation, not proof that snapshot activity caused
+the delay.
 
 The latest ten-run SOAR-only benchmark in Section 6 recorded a mean
 responder execution latency of 0.692625 seconds. It measures a different
@@ -430,7 +485,7 @@ integrity artifacts, and supporting probe output.
 
 The following limitations remain material:
 
-- The 18.167-second end-to-end outlier has not been conclusively explained.
+- The earlier 18.167-second end-to-end outlier remains unexplained; the later boundary-aligned native benchmark achieved 10/10 under one second.
 - The snapshot experiment does not establish causation.
 - LocalStack behavior does not establish all live AWS service semantics.
 - LocalStack policy readback does not prove invalidation of an already-issued
@@ -440,8 +495,13 @@ The following limitations remain material:
   polling demonstrated detection, but does not establish native event
   attribution or SOAR containment.
 - Synthetic event injection is not proof of native CloudTrail event delivery.
-- Any HMAC trust-boundary limitation must remain explicit until the key is
-  demonstrably inaccessible to the host under test.
+- Historical HMAC evidence remains archived, but the current baseline
+  integrity mechanism is detached Ed25519 signing. EC2 stores the trusted
+  public-key configuration and verification code; a privileged host attacker
+  able to modify either could bypass local verification. The searches
+  performed did not prove that no duplicate private-key copy exists on EC2.
+  Compromise of the Windows signing workstation could also expose or misuse
+  the private signing key.
 
 The detailed Phase 2 performance report and evidence records take precedence
 for the measurements and individual experiment outcomes. Test totals and

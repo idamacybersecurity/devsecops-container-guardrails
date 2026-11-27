@@ -1,0 +1,260 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "attacker_key_probe": "STS GetCallerIdentity approximately every 100ms, starting at attack time; credential denial counts only recognized authentication failures, not IAM AccessDenied",
+  "cleanup_skipped_users": [],
+  "endpoint": "http://127.0.0.1:4566",
+  "git_sha": "65629feae88cbb77d796a160160aa3fe949a851a",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/detector/sqs_consumer.py",
+    "cloud-control-plane-defense/scripts/benchmark_native_eventtime.py",
+    "cloud-control-plane-defense/scripts/benchmark_soar_10_runs.py"
+  ],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "eb55cab5940c",
+    "soar/cloud_soar_responder.py": "c0933acc6571",
+    "detector/sqs_consumer.py": "66c58b7eae59",
+    "scripts/benchmark_native_eventtime.py": "0b7dcdd53bd6"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.10.7:af52d629",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.5712890625,
+    0.32470703125,
+    0.181640625
+  ],
+  "started_utc": "2026-11-25T14:55:26.442575+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-94b0fca1c5",
+      "user_arn": "arn:aws:iam::000000000000:user/ccpd-nat-94b0fca1c5",
+      "iam_user_id": "AIDAQAAAAAAAKOPH2WK7W",
+      "localstack_identity_compatibility_enabled": true,
+      "t_call": 1795618526.4425747,
+      "t_call_end": 1795618526.5260532,
+      "attack_call_result": "SUCCESS",
+      "attack_call_error_type": null,
+      "attack_call_error_code": null,
+      "attack_thread_still_running_after_join": false,
+      "attacker_key_denied": false,
+      "attacker_key_denial_code": null,
+      "attacker_key_denial_type": null,
+      "t_attacker_key_denied": null,
+      "attacker_denial_seconds": null,
+      "attacker_probe_interval_seconds": 0.1,
+      "attacker_probe_samples": 26,
+      "attacker_probe_successes": 20,
+      "attacker_probe_other_error": {
+        "type": "ReadTimeoutError",
+        "code": null,
+        "message": "Read timeout on endpoint URL: \"http://127.0.0.1:4566/\""
+      },
+      "watcher_exit_code_during_observation": null,
+      "watcher_failed": false,
+      "botocore_api_timings": [
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.032045,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.02008,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "attacker",
+          "service": "kms",
+          "operation": "DisableKeyRotation",
+          "duration_seconds": 0.082194,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.021204,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.057166,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.013317,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.015881,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.032903,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.014893,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.023328,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.012242,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.012057,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.012348,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.024905,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.021976,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.018934,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.02476,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.023228,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.044514,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.012802,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.016424,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.024164,
+          "http_status": 200,
+          "error_code": null
+        }
+      ],
+      "status": null,
+      "timed_out": true,
+      "infrastructure_error": null
+    }
+  ],
+  "summary": {
+    "runs": 1,
+    "verified": 0,
+    "timed_out": 1,
+    "watcher_failures": 0,
+    "infrastructure_errors": 0,
+    "under_1s": 0,
+    "under_1s_of_total": "0/1",
+    "attacker_key_denied": 0,
+    "attacker_key_denied_of_total": "0/1",
+    "attacker_denial_mean_s": null,
+    "attacker_denial_max_s": null,
+    "verified_of_total": "0/1",
+    "attack_call_over_5s": 0,
+    "median_s": null,
+    "p90_s": null,
+    "max_s": null
+  }
+}

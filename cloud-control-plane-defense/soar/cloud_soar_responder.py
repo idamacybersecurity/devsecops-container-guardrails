@@ -703,14 +703,15 @@ class CloudSOARResponder:
     ) -> dict[str, Any]:
         execution_started = time.perf_counter()
         # Resolve and validate everything before the first mutation.
-        event_time, _ = self._validate_alert(alert)
-        plan = self.plan(alert)
-        target = plan["target"]
+        # Do not call plan() here: its dry-run access-key discovery would
+        # duplicate the inventory captured immediately afterward for rollback.
+        event_time, target_arn = self._validate_alert(alert)
+        target = self._resolve_principal(target_arn)
         completed: list[str] = []
         verified: list[str] = []
         errors: list[str] = []
 
-        # Capture every affected principal before the first IAM mutation.
+        # Discover the chain once, then snapshot every affected principal.
         chain_roles: list[dict[str, str]] = []
         chain_skipped: list[str] = []
         if self.revoke_chain_roles:
@@ -785,18 +786,22 @@ class CloudSOARResponder:
 
         if not errors and target["type"] == "user":
             try:
-                keys = self.iam.list_access_keys(
-                    UserName=target["name"]
-                ).get("AccessKeyMetadata", [])
+                # Reuse the pre-mutation inventory captured for rollback.
+                # A second initial list_access_keys call adds latency without
+                # improving safety; each deactivation is still read-back verified.
+                target_snapshot = rollback_state["principals"][0]
+                keys = target_snapshot["access_keys"]
+
                 for key in keys:
-                    if key.get("Status") == "Active":
-                        key_id = key["AccessKeyId"]
+                    if key.get("status") == "Active":
+                        key_id = key["access_key_id"]
                         self.iam.update_access_key(
                             UserName=target["name"],
                             AccessKeyId=key_id,
                             Status="Inactive",
                         )
                         completed.append("deactivate_access_key")
+
                         refreshed = self.iam.list_access_keys(
                             UserName=target["name"]
                         ).get("AccessKeyMetadata", [])
@@ -809,6 +814,7 @@ class CloudSOARResponder:
                             raise ResponderError(
                                 "access_key_deactivation_verification_failed"
                             )
+
                 verified.append("all_access_keys_inactive")
             except Exception as exc:
                 errors.append(f"access_keys:{type(exc).__name__}")

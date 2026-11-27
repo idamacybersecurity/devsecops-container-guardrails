@@ -1,0 +1,137 @@
+{
+  "checks": [
+    {
+      "check": "pre-quarantine baseline has one active and one inactive key",
+      "detail": "{'LKIAQAAAAAAAGWXCQ3HS': 'Active', 'LKIAQAAAAAAAHLZLVKIA': 'Inactive'}",
+      "passed": true
+    },
+    {
+      "check": "baseline inline policy exists",
+      "detail": "['CCPDBaselinePolicy']",
+      "passed": true
+    },
+    {
+      "check": "quarantine command exits successfully",
+      "detail": "exit=0",
+      "passed": true
+    },
+    {
+      "check": "quarantine is independently verified",
+      "detail": "QUARANTINE_VERIFIED",
+      "passed": true
+    },
+    {
+      "check": "rollback snapshot identifies this event and account",
+      "detail": "event/account match",
+      "passed": true
+    },
+    {
+      "check": "quarantine deactivated the originally active key",
+      "detail": "{'LKIAQAAAAAAAGWXCQ3HS': 'Inactive', 'LKIAQAAAAAAAHLZLVKIA': 'Inactive'}",
+      "passed": true
+    },
+    {
+      "check": "quarantine policies are attached",
+      "detail": "['AWSRevokeOlderSessions', 'CCPDBaselinePolicy', 'CCPDQuarantineDenyAll']",
+      "passed": true
+    },
+    {
+      "check": "original baseline policy remains present",
+      "detail": "['AWSRevokeOlderSessions', 'CCPDBaselinePolicy', 'CCPDQuarantineDenyAll']",
+      "passed": true
+    },
+    {
+      "check": "rollback dry-run exits successfully",
+      "detail": "ROLLBACK_DRY_RUN",
+      "passed": true
+    },
+    {
+      "check": "dry-run reports no mutations",
+      "detail": "False",
+      "passed": true
+    },
+    {
+      "check": "dry-run leaves quarantined state unchanged",
+      "detail": "state unchanged",
+      "passed": true
+    },
+    {
+      "check": "dry-run plan targets only the disposable principal",
+      "detail": "['arn:aws:iam::000000000000:user/ccpd-rb-b001170cb7a2']",
+      "passed": true
+    },
+    {
+      "check": "dry-run plans removal of both quarantine policies",
+      "detail": "['AWSRevokeOlderSessions', 'CCPDQuarantineDenyAll']",
+      "passed": true
+    },
+    {
+      "check": "dry-run plans reactivation of only the originally active key",
+      "detail": "[{'access_key_id': 'LKIAQAAAAAAAGWXCQ3HS', 'operation': 'reactivate_originally_active_key'}]",
+      "passed": true
+    },
+    {
+      "check": "rollback execution exits successfully",
+      "detail": "exit=0",
+      "passed": true
+    },
+    {
+      "check": "rollback reports verified restoration",
+      "detail": "ROLLBACK_VERIFIED",
+      "passed": true
+    },
+    {
+      "check": "rollback reports verified restorations",
+      "detail": "['policy:ccpd-rb-b001170cb7a2:AWSRevokeOlderSessions', 'policy:ccpd-rb-b001170cb7a2:CCPDQuarantineDenyAll', 'access_key:LKIAQAAAAAAAGWXCQ3HS']",
+      "passed": true
+    },
+    {
+      "check": "all original access-key states restored",
+      "detail": "{'LKIAQAAAAAAAGWXCQ3HS': 'Active', 'LKIAQAAAAAAAHLZLVKIA': 'Inactive'}",
+      "passed": true
+    },
+    {
+      "check": "all original inline policies restored exactly",
+      "detail": "['CCPDBaselinePolicy']",
+      "passed": true
+    },
+    {
+      "check": "quarantine policies removed",
+      "detail": "['CCPDBaselinePolicy']",
+      "passed": true
+    },
+    {
+      "check": "rollback execution audit record exists",
+      "detail": "successful execution records=1",
+      "passed": true
+    },
+    {
+      "check": "audit records operator and reason",
+      "detail": "{'requested_by': 'phase2-rollback-operator', 'reason': 'Phase 2 validation: restore disposable test principal'}",
+      "passed": true
+    },
+    {
+      "check": "second rollback is refused as already completed",
+      "detail": "{'audit_file': '/tmp/ccpd-rollback-263dd078/rollback-audit.jsonl', 'audit_recorded': True, 'error_type': 'ValueError', 'mutations_performed': False, 'reason': 'event_already_rollback_verified', 'status': 'ROLLBACK_REJECTED'}",
+      "passed": true
+    },
+    {
+      "check": "second attempt leaves restored state unchanged",
+      "detail": "state remains restored",
+      "passed": true
+    },
+    {
+      "check": "audit contains dry-run and execution records",
+      "detail": "['ROLLBACK_DRY_RUN', 'ROLLBACK_VERIFIED']",
+      "passed": true
+    }
+  ],
+  "cleanup_verified": true,
+  "disposable_principal": "arn:aws:iam::000000000000:user/ccpd-rb-b001170cb7a2",
+  "endpoint": "http://127.0.0.1:4566",
+  "event_id": "phase2-rollback-b001170cb7a24455a58bc2912545b7e1",
+  "failed": 0,
+  "failure": null,
+  "passed": 25,
+  "recorded_at": "2026-11-27T13:51:52.743229+00:00"
+}

@@ -355,6 +355,8 @@ def main():
 
             # Start the attack asynchronously so the independent credential
             # probe can run while the attack API request is in flight.
+            _now = time.time()
+            time.sleep((math.floor(_now) + 1.02) - _now)
             t_call = time.time()
             t_call_mono = time.monotonic()
             attack_thread = threading.Thread(target=perform_attack, daemon=True)

@@ -1429,3 +1429,200 @@ def test_exact_replay_is_still_suppressed():
     d = CloudControlPlaneDetector()
     assert _bp_put_policy(d, "bp-replay", _BP_ATTACKER, "IAMUser")
     assert _bp_put_policy(d, "bp-replay", _BP_ATTACKER, "IAMUser") == []
+
+
+
+
+def test_role_session_tracking_is_bounded_at_5200_sessions():
+    detector = CloudControlPlaneDetector(deduplication_limit=4096)
+
+    for index in range(5200):
+        session = (
+            "arn:aws:sts::000000000000:assumed-role/"
+            f"test-role/session-{index}"
+        )
+        detector.process_event(assume_role_event(
+            f"memory-session-{index}",
+            ROOT_ARN,
+            "arn:aws:iam::000000000000:role/test-role",
+            session,
+            "2026-11-26T12:00:00Z",
+        ))
+
+    assert len(detector._role_sessions) <= detector.deduplication_limit
+    assert len(detector._role_origins) <= detector.deduplication_limit
+    assert len(detector._ambiguous_sessions) <= detector.deduplication_limit
+
+
+def test_ambiguous_session_attribution_survives_detector_restart(tmp_path):
+    detector = CloudControlPlaneDetector()
+    session, _ = _bp_assume(
+        detector, "bp-persist-amb-1",
+        _BP_ATTACKER, "IAMUser", _BP_DEV, "shared-persist",
+    )
+    _bp_assume(
+        detector, "bp-persist-amb-2",
+        _BP_VICTIM, "IAMUser", _BP_DEV, "shared-persist",
+    )
+
+    state_path = tmp_path / "detector-state.json"
+    detector.save_state(state_path)
+
+    restored = CloudControlPlaneDetector()
+    restored.restore_state(state_path)
+
+    alerts = _bp_put_policy(
+        restored, "bp-persist-amb-act", session, "AssumedRole"
+    )
+    alert = next(
+        a for a in alerts
+        if a["detection_type"] == "iam_privilege_escalation"
+    )
+
+    assert alert["quarantine_principal_arn"] is None
+    assert alert["metadata"]["attribution_ambiguous"] is True
+    assert alert["metadata"]["candidate_principals"] == sorted(
+        [_BP_ATTACKER, _BP_VICTIM]
+    )
+
+
+def test_ambiguous_session_candidate_tracking_is_bounded():
+    detector = CloudControlPlaneDetector(deduplication_limit=4096)
+    session = (
+        "arn:aws:sts::000000000000:assumed-role/"
+        "test-role/shared-session"
+    )
+
+    for index in range(40):
+        detector._remember_ambiguous_session(
+            session,
+            f"arn:aws:iam::000000000000:user/origin-{index}",
+            f"arn:aws:iam::000000000000:user/origin-{index + 1}",
+        )
+
+    assert len(detector._ambiguous_sessions[session]) == 32
+    assert session in detector._ambiguous_session_truncated
+
+
+def test_truncated_ambiguous_attribution_survives_restart(tmp_path):
+    detector = CloudControlPlaneDetector()
+    session, _ = _bp_assume(
+        detector, "bp-truncated-amb-1",
+        _BP_ATTACKER, "IAMUser", _BP_DEV, "shared-truncated",
+    )
+    _bp_assume(
+        detector, "bp-truncated-amb-2",
+        _BP_VICTIM, "IAMUser", _BP_DEV, "shared-truncated",
+    )
+
+    for index in range(40):
+        detector._remember_ambiguous_session(
+            session,
+            _BP_ATTACKER,
+            f"arn:aws:iam::000000000000:user/extra-{index}",
+        )
+
+    state_path = tmp_path / "detector-state.json"
+    detector.save_state(state_path)
+
+    restored = CloudControlPlaneDetector()
+    restored.restore_state(state_path)
+
+    alerts = _bp_put_policy(
+        restored, "bp-truncated-amb-act", session, "AssumedRole"
+    )
+    alert = next(
+        a for a in alerts
+        if a["detection_type"] == "iam_privilege_escalation"
+    )
+
+    assert alert["quarantine_principal_arn"] is None
+    assert alert["metadata"]["attribution_ambiguous"] is True
+    assert alert["metadata"]["candidate_principals_truncated"] is True
+    assert len(alert["metadata"]["candidate_principals"]) == 32
+
+
+def test_restore_rejects_oversized_ambiguous_candidate_list(tmp_path):
+    detector = CloudControlPlaneDetector()
+    state_path = tmp_path / "detector-state.json"
+
+    detector.save_state(state_path)
+    import json
+    state = json.loads(state_path.read_text())
+
+    session = (
+        "arn:aws:sts::000000000000:assumed-role/"
+        "test-role/shared-oversized"
+    )
+    state["ambiguous_sessions"] = {
+        session: [
+            f"arn:aws:iam::000000000000:user/origin-{index}"
+            for index in range(33)
+        ]
+    }
+    state_path.write_text(json.dumps(state))
+
+    restored = CloudControlPlaneDetector()
+    with pytest.raises(ValueError, match="ambiguous_sessions"):
+        restored.restore_state(state_path)
+
+
+def test_restore_rejects_oversized_role_session_state(tmp_path):
+    import json
+
+    detector = CloudControlPlaneDetector(deduplication_limit=2)
+    state_path = tmp_path / "detector-state.json"
+    detector.save_state(state_path)
+
+    state = json.loads(state_path.read_text())
+    state["role_sessions"] = {
+        f"arn:aws:sts::000000000000:assumed-role/test-role/session-{i}": [
+            "arn:aws:iam::000000000000:role/test-role"
+        ]
+        for i in range(3)
+    }
+    state_path.write_text(json.dumps(state))
+
+    restored = CloudControlPlaneDetector(deduplication_limit=2)
+    with pytest.raises(ValueError, match="role_sessions"):
+        restored.restore_state(state_path)
+
+
+def test_restore_rejects_oversized_role_origin_state(tmp_path):
+    import json
+
+    detector = CloudControlPlaneDetector(deduplication_limit=2)
+    state_path = tmp_path / "detector-state.json"
+    detector.save_state(state_path)
+
+    state = json.loads(state_path.read_text())
+    state["role_origins"] = {
+        f"arn:aws:sts::000000000000:assumed-role/test-role/session-{i}":
+            f"arn:aws:iam::000000000000:user/origin-{i}"
+        for i in range(3)
+    }
+    state_path.write_text(json.dumps(state))
+
+    restored = CloudControlPlaneDetector(deduplication_limit=2)
+    with pytest.raises(ValueError, match="role_origins"):
+        restored.restore_state(state_path)
+
+
+def test_restore_rejects_orphaned_role_origins(tmp_path):
+    import json
+
+    detector = CloudControlPlaneDetector()
+    state_path = tmp_path / "detector-state.json"
+    detector.save_state(state_path)
+
+    state = json.loads(state_path.read_text())
+    state["role_sessions"] = {}
+    state["role_origins"] = {
+        "arn:aws:sts::000000000000:assumed-role/test-role/orphan":
+            "arn:aws:iam::000000000000:user/origin"
+    }
+    state_path.write_text(json.dumps(state))
+
+    restored = CloudControlPlaneDetector()
+    with pytest.raises(ValueError, match="role_origins"):
+        restored.restore_state(state_path)

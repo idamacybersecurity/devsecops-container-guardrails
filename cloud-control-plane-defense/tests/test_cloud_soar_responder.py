@@ -325,6 +325,58 @@ def test_user_execution_deactivates_and_verifies_active_key():
     )
 
 
+def test_execute_avoids_redundant_discovery_calls(monkeypatch):
+    iam = FakeIAM()
+    responder, _ = make_responder(iam)
+    calls = {
+        "validate": 0,
+        "resolve": 0,
+        "chain": 0,
+        "list_access_keys": 0,
+    }
+
+    original_validate = responder._validate_alert
+    original_resolve = responder._resolve_principal
+    original_chain = responder._chain_roles
+    original_list_keys = iam.list_access_keys
+
+    def counted_validate(alert):
+        calls["validate"] += 1
+        return original_validate(alert)
+
+    def counted_resolve(principal_arn):
+        calls["resolve"] += 1
+        return original_resolve(principal_arn)
+
+    def counted_chain(alert, target):
+        calls["chain"] += 1
+        return original_chain(alert, target)
+
+    def counted_list_keys(UserName):
+        calls["list_access_keys"] += 1
+        return original_list_keys(UserName=UserName)
+
+    monkeypatch.setattr(responder, "_validate_alert", counted_validate)
+    monkeypatch.setattr(responder, "_resolve_principal", counted_resolve)
+    monkeypatch.setattr(responder, "_chain_roles", counted_chain)
+    monkeypatch.setattr(
+        responder,
+        "plan",
+        lambda alert: pytest.fail("execute() must not call plan()"),
+    )
+    monkeypatch.setattr(iam, "list_access_keys", counted_list_keys)
+
+    result = responder.execute(make_alert(USER_ARN))
+
+    assert result["status"] == "QUARANTINE_VERIFIED"
+    assert calls == {
+        "validate": 1,
+        "resolve": 1,
+        "chain": 1,
+        "list_access_keys": 2,
+    }
+
+
 def test_policy_write_failure_never_claims_quarantine():
     iam = FakeIAM()
     iam.fail_policy_name = "CCPDQuarantineDenyAll"

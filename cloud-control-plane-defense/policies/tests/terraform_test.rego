@@ -75,6 +75,10 @@ test_secret_with_empty_kms_key_denied if {
     count(deny) >= 1 with input as create("aws_secretsmanager_secret", "aws_secretsmanager_secret.t", {"kms_key_id": ""})
 }
 
+test_secret_with_null_kms_key_denied if {
+    count(deny) >= 1 with input as create("aws_secretsmanager_secret", "aws_secretsmanager_secret.t", {"kms_key_id": null})
+}
+
 test_secret_with_kms_key_allowed if {
     count(deny) == 0 with input as create("aws_secretsmanager_secret", "aws_secretsmanager_secret.t", {"kms_key_id": "arn:aws:kms:eu-north-1:000000000000:key/abc"})
 }

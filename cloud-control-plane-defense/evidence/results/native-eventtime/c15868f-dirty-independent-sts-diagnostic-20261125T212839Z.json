@@ -1,0 +1,1584 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "attacker_key_probe": "Independent attacker-credential probes. KMS DescribeKey tests authorization approximately every 100ms from attack time until a recognized authorization denial. STS GetCallerIdentity tests credential authentication approximately every 100ms from action discovery until a recognized authentication denial. Neither probe stops merely because the other observes a denial. Observation ends when both denials are observed, the configured post-action observation window expires, or the overall timeout is reached. Outcomes and timestamps are recorded separately.",
+  "post_action_observation_window_s": 15.0,
+  "cleanup_skipped_users": [],
+  "endpoint": "http://127.0.0.1:4566",
+  "git_sha": "c15868f6dedf5ff79526ab08e27c3cea985ea134",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/scripts/benchmark_native_eventtime.py"
+  ],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "6335814d7fec",
+    "soar/cloud_soar_responder.py": "c0933acc6571",
+    "detector/sqs_consumer.py": "d5df4530ffc4",
+    "scripts/benchmark_native_eventtime.py": "46f00949316b"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.11.0:51096c66",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.203125,
+    0.13671875,
+    0.09814453125
+  ],
+  "started_utc": "2026-11-25T21:28:24.226587+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-058bd234cd",
+      "user_arn": "arn:aws:iam::000000000000:user/ccpd-nat-058bd234cd",
+      "iam_user_id": "AIDAQAAAAAAAB4EGIMOCR",
+      "localstack_identity_compatibility_enabled": true,
+      "t_call": 1795642104.2265868,
+      "t_call_end": 1795642104.2445018,
+      "attack_call_result": "SUCCESS",
+      "attack_call_error_type": null,
+      "attack_call_error_code": null,
+      "attack_thread_still_running_after_join": false,
+      "authorization_denied": true,
+      "authorization_denial_code": "AccessDeniedException",
+      "authorization_denial_type": "ClientError",
+      "t_authorization_denied": 1795642109.2655294,
+      "authorization_denial_seconds": 5.038943,
+      "credential_authentication_denied": false,
+      "credential_authentication_denial_code": null,
+      "credential_authentication_denial_type": null,
+      "t_credential_authentication_denied": null,
+      "credential_authentication_denial_seconds": null,
+      "credential_authentication_probe_operation": "sts:GetCallerIdentity",
+      "credential_authentication_probe_baseline": "SUCCESS",
+      "credential_authentication_probe_interval_seconds": 0.1,
+      "credential_authentication_probe_samples": 135,
+      "credential_authentication_probe_successes": 135,
+      "credential_authentication_probe_other_error": null,
+      "post_action_observation_window_s": 15.0,
+      "authorization_probe_operation": "kms:DescribeKey",
+      "authorization_probe_baseline": "SUCCESS",
+      "authorization_probe_interval_seconds": 0.1,
+      "authorization_probe_samples": 45,
+      "authorization_probe_successes": 44,
+      "authorization_probe_other_error": null,
+      "watcher_exit_code_during_observation": null,
+      "watcher_failed": false,
+      "botocore_api_timings": [
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008262,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.056728,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.005939,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "attacker",
+          "service": "kms",
+          "operation": "DisableKeyRotation",
+          "duration_seconds": 0.016447,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.019074,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.011342,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.012254,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007798,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009314,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008749,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008961,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008859,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009758,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.011444,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008697,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009196,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008473,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007995,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008613,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007867,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008779,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.010332,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008442,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008524,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008603,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00797,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008948,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009371,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008373,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008515,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009225,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009442,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009212,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.010421,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.011107,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008104,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008769,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007414,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008806,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008385,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008545,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007864,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009058,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.010284,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009291,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008567,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008652,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008041,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.007708,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008224,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009065,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00828,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008757,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009004,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010688,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008761,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008752,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007967,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008773,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009518,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009247,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009618,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008616,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008072,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008881,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008439,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008598,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008493,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008647,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007829,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008342,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009073,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.00897,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007937,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008237,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007905,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.013033,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.015762,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.013321,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.01499,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.017397,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009692,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009462,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009598,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008389,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008091,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008475,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007976,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.049912,
+          "http_status": 400,
+          "error_code": "AccessDeniedException"
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008435,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008436,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007953,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007858,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007888,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008741,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008801,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.010049,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008333,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008377,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007987,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009256,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.006788,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008919,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00823,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008581,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008845,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009446,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008055,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008368,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00811,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007854,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00922,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007969,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008183,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008526,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008027,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008011,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007878,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007716,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007916,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008027,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007605,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008147,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008103,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007912,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008381,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008184,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008332,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007973,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008464,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007976,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008557,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00855,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008355,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007956,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007983,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008899,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007278,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008565,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008181,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.010172,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008014,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007802,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007998,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007847,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007849,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007712,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007947,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008024,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009487,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008283,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008914,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00792,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009164,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008156,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008606,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.012486,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.005294,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007322,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007527,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008415,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009253,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007987,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009075,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008349,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007791,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008241,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007896,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008028,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007921,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007816,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00811,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008416,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.009896,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.016271,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.013159,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.022061,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.011488,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.007372,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.008389,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.005509,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "credential_probe",
+          "service": "sts",
+          "operation": "GetCallerIdentity",
+          "duration_seconds": 0.00811,
+          "http_status": 200,
+          "error_code": null
+        }
+      ],
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "infrastructure_error": null,
+      "identity_validation_mode": "localstack-compatibility",
+      "identity_normalization_evidence": {
+        "adapter": "localstack-identity-compat-v1",
+        "matched_iam_user_arn": "arn:aws:iam::000000000000:user/ccpd-nat-058bd234cd",
+        "normalized_principal_id": "AIDAQAAAAAAAB4EGIMOCR",
+        "normalized_type": "IAMUser",
+        "reported_principal_id": "000000000000",
+        "reported_type": "IAMUser",
+        "source": "LocalStack-only"
+      },
+      "t_event": 1795642104.0,
+      "t_watcher_seen": 1795642104.363882,
+      "t_logged": 1795642104.611671,
+      "responder_event_to_verified_s": 0.611619,
+      "responder_execution_s": 0.24729582000873052,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795642104.658462,
+      "event_to_verified_s": 0.658,
+      "event_to_logged_s": 0.612,
+      "call_to_verified_s": 0.432
+    }
+  ],
+  "summary": {
+    "runs": 1,
+    "verified": 1,
+    "timed_out": 0,
+    "watcher_failures": 0,
+    "infrastructure_errors": 0,
+    "under_1s": 1,
+    "under_1s_of_total": "1/1",
+    "authorization_denied": 1,
+    "authorization_denied_of_total": "1/1",
+    "authorization_denial_mean_s": 5.038943,
+    "authorization_denial_max_s": 5.038943,
+    "credential_authentication_denied": 0,
+    "credential_authentication_denied_of_total": "0/1",
+    "verified_of_total": "1/1",
+    "attack_call_over_5s": 0,
+    "median_s": 0.658,
+    "p90_s": 0.658,
+    "max_s": 0.658
+  }
+}

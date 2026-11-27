@@ -8,9 +8,13 @@ from __future__ import annotations
 
 import argparse
 import copy
+from contextlib import closing, contextmanager
+import fcntl
+import hashlib
 import json
 import logging
 import os
+import sqlite3
 from pathlib import Path
 import time
 from typing import Any
@@ -25,8 +29,41 @@ LOCALSTACK_ENDPOINT = "http://127.0.0.1:4566"
 DEFAULT_REGION = "eu-north-1"
 DEFAULT_STATE_PATH = Path("evidence/runtime/detector-state.json")
 DEFAULT_ALERT_PATH = Path("evidence/runtime/detector-alerts.jsonl")
+CONSUMER_LOCK_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "evidence/runtime/sqs-consumer.lock"
+)
 
 LOGGER = logging.getLogger("cloud_control_plane.sqs_consumer")
+
+EVENT_LEDGER_RETENTION_SECONDS = 14 * 24 * 60 * 60
+
+
+@contextmanager
+def consumer_process_lock():
+    """Ensure only one consumer process runs for this project checkout."""
+    lock_path = CONSUMER_LOCK_PATH
+    lock_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+    flags = os.O_CREAT | os.O_RDWR
+    flags |= getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(lock_path, flags, 0o600)
+
+    try:
+        os.fchmod(descriptor, 0o600)
+        try:
+            fcntl.flock(
+                descriptor,
+                fcntl.LOCK_EX | fcntl.LOCK_NB,
+            )
+        except BlockingIOError as exc:
+            raise RuntimeError(
+                "Another SQS consumer already holds the process lock"
+            ) from exc
+
+        yield
+    finally:
+        os.close(descriptor)
 
 
 def validate_queue_url(queue_url: str) -> None:
@@ -175,6 +212,107 @@ def append_alerts(alert_path: str | Path, alerts: list[dict[str, Any]]) -> None:
         os.close(descriptor)
 
 
+
+def _event_ledger_identity(payload: dict[str, Any]) -> tuple[str, str] | None:
+    """Return a stable event ID and payload fingerprint for replay checks."""
+    detail = payload.get("detail")
+    event_id = detail.get("eventID") if isinstance(detail, dict) else None
+    if not isinstance(event_id, str) or not event_id:
+        event_id = payload.get("id")
+    if not isinstance(event_id, str) or not event_id:
+        return None
+
+    canonical = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return event_id, hashlib.sha256(canonical).hexdigest()
+
+
+def _event_ledger_path(state_path: str | Path) -> Path:
+    return Path(state_path).with_suffix(".events.sqlite3")
+
+
+def _prepare_event_ledger(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS processed_events ("
+        "event_id TEXT NOT NULL, fingerprint TEXT NOT NULL, "
+        "processed_at INTEGER NOT NULL, "
+        "PRIMARY KEY (event_id, fingerprint))"
+    )
+
+    columns = {
+        row[1]
+        for row in connection.execute(
+            "PRAGMA table_info(processed_events)"
+        )
+    }
+
+    if "processed_at" not in columns:
+        connection.execute(
+            "ALTER TABLE processed_events "
+            "ADD COLUMN processed_at INTEGER"
+        )
+        connection.execute(
+            "UPDATE processed_events SET processed_at = ? "
+            "WHERE processed_at IS NULL",
+            (int(time.time()),),
+        )
+
+
+def _expire_event_ledger(connection: sqlite3.Connection) -> None:
+    cutoff = int(time.time()) - EVENT_LEDGER_RETENTION_SECONDS
+    connection.execute(
+        "DELETE FROM processed_events WHERE processed_at < ?",
+        (cutoff,),
+    )
+
+
+def _ledger_contains(
+    state_path: str | Path, identity: tuple[str, str] | None
+) -> bool:
+    if identity is None:
+        return False
+
+    path = _event_ledger_path(state_path)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+    with closing(sqlite3.connect(path)) as connection:
+        _prepare_event_ledger(connection)
+        _expire_event_ledger(connection)
+        row = connection.execute(
+            "SELECT 1 FROM processed_events "
+            "WHERE event_id = ? AND fingerprint = ?",
+            identity,
+        ).fetchone()
+        connection.commit()
+
+    path.chmod(0o600)
+    return row is not None
+
+
+def _record_ledger_event(
+    state_path: str | Path, identity: tuple[str, str] | None
+) -> None:
+    if identity is None:
+        return
+
+    path = _event_ledger_path(state_path)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+    with closing(sqlite3.connect(path)) as connection:
+        connection.execute("PRAGMA synchronous = FULL")
+        _prepare_event_ledger(connection)
+        _expire_event_ledger(connection)
+        connection.execute(
+            "INSERT OR IGNORE INTO processed_events "
+            "(event_id, fingerprint, processed_at) VALUES (?, ?, ?)",
+            (*identity, int(time.time())),
+        )
+        connection.commit()
+
+    path.chmod(0o600)
+
+
 def process_sqs_message(
     sqs_client: Any,
     queue_url: str,
@@ -213,7 +351,9 @@ def process_sqs_message(
                 payload, identity_map_path
             )
 
-        alerts = detector.process_event(payload)
+        ledger_identity = _event_ledger_identity(payload)
+        is_replay = _ledger_contains(state_path, ledger_identity)
+        alerts = [] if is_replay else detector.process_event(payload)
 
         if identity_evidence:
             for alert in alerts:
@@ -238,6 +378,8 @@ def process_sqs_message(
 
         detector.save_state(state_path)
         state_persisted = True
+        if not is_replay:
+            _record_ledger_event(state_path, ledger_identity)
 
         sqs_client.delete_message(
             QueueUrl=queue_url,
@@ -269,7 +411,7 @@ def build_sqs_client():
     )
 
 
-def run_consumer(
+def _run_consumer_unlocked(
     queue_url: str,
     state_path: Path,
     alert_path: Path,
@@ -346,6 +488,25 @@ def run_consumer(
 
         if once:
             break
+
+
+def run_consumer(
+    queue_url: str,
+    state_path: Path,
+    alert_path: Path,
+    *,
+    once: bool = False,
+    alert_queue_url: str | None = None,
+) -> None:
+    """Run the consumer while holding the project-wide process lock."""
+    with consumer_process_lock():
+        _run_consumer_unlocked(
+            queue_url,
+            state_path,
+            alert_path,
+            once=once,
+            alert_queue_url=alert_queue_url,
+        )
 
 
 def main() -> None:

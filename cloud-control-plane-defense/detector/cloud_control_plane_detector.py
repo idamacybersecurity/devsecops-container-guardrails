@@ -386,6 +386,7 @@ class CloudControlPlaneDetector:
             self._approved_changes[role_arn] = frozenset(events)
         self.approved_change_log: deque[dict[str, str]] = deque(maxlen=1000)
         self._ambiguous_sessions: dict[str, set[str]] = {}
+        self._ambiguous_session_truncated: set[str] = set()
         self._fingerprints: dict[str, str] = {}
 
         self._seen_ids: set[str] = set()
@@ -397,6 +398,8 @@ class CloudControlPlaneDetector:
         # Maps each assumed-role session to the original caller ARN.
         # Kept separate to preserve the existing role_sessions state format.
         self._role_origins: dict[str, str] = {}
+        self._role_session_order: deque[str] = deque()
+        self._ambiguous_session_order: deque[str] = deque()
 
         # Sliding window keyed by caller ARN.
         self._secret_reads: dict[
@@ -420,6 +423,14 @@ class CloudControlPlaneDetector:
             "seen_event_ids": list(self._seen_order),
             "role_sessions": self._role_sessions,
             "role_origins": self._role_origins,
+            "ambiguous_sessions": {
+                session_arn: sorted(principals)
+                for session_arn, principals
+                in self._ambiguous_sessions.items()
+            },
+            "ambiguous_session_truncated": sorted(
+                self._ambiguous_session_truncated
+            ),
             "secret_reads": {
                 principal: [
                     [timestamp.isoformat(), resource]
@@ -487,6 +498,10 @@ class CloudControlPlaneDetector:
         seen_ids = state.get("seen_event_ids")
         role_sessions = state.get("role_sessions")
         role_origins = state.get("role_origins", {})
+        ambiguous_sessions = state.get("ambiguous_sessions", {})
+        ambiguous_truncated = state.get(
+            "ambiguous_session_truncated", []
+        )
         secret_reads = state.get("secret_reads")
         alerted_at = state.get("enumeration_alerted_at")
 
@@ -503,6 +518,8 @@ class CloudControlPlaneDetector:
             for key, value in role_sessions.items()
         ):
             raise ValueError("Invalid role_sessions in detector state")
+        if len(role_sessions) > self.deduplication_limit:
+            raise ValueError("role_sessions exceeds deduplication limit")
         if not isinstance(role_origins, dict) or not all(
             isinstance(session_arn, str)
             and isinstance(origin_arn, str)
@@ -511,6 +528,40 @@ class CloudControlPlaneDetector:
             for session_arn, origin_arn in role_origins.items()
         ):
             raise ValueError("Invalid role_origins in detector state")
+        if len(role_origins) > self.deduplication_limit:
+            raise ValueError("role_origins exceeds deduplication limit")
+        if not set(role_origins).issubset(role_sessions):
+            raise ValueError("role_origins contains orphaned sessions")
+        if (
+            not isinstance(ambiguous_sessions, dict)
+            or len(ambiguous_sessions) > self.deduplication_limit
+            or not all(
+                isinstance(session_arn, str)
+                and bool(session_arn)
+                and isinstance(principals, list)
+                and 2 <= len(principals) <= 32
+                and all(
+                    isinstance(principal, str) and bool(principal)
+                    for principal in principals
+                )
+                and len(principals) == len(set(principals))
+                for session_arn, principals in ambiguous_sessions.items()
+            )
+        ):
+            raise ValueError("Invalid ambiguous_sessions in detector state")
+        if (
+            not isinstance(ambiguous_truncated, list)
+            or len(ambiguous_truncated) > self.deduplication_limit
+            or not all(
+                isinstance(session_arn, str)
+                and session_arn in ambiguous_sessions
+                for session_arn in ambiguous_truncated
+            )
+            or len(ambiguous_truncated) != len(set(ambiguous_truncated))
+        ):
+            raise ValueError(
+                "Invalid ambiguous_session_truncated in detector state"
+            )
         if not isinstance(secret_reads, dict):
             raise ValueError("Invalid secret_reads in detector state")
         if not isinstance(alerted_at, dict):
@@ -550,6 +601,13 @@ class CloudControlPlaneDetector:
         self._seen_ids = set(seen_ids)
         self._role_sessions = role_sessions
         self._role_origins = role_origins
+        self._role_session_order = deque(role_sessions)
+        self._ambiguous_sessions = {
+            session_arn: set(principals)
+            for session_arn, principals in ambiguous_sessions.items()
+        }
+        self._ambiguous_session_order = deque(ambiguous_sessions)
+        self._ambiguous_session_truncated = set(ambiguous_truncated)
         self._secret_reads = defaultdict(list, restored_reads)
         self._enumeration_alerted_at = restored_alerted_at
 
@@ -605,6 +663,39 @@ class CloudControlPlaneDetector:
             "metadata": redact_sensitive(metadata),
         }
 
+    def _remember_role_session(
+        self, assumed_arn: str, chain: list[str], origin_arn: str
+    ) -> None:
+        if assumed_arn not in self._role_sessions:
+            self._role_session_order.append(assumed_arn)
+
+        self._role_sessions[assumed_arn] = chain
+        self._role_origins[assumed_arn] = origin_arn
+
+        while len(self._role_session_order) > self.deduplication_limit:
+            expired = self._role_session_order.popleft()
+            self._role_sessions.pop(expired, None)
+            self._role_origins.pop(expired, None)
+
+    def _remember_ambiguous_session(
+        self, assumed_arn: str, previous_origin: str, origin_arn: str
+    ) -> None:
+        if assumed_arn not in self._ambiguous_sessions:
+            self._ambiguous_session_order.append(assumed_arn)
+            self._ambiguous_sessions[assumed_arn] = {previous_origin}
+
+        candidates = self._ambiguous_sessions[assumed_arn]
+        if origin_arn not in candidates:
+            if len(candidates) < 32:
+                candidates.add(origin_arn)
+            else:
+                self._ambiguous_session_truncated.add(assumed_arn)
+
+        while len(self._ambiguous_session_order) > self.deduplication_limit:
+            expired = self._ambiguous_session_order.popleft()
+            self._ambiguous_sessions.pop(expired, None)
+            self._ambiguous_session_truncated.discard(expired)
+
     def _track_assume_role(
         self, event: ParsedEvent
     ) -> list[dict[str, Any]]:
@@ -635,12 +726,13 @@ class CloudControlPlaneDetector:
         )
         previous_origin = self._role_origins.get(assumed_arn)
         if previous_origin is not None and previous_origin != origin_arn:
-            self._ambiguous_sessions.setdefault(
-                assumed_arn, {previous_origin}
-            ).add(origin_arn)
+            self._remember_ambiguous_session(
+                assumed_arn, previous_origin, origin_arn
+            )
         else:
-            self._role_sessions[assumed_arn] = chain
-            self._role_origins[assumed_arn] = origin_arn
+            self._remember_role_session(
+                assumed_arn, chain, origin_arn
+            )
 
         alerts = [
             self._alert(
@@ -797,6 +889,9 @@ class CloudControlPlaneDetector:
                 escalation_alert["metadata"]["candidate_principals"] = sorted(
                     ambiguous
                 )
+                escalation_alert["metadata"][
+                    "candidate_principals_truncated"
+                ] = event.caller_arn in self._ambiguous_session_truncated
             alerts.append(escalation_alert)
 
         expected_source = DEFENSE_EVASION_EVENT_SOURCES.get(event.event_name)

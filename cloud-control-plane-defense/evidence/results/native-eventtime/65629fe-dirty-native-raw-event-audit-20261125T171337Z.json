@@ -1,0 +1,492 @@
+{
+  "metric": "CloudTrail eventTime to independently verified quarantine",
+  "attack": "kms:DisableKeyRotation by disposable IAM user",
+  "attacker_key_probe": "KMS DescribeKey using the attacker's credentials, with a successful pre-attack baseline and probes approximately every 100ms until a recognized denial or five seconds after verified quarantine. IAM authorization denial and credential authentication denial are recorded separately.",
+  "cleanup_skipped_users": [],
+  "endpoint": "http://127.0.0.1:4566",
+  "git_sha": "65629feae88cbb77d796a160160aa3fe949a851a",
+  "modified_tracked_files": [
+    "cloud-control-plane-defense/detector/cloud_control_plane_detector.py",
+    "cloud-control-plane-defense/detector/sqs_consumer.py",
+    "cloud-control-plane-defense/scripts/auto_soar_watcher.py",
+    "cloud-control-plane-defense/scripts/benchmark_native_eventtime.py",
+    "cloud-control-plane-defense/scripts/benchmark_soar_10_runs.py"
+  ],
+  "file_sha256_12": {
+    "scripts/auto_soar_watcher.py": "6335814d7fec",
+    "soar/cloud_soar_responder.py": "c0933acc6571",
+    "detector/sqs_consumer.py": "d5df4530ffc4",
+    "scripts/benchmark_native_eventtime.py": "29e8e7b15fa8"
+  },
+  "watcher_poll_interval_s": 0.05,
+  "localstack": {
+    "version": "2026.11.0:51096c66",
+    "edition": "pro"
+  },
+  "persistence_in_compose": true,
+  "loadavg_at_end": [
+    0.20361328125,
+    0.13818359375,
+    0.1005859375
+  ],
+  "started_utc": "2026-11-25T17:13:32.139369+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "user": "ccpd-nat-d2c7cd44da",
+      "user_arn": "arn:aws:iam::000000000000:user/ccpd-nat-d2c7cd44da",
+      "iam_user_id": "AIDAQAAAAAAAMLJ72DFVL",
+      "localstack_identity_compatibility_enabled": true,
+      "t_call": 1795626812.1393695,
+      "t_call_end": 1795626812.1588798,
+      "attack_call_result": "SUCCESS",
+      "attack_call_error_type": null,
+      "attack_call_error_code": null,
+      "attack_thread_still_running_after_join": false,
+      "authorization_denied": true,
+      "authorization_denial_code": "AccessDeniedException",
+      "authorization_denial_type": "ClientError",
+      "t_authorization_denied": 1795626817.2045887,
+      "authorization_denial_seconds": 5.065219,
+      "credential_authentication_denied": false,
+      "credential_authentication_denial_code": null,
+      "credential_authentication_denial_type": null,
+      "t_credential_authentication_denied": null,
+      "credential_authentication_denial_seconds": null,
+      "authorization_probe_operation": "kms:DescribeKey",
+      "authorization_probe_baseline": "SUCCESS",
+      "authorization_probe_interval_seconds": 0.1,
+      "authorization_probe_samples": 45,
+      "authorization_probe_successes": 44,
+      "authorization_probe_other_error": null,
+      "watcher_exit_code_during_observation": null,
+      "watcher_failed": false,
+      "botocore_api_timings": [
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.061728,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.011934,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "attacker",
+          "service": "kms",
+          "operation": "DisableKeyRotation",
+          "duration_seconds": 0.018038,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.026653,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.012433,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.012935,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009164,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010754,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009851,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008114,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009125,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.00929,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010187,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008757,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008595,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.013551,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010617,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009915,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.012542,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008995,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.007989,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010353,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010168,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009094,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010936,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009805,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.011332,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009004,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.014681,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010666,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010608,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009897,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.012793,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010067,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009213,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009205,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.010971,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009304,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.009315,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008224,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.011196,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008796,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008595,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008907,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008676,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.008842,
+          "http_status": 200,
+          "error_code": null
+        },
+        {
+          "client": "authorization_probe",
+          "service": "kms",
+          "operation": "DescribeKey",
+          "duration_seconds": 0.053334,
+          "http_status": 400,
+          "error_code": "AccessDeniedException"
+        }
+      ],
+      "status": "QUARANTINE_VERIFIED",
+      "timed_out": false,
+      "infrastructure_error": null,
+      "identity_validation_mode": "localstack-compatibility",
+      "identity_normalization_evidence": {
+        "adapter": "localstack-identity-compat-v1",
+        "matched_iam_user_arn": "arn:aws:iam::000000000000:user/ccpd-nat-d2c7cd44da",
+        "normalized_principal_id": "AIDAQAAAAAAAMLJ72DFVL",
+        "normalized_type": "IAMUser",
+        "reported_principal_id": "000000000000",
+        "reported_type": "IAMUser",
+        "source": "LocalStack-only"
+      },
+      "t_event": 1795626812.0,
+      "t_watcher_seen": 1795626812.278237,
+      "t_logged": 1795626812.548683,
+      "responder_event_to_verified_s": 0.548632,
+      "responder_execution_s": 0.26995920698391274,
+      "event_time_inside_call_window": true,
+      "readback": {
+        "deny_policy": true,
+        "session_policy": true,
+        "keys_inactive": true
+      },
+      "t_verified": 1795626812.6005785,
+      "event_to_verified_s": 0.601,
+      "event_to_logged_s": 0.549,
+      "call_to_verified_s": 0.461
+    }
+  ],
+  "summary": {
+    "runs": 1,
+    "verified": 1,
+    "timed_out": 0,
+    "watcher_failures": 0,
+    "infrastructure_errors": 0,
+    "under_1s": 1,
+    "under_1s_of_total": "1/1",
+    "authorization_denied": 1,
+    "authorization_denied_of_total": "1/1",
+    "authorization_denial_mean_s": 5.065219,
+    "authorization_denial_max_s": 5.065219,
+    "credential_authentication_denied": 0,
+    "credential_authentication_denied_of_total": "0/1",
+    "verified_of_total": "1/1",
+    "attack_call_over_5s": 0,
+    "median_s": 0.601,
+    "p90_s": 0.601,
+    "max_s": 0.601
+  }
+}
